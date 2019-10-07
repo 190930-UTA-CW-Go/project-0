@@ -25,7 +25,15 @@ func main(){
 
 	// Row A1 down, but I should consider finding a way to generate the number of rows and filling them automatically
 	// Generated an array for the row index
-	junk := vending.Generate(2, 5)
+	junk := vending.GenerateIndex(2, 5)
 	fmt.Println(junk)
 	fmt.Println(len(junk))
+
+	junk2 := vending.GenerateStock(2, 5, 10)
+	fmt.Println(junk2)
+	fmt.Println(len(junk2))
+
+	junk3 := vending.GenerateBeverage(2, 5)
+	fmt.Println(junk3)
+	fmt.Println(len(junk3))
 }

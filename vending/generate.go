@@ -1,11 +1,12 @@
 package vending
 
 import (
-	//"math"
+	"math/rand"
 	"strconv"
 )
 
-func Generate(rows int, columns int) []string{
+// This function generates the index for each row.
+func GenerateIndex(rows int, columns int) []string{
 	RowIndex := make([]string, rows*columns)
 	count := 0
 	let := 1
@@ -23,6 +24,34 @@ func Generate(rows int, columns int) []string{
 	return RowIndex
 }
 
+// This function incriments the character used for the index
 func toCharStr(i int) string {
 	return string('A' - 1 + i)
+}
+
+func GenerateBeverage(rows int, columns int) []string {
+	BeverageList := make([]string, rows*columns)
+	list := make([]string, 6) 
+	list[0] = "Coke"
+	list[1] = "Diet Coke"
+	list[2] = "Sprite"
+	list[3] = "Water"
+	list[4] = "Mountain Dew"
+	list[5] = "Green Tea"
+
+	for i:=0; i<(rows*columns); i++ {
+		BeverageList[i] = list[rand.Intn(5)]
+	}
+
+	return BeverageList
+}
+
+func GenerateStock(rows int, columns int, max int) []int {
+	StockAmount := make([]int, rows*columns)
+
+	for i:=0; i<(rows*columns); i++ {
+		StockAmount[i] = rand.Intn(max)
+	}
+
+	return StockAmount
 }
