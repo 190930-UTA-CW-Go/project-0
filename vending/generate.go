@@ -5,12 +5,22 @@ import (
 	"strconv"
 )
 
+func GenerateMachine(rows int, columns int, max int) ([]string, []string, []int) {
+
+	Index    := GenerateIndex(rows, columns)
+	Beverage := GenerateBeverage(rows, columns)
+	Stock    := GenerateStock(rows, columns, max)
+	
+	return Index, Beverage, Stock
+
+}
+
 // This function generates the index for each row.
 func GenerateIndex(rows int, columns int) []string{
 	RowIndex := make([]string, rows*columns)
-	count := 0
-	let := 1
-	num := 1
+	count    := 0
+	let      := 1
+	num      := 1
 
 	for i:=0; i<rows; i++ {
 		for n:=0; n<columns; n++ {
