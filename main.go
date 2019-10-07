@@ -24,5 +24,8 @@ func main(){
 	fmt.Println(a1p)
 
 	// Row A1 down, but I should consider finding a way to generate the number of rows and filling them automatically
-
+	// Generated an array for the row index
+	junk := vending.Generate(2, 5)
+	fmt.Println(junk)
+	fmt.Println(len(junk))
 }
