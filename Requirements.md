@@ -14,12 +14,12 @@ A Go CLI program. Update `Readme.md` with a name, a list of implemented and plan
     - [] `testing`
 
 ### Go language features
-- [] primitive data types
-- [] arrays/slices
+- [x] primitive data types
+- [x] arrays/slices
 - [] maps
-- [] struct
-- [] interface
-- [] functions/methods
+- [x] struct
+- [x] interface
+- [x] functions/methods
 - [] unit tests/benchmarks
 
 ### Functionality
