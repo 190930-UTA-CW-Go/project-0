@@ -1,5 +1,7 @@
 # Insert Project Name Here
+Go's Bank
 ## Insert Name Here
+Jorge Inostroza
 Insert project description here.
 
 # User Stories
