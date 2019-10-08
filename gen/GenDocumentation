@@ -1,0 +1,30 @@
+
+package gen // import "github.com/Tony-Moon/project-0/gen"
+
+
+FUNCTIONS
+
+func Generate(rows int, columns int, max int) ([]string, []string, []int)
+    Generate is the main function inside the gen package. Really, Generate
+    should be the only function in the gen package to be called outside of the
+    gen and the gen_test package. Additionally, it should only be called once,
+    at the start of main.go inside the main package.
+
+func MakeBeverage(rows int, columns int) []string
+    MakeBeverage generates a slice that wil tell the database which type of
+    drink goes where.
+
+func MakeIndex(rows int, columns int) []string
+    MakeIndex generates an index key for the database. The key is a letter
+    followed by a number (such as A3). A vending machine can have multiple rows
+    (denoted by the letter) and multiple columns (denoted by the number).
+    main.go in the main package specifies how many rows and columns the vending
+    machine will have. The index will always start at "A1."
+
+func MakeStock(rows int, columns int, max int) []int
+    MakeStock generates a slice that wil tell the database how many of each
+    drink is in the row. It does by creating a random integer between 0 and a
+    maximum specified by main.go in the main package.
+
+func ToCharStr(i int) string
+    ToCharStr increments the letter for each new row.

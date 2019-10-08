@@ -2,7 +2,11 @@ package gen
 
 import "math/rand"
 
-func makeBeverage(rows int, columns int) []string {
+/*
+MakeBeverage generates a slice that wil tell the database which
+type of drink goes where.
+*/
+func MakeBeverage(rows int, columns int) []string {
 	BeverageList := make([]string, rows*columns)
 	list := make([]string, 6)
 	list[0] = "Coke"
