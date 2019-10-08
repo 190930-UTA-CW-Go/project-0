@@ -10,11 +10,15 @@ func main() {
 	fmt.Println("banking system is running")
 	//a := account.New()
 
-	a := account.New("nad", "234", "nadine", "1132", 233.23)
-	a.Summary()
-	a.CreateNewAccount()
+	//a := account.New("mmm", "nad", "234", "nadine", "1132", 233.23)
+	c := account.New1("mimi", "1234")
 
-	a.Withdraw()
-	a.Deposit()
+	c.Register()
+
+	//a.Summary()
+	//a.CreateNewAccount()
+
+	//a.Withdraw()
+	//a.Deposit()
 
 }
