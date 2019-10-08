@@ -4,7 +4,7 @@ Use one of the following project ideas and their base requirements for your own.
 ## Example: The Banking App
 - [] Customers should be able to:
     - [] Register with a username and password
-    - [] Authenticate (login) with that usename and password
+    - [] Authenticate (login) with that username and password
     - [] Apply to open an account
     - [] Apply for joint accounts with other customers
     - [] Withdraw, deposit, and transfer funds between accounts

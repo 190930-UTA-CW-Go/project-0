@@ -1,5 +1,5 @@
-# Insert Project Name Here
-## Insert Name Here
+# Banking App
+## Khang Tran
 Insert project description here.
 
 # User Stories
