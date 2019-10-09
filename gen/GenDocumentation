@@ -10,10 +10,6 @@ func Generate(rows int, columns int, max int) ([]string, []string, []int)
     gen and the gen_test package. Additionally, it should only be called once,
     at the start of main.go inside the main package.
 
-func MakeBeverage(rows int, columns int) []string
-    MakeBeverage generates a slice that wil tell the database which type of
-    drink goes where.
-
 func MakeIndex(rows int, columns int) []string
     MakeIndex generates an index key for the database. The key is a letter
     followed by a number (such as A3). A vending machine can have multiple rows
@@ -21,10 +17,14 @@ func MakeIndex(rows int, columns int) []string
     main.go in the main package specifies how many rows and columns the vending
     machine will have. The index will always start at "A1."
 
+func MakeBeverage(rows int, columns int) []string
+    MakeBeverage generates a slice that wil tell the database which type of
+    drink goes where.
+
+func ToCharStr(i int) string
+    ToCharStr increments the letter for each new row.
+
 func MakeStock(rows int, columns int, max int) []int
     MakeStock generates a slice that wil tell the database how many of each
     drink is in the row. It does by creating a random integer between 0 and a
     maximum specified by main.go in the main package.
-
-func ToCharStr(i int) string
-    ToCharStr increments the letter for each new row.
