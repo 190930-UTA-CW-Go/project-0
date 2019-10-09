@@ -99,7 +99,7 @@ PROJECT 0 ALGORITHIM
 		3: exit
 		
 		guest structure
-            fullName -string
+            fullName -string ? or first + last
             userName -string
             password -password
             balance -float64
