@@ -10,7 +10,7 @@ main.go inside the main package.
 */
 func Generate(rows int, columns int, max int) ([]string, []string, []int) {
 
-	if !(rows <= 0) || (columns <= 0) || (max <= 0) {
+	if !((rows <= 0) || (columns <= 0) || (max <= 0)) {
 		Index := MakeIndex(rows, columns)
 		Beverage := MakeBeverage(rows, columns)
 		Stock := MakeStock(rows, columns, max)
