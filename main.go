@@ -32,7 +32,7 @@ func main() {
 	db.Exec("INSERT INTO customer VALUES (2, 'Ivysaury', 'pAsSwOrdd', 'Ivy', 'Saur', 3400)")
 	//getAll(db)
 
-	var customer1 = guest.NewCustomer("ggarnerdeng", "badpassword", "garnerdeng",
+	var customer1 = guest.NewCustomer("ggarnerdeng", "badpassword", "Garner Deng",
 		99999999.99)
 	fmt.Println(customer1)
 	/*

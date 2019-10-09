@@ -25,8 +25,8 @@ func NewCustomer(userName string, password string,
 func (a Customer) String() string {
 	var output string
 	//t := strconv.Itoa(a.balance)
-	t := fmt.Sprintf("%f", a.balance)
-	output = a.userName + "|" + a.password + "|" + a.name + "|" + t + "\n"
+	t := fmt.Sprintf("%.2f", a.balance)
+	output = a.userName + " | " + a.password + " | " + a.name + " | $" + t + "\n"
 	return output
 }
 
