@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
-import "io"
+import ("fmt"
+ "bufio"
+ "os")
+
 
 func main() {
 
