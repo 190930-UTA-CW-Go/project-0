@@ -17,12 +17,12 @@ func MakeIndex(rows int, columns int) []string
     main.go in the main package specifies how many rows and columns the vending
     machine will have. The index will always start at "A1."
 
+    func ToCharStr(i int) string
+        ToCharStr increments the letter for each new row.
+
 func MakeBeverage(rows int, columns int) []string
     MakeBeverage generates a slice that wil tell the database which type of
     drink goes where.
-
-func ToCharStr(i int) string
-    ToCharStr increments the letter for each new row.
 
 func MakeStock(rows int, columns int, max int) []int
     MakeStock generates a slice that wil tell the database how many of each
