@@ -1,3 +1,3 @@
 FROM postgres
 ADD init.sql /docker-entrypoint-initdb.d
-EXPOSE 5431
+EXPOSE 5432

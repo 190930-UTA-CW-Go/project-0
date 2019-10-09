@@ -107,6 +107,7 @@ PROJECT 0 ALGORITHIM
             hasJointAcc -boolean
             --
             Functions:
+                viewBalance
                 Deposit
                 Withdraw
                 Transfer

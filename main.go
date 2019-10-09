@@ -3,13 +3,16 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"project-0/guest"
+	_ "project-0/guest"
+	_ "strconv"
 
 	_ "github.com/lib/pq"
 )
 
 const (
 	host     = "localhost"
-	port     = 5431
+	port     = 5432
 	user     = "postgres"
 	password = "postgres"
 	dbname   = "postgres"
@@ -27,7 +30,18 @@ func main() {
 	//db.Exec("INSERT INTO pokemon VALUES (6, 'Eeeevee')")
 
 	db.Exec("INSERT INTO customer VALUES (2, 'Ivysaury', 'pAsSwOrdd', 'Ivy', 'Saur', 3400)")
-	getAll(db)
+	//getAll(db)
+
+	var customer1 = guest.NewCustomer("ggarnerdeng", "badpassword", "garnerdeng",
+		99999999.99)
+	fmt.Println(customer1)
+	/*
+		Customer struct {
+			userName string
+			password string
+			name     string
+			balance  int
+		}*/
 }
 
 func ping(db *sql.DB) {
