@@ -11,12 +11,16 @@ import (
 
 func main() {
 	fmt.Println("Welcome to my banking app")
-	cust1 := customer.Customer{"Dio", "Brando", "DIO","ZAWARUDO", 100000.64}
-	cust2 := customer.Customer{"Jotaro", "Kujo", "JOJO","Star Platinum", 100.00}
-	cust3 := customer.Customer{"Ren", "Amamiya", "persona","Joker", 2000.25}
-	cust4 := customer.Customer{"Peter", "Peng", "NAMVP","Doublelift", 50000.50}
-	cust5 := customer.Customer{"Zachary", "Scuderi", "C9Poggers","C9Sneaky", 100000.64}
-	cust6 := customer.Customer{"Mikey", "Xiong", "Leeshalove","Ideals", 7500.25}
+	var  custArr []customer.Customers 
+	//var arr [] customer.Customer
+	cust1 := customer.Customers{"Dio", "Brando", "DIO","ZAWARUDO", 100000.64}
+	cust2 := customer.Customers{"Jotaro", "Kujo", "JOJO","Star Platinum", 100.00}
+	cust3 := customer.Customers{"Ren", "Amamiya", "persona","Joker", 2000.25}
+	cust4 := customer.Customers{"Peter", "Peng", "NAMVP","Doublelift", 50000.50}
+	cust5 := customer.Customers{"Zachary", "Scuderi", "C9Poggers","C9Sneaky", 100000.64}
+	cust6 := customer.Customers{"Mikey", "Xiong", "Leeshalove","Ideals", 7500.25}
+	custArr = append(custArr, cust1, cust2, cust3, cust4, cust5, cust6)
+	fmt.Println(custArr)
 
 	cust1.Withdraw(1000000)
 	fmt.Println(cust1.Amount())
@@ -51,28 +55,8 @@ func main() {
 	// 	fmt.Println("Please enter a password")
 	// 	password, _:= reader.ReadString('\n')
 	// 	fmt.Println("Your username is:" + username, "Your password is: " + password)
-		
 	// }	else{
 	// 	obj = "employee"
 	// 	fmt.Println("You are an " + obj)
 	// }
-	
-
-	// var persona = customer.Customer{
-	// 	Firstname: "Ren",
-	// 	Lastname: "Amaiya",
-	// 	Password: "1234",
-	// 	Username: "Joker",
-	// 	Balance: 1000.50,
-	// }
-	// fmt.Println(persona)
-
-	// var sum int = 0
-	// for i :=0; i<5; i++{
-	// 	sum += i
-	// 	if sum > 0{
-	// 		fmt.Println(sum)
-	// 	}
-	// }
-	// fmt.Println(sum)
 }

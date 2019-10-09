@@ -15,20 +15,20 @@ package customer
     // 	Lang  string
 	// }	
 	
-	type Customer struct{
+	type Customers struct{
 		Firstname, Lastname, Password, Username string
 		Balance float64
 	}
 
-	func CreateCustomer(fname string, lname string, pw string, usrnm string, balance float64) Customer{
-		return Customer{fname, lname, pw, usrnm, balance} 
+	func CreateCustomer(fname string, lname string, pw string, usrnm string, balance float64) Customers{
+		return Customers{fname, lname, pw, usrnm, balance} 
 	}
 
-	func (c *Customer) Amount() float64{
+	func (c *Customers) Amount() float64{
 		return c.Balance
 	}
 
-	func (c *Customer) Withdraw(i float64) {
+	func (c *Customers) Withdraw(i float64) {
 		if c.Balance < i{
 			fmt.Println("Can't withdraw over 0")
 		}else{
