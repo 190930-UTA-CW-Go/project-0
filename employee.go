@@ -1,15 +1,13 @@
 package main
 
 import(
-	"github.com/project-0/Customer"
 	"fmt"
 )
 
-type Employee struct {
-	name String
-}
+// type Employee struct {
+// 	customerlist []customer.Customers
+// }
+// func(c *customer.Customers) add(customer1 customer.Customers){
 
-func test(employee Employee){
-	fmt.Println("Employee is: ", Employee.name)
-}
+// }
 

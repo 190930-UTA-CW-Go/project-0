@@ -21,6 +21,7 @@ func main() {
 	cust6 := customer.Customers{"Mikey", "Xiong", "Leeshalove","Ideals", 7500.25}
 	custArr = append(custArr, cust1, cust2, cust3, cust4, cust5, cust6)
 
+
 	fmt.Println(custArr)
 
 	cust1.Deposit(500)
