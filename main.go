@@ -20,9 +20,10 @@ func main() {
 	cust5 := customer.Customers{"Zachary", "Scuderi", "C9Poggers","C9Sneaky", 100000.64}
 	cust6 := customer.Customers{"Mikey", "Xiong", "Leeshalove","Ideals", 7500.25}
 	custArr = append(custArr, cust1, cust2, cust3, cust4, cust5, cust6)
+
 	fmt.Println(custArr)
 
-	cust1.Withdraw(1000000)
+	cust1.Deposit(500)
 	fmt.Println(cust1.Amount())
 	// var tagList []customer.Customer
 	// results := []customer.Customer{customer.Customer{Firstname: "Jeff", Lastname: "Bogard", Password: "1234", Username: "Jefe", Balance:1000.64}}

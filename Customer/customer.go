@@ -35,3 +35,6 @@ package customer
 			c.Balance -= i
 		}
 	}
+	func (c *Customers) Deposit(i float64){
+		c.Balance += i
+	}
