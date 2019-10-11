@@ -7,7 +7,6 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/Tony-Moon/project-0/db"
 	"github.com/Tony-Moon/project-0/gen"
 )
 
@@ -30,6 +29,11 @@ func main() {
 		panic(err)
 	}
 
-	gen.Generate(data, 5, 5, 10)
-	db.List(data)
+	r := gen.Generate(data, 5, 5, 10)
+	if r == true {
+		fmt.Println("Generate returned true")
+	} else {
+		fmt.Println("Generate returned false")
+	}
+	// db.ListDrinks(data)
 }

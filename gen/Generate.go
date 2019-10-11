@@ -23,11 +23,15 @@ func Generate(db *sql.DB, rows int, columns int, max int) bool {
 		fmt.Println("Error! Could not generate machine.")
 		fmt.Println("One or more field has been left blank or made less than 1.")
 	} else {
-		index := MakeIndex(rows, columns)
-		beverage := MakeBeverage(rows, columns)
-		stock := MakeStock(rows, columns, max)
-		WriteTo(db, index, beverage, stock)
-		r = true
+		// index := MakeIndex(rows, columns)
+		beverage := MakeBeverage(db, rows, columns)
+		// stock := MakeStock(rows, columns, max)
+		// WriteTo(db, index, beverage, stock)
+		if beverage != nil {
+			r = true
+		} else {
+			r = false
+		}
 	}
 	return r
 }
