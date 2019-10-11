@@ -25,41 +25,41 @@ func main() {
 		panic(err)
 	}
 
-	// Menu
+	//Main Menu
+	menu(db)
+
+}
+
+// Interactive text menu
+//param1 = database
+func menu(db *sql.DB) {
 	var input string
+
+Top:
 	fmt.Println("Welcome!")
 	fmt.Println("1) Login Returning Customer")
 	fmt.Println("2) Sign Up New Customer")
 	fmt.Println("3) Employee Only")
+	fmt.Println("4) Exit")
 	fmt.Print(": ")
 	fmt.Scan(&input)
 	fmt.Println()
 
 	if input == "1" {
-		var email string
-		var pass string
-		fmt.Print("Login: ")
-		fmt.Scan(&email)
-		fmt.Print("Password: ")
-		fmt.Scan(&pass)
-
-		if authenticate(db, "customer", email, pass) == true {
-			fmt.Println("Successfully logged in!")
-		} else {
-			fmt.Println("Incorrect password")
-		}
+		authenticate(db, "customer")
 	} else if input == "2" {
 		addTable(db, "customer")
 
 	} else if input == "3" {
-
+		authenticate(db, "employee")
+	} else if input == "4" {
+		fmt.Println("Bye")
 	} else {
-		fmt.Println("Sorry invalid input")
+		goto Top
 	}
 
-	printTable(db, "customer")
-	fmt.Println()
-	//printTable(db, "employee")
+	//printTable(db, "customer")
+	//fmt.Println()
 }
 
 // Insert new data to table
@@ -115,14 +115,20 @@ func printTable(db *sql.DB, who string) {
 	}
 }
 
-// Check if email matches the password in database and return bool
+// Authenticate login and password input
 // param1 = database
 // param2 = identify either "customer" or "employee"
-// param3 = supposed email
-// param4 = supposed password
-func authenticate(db *sql.DB, who string, email string, pass string) bool {
-	sqlStatement := ``
+func authenticate(db *sql.DB, who string) {
+	var email string
+	var pass string
+Top:
+	fmt.Print("Login: ")
+	fmt.Scan(&email)
+	fmt.Print("Password: ")
+	fmt.Scan(&pass)
+	fmt.Println()
 
+	sqlStatement := ``
 	if who == "customer" {
 		sqlStatement = `select pass from customer where email=$1`
 	} else {
@@ -134,7 +140,36 @@ func authenticate(db *sql.DB, who string, email string, pass string) bool {
 	row.Scan(&hold)
 
 	if pass == hold {
-		return true
+		fmt.Println("Login Successful")
+		if who == "customer" {
+			customerMenu()
+		} else {
+			employeeMenu()
+		}
+	} else {
+		var input string
+		fmt.Println("Incorrect Credentials")
+		fmt.Println("1) Retry")
+		fmt.Println("2) Go to Menu")
+		fmt.Print(": ")
+		fmt.Scan(&input)
+		fmt.Println()
+
+		if input == "1" {
+			goto Top
+		} else if input == "2" {
+			menu(db)
+		} else {
+			fmt.Println("Invalid input going to Menu")
+			menu(db)
+		}
 	}
-	return false
+}
+
+func customerMenu() {
+	fmt.Println("Inside customerMenu()")
+}
+
+func employeeMenu() {
+	fmt.Println("Inside employeeMenu()")
 }
