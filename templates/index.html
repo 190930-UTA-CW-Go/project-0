@@ -7,7 +7,7 @@
 <a href="/register">Register</a>
 <br>
 <br>
-Login:
+Customer Login:
 <br>
    <form method="POST" action="/login">
         <label>Username:</label><br />
@@ -15,7 +15,18 @@ Login:
         <label>Password:</label><br />
         <input type="password" name="pw"><br>
         <br>
-        <input type="submit" value="log in">
+        <input type="submit" value="Login">
+    </form>
+    <br><br><br>
+    Employee Login:
+<br>
+   <form method="POST" action="/employeelogin">
+        <label>Username:</label><br />
+        <input type="text" name="name"><br>
+        <label>Password:</label><br />
+        <input type="password" name="pw"><br>
+        <br>
+        <input type="submit" value="Login">
     </form>
 
 </body>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<head>
+<title>
+</title>
+
+<body>
+    <h2>Account Holders</h2>
+    <br><br>
+    <table border="1">
+   <tr>
+        <th>User name</th>
+        <th>Checking</th>
+        <th>Savings</th>
+   </tr>
+   {{ range .Ac }}
+   <tr>
+        <td>{{ .Username }}</td>
+        <td>${{ .Checking }}</td>
+        <td>${{ .Savings }}</td>
+   </tr>
+   {{ end }}
+   </table>
+</body>
+</html>
+

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<head>
+<title>
+</title>
+
+<body>
+   <h2> Applicants </h2>
+   <br><br>	
+   <table border="1">
+   <tr>
+	<th>User name</th>
+	<th>First name</th>
+	<th>Last name</th>
+	<th>Address</th>
+	<th>Phone</th>
+   </tr>
+   {{ range .Ap }}
+   <tr>
+	<td>{{ .Username }}</td>
+	<td>{{ .Firstname }}</td>
+	<td>{{ .Lastname }}</td>
+	<td>{{ .Address }}</td>
+	<td>{{ .Phone }}</td>
+   </tr>
+   {{ end }}
+   </table>
+    <br>
+    <br>
+    <form action="process" method="POST">
+	<label>Username:</label><br>
+	<select name="choice">
+		{{ range .Ap}}
+		<option value="{{ .Username }}">{{ .Username }}</option>
+		{{ end }}
+	</select>
+	<br>
+	<input type="radio" name="action" value="approve" checked>
+	<label>Approve</label><br>
+	<input type="radio" name="action" value="deny">
+        <label>Deny<lable><br>
+	<input type="submit" value="submit">
+     </form>
+     <br><br><br>
+     <a href="/viewaccounts">View Account Holders</a>
+</body>
+</html>
+
+
