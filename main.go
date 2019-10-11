@@ -7,6 +7,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// Global variable for database
+var db *sql.DB
+
 const (
 	host     = "localhost"
 	port     = 5432
@@ -17,21 +20,21 @@ const (
 
 func main() {
 	// Connect to database
+	var err error
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
-	db, err := sql.Open("postgres", datasource)
+	db, err = sql.Open("postgres", datasource)
 	defer db.Close()
 	if err != nil {
 		panic(err)
 	}
 
 	//Main Menu
-	menu(db)
+	menu()
 }
 
-// Interactive text menu
-//param1 = database
-func menu(db *sql.DB) {
+// Interactive Text Menu
+func menu() {
 	var input string
 
 Top:
@@ -46,25 +49,21 @@ Top:
 
 	switch input {
 	case "1":
-		authenticate(db, "customer")
+		authenticate("customer")
 	case "2":
-		addTable(db, "customer")
+		addTable("customer")
 	case "3":
-		authenticate(db, "employee")
+		authenticate("employee")
 	case "4":
 		fmt.Println("Bye")
 	default:
 		goto Top
 	}
-
-	//printTable(db, "customer")
-	//fmt.Println()
 }
 
 // Insert new data to table
-// param1 = database
-// param2 = identify either "customer" or "employee"
-func addTable(db *sql.DB, who string) {
+// param1 = identify either "customer" or "employee"
+func addTable(who string) {
 	var email, pass, first, last string
 	fmt.Print("Insert Email: ")
 	fmt.Scan(&email)
@@ -93,9 +92,8 @@ func addTable(db *sql.DB, who string) {
 }
 
 // Prints table
-// param1 = database
-// param2 = identify either "customer" or "employee"
-func printTable(db *sql.DB, who string) {
+// param1 = identify either "customer" or "employee"
+func printTable(who string) {
 	sqlStatement := ``
 	if who == "customer" {
 		sqlStatement = `select * from customer`
@@ -115,9 +113,8 @@ func printTable(db *sql.DB, who string) {
 }
 
 // Authenticate login and password input
-// param1 = database
-// param2 = identify either "customer" or "employee"
-func authenticate(db *sql.DB, who string) {
+// param1 = identify either "customer" or "employee"
+func authenticate(who string) {
 	var email string
 	var pass string
 Top:
@@ -158,10 +155,10 @@ Top:
 		case "1":
 			goto Top
 		case "2":
-			menu(db)
+			menu()
 		case "3":
 			fmt.Println("Invalid input going to Menu")
-			menu(db)
+			menu()
 		}
 	}
 }
@@ -187,5 +184,21 @@ func customerMenu() {
 }
 
 func employeeMenu() {
-	fmt.Println("Inside employeeMenu()")
+	var input string
+	fmt.Println("1) Print Customer Table")
+	fmt.Println("2) Print Employee Table")
+	fmt.Println("3) Add New Employee")
+	fmt.Print(": ")
+	fmt.Scan(&input)
+
+	switch input {
+	case "1":
+		printTable("customer")
+	case "2":
+		printTable("employee")
+	case "3":
+		//
+	default:
+		//
+	}
 }
