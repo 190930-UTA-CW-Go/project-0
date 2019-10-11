@@ -27,7 +27,6 @@ func main() {
 
 	//Main Menu
 	menu(db)
-
 }
 
 // Interactive text menu
@@ -45,16 +44,16 @@ Top:
 	fmt.Scan(&input)
 	fmt.Println()
 
-	if input == "1" {
+	switch input {
+	case "1":
 		authenticate(db, "customer")
-	} else if input == "2" {
+	case "2":
 		addTable(db, "customer")
-
-	} else if input == "3" {
+	case "3":
 		authenticate(db, "employee")
-	} else if input == "4" {
+	case "4":
 		fmt.Println("Bye")
-	} else {
+	default:
 		goto Top
 	}
 
@@ -155,11 +154,12 @@ Top:
 		fmt.Scan(&input)
 		fmt.Println()
 
-		if input == "1" {
+		switch input {
+		case "1":
 			goto Top
-		} else if input == "2" {
+		case "2":
 			menu(db)
-		} else {
+		case "3":
 			fmt.Println("Invalid input going to Menu")
 			menu(db)
 		}
@@ -167,7 +167,23 @@ Top:
 }
 
 func customerMenu() {
-	fmt.Println("Inside customerMenu()")
+	var input string
+	fmt.Println("1) View Accounts")
+	fmt.Println("2) Open New Account")
+	fmt.Println("3) Join Accoun")
+	fmt.Print(": ")
+	fmt.Scan(&input)
+
+	switch input {
+	case "1":
+		fmt.Println("ahhh")
+	case "2":
+		fmt.Println("ooooo")
+	case "3":
+		fmt.Println("weeee")
+	default:
+		fmt.Println("dead")
+	}
 }
 
 func employeeMenu() {
