@@ -9,7 +9,7 @@ A Go CLI program. Update `Readme.md` with a name, a list of implemented and plan
     - [] `io`
     - [] `os`
     - [] `flag`
-    - [] `log`
+    - [x] `log`
     - [] `http`
     - [x] `testing`
 

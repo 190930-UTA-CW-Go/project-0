@@ -9,6 +9,6 @@ func WriteTo(db *sql.DB, index []string, beverage []string, stock []int) {
 		be := beverage[i]
 		st := stock[i]
 
-		db.Exec("INSERT INTO machine (%d, %s, %d)", in, be, st)
+		db.Exec("INSERT INTO machine VALUES (%d, %s, %d)", in, be, st)
 	}
 }
