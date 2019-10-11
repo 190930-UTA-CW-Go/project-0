@@ -2,10 +2,8 @@ package main
 
 import (
 	_ "bufio"
-	_ "encoding/gob"
 	"fmt"
 	_ "os"
-	_ "strings"
 )
 
 func main() {
@@ -19,15 +17,25 @@ func main() {
 	cust5 := customers{"Zachary", "Scuderi", "C9Poggers", "C9Sneaky", 100000.64}
 	cust6 := customers{"Mikey", "Xiong", "Leeshalove", "Ideals", 7500.25}
 	custArr = append(custArr, cust1, cust2, cust3, cust4, cust5, cust6)
-	employ1 := employee{}
 
-	employ1.add(cust1)
-	employ1.List()
-	cust1.Amount()
-	fmt.Println(custArr)
+	//needed to look at how objects are being stored in employee
+	// employ := employee{custArr}
+	// employ.List()
 
-	cust1.Deposit(500)
-	fmt.Println(cust1.Amount())
+	// testing register function
+	// newcust := newcustomer{}
+	// newcust.Register()
+
+	//testing addcustomer() function
+	cust1.addCustomer()
+
+	//cust1.add(cust2)
+	//fmt.Println(cust1.Amount())
+	// cust1.Amount()
+	// fmt.Println(custArr)
+
+	// cust1.Deposit(500)
+	// fmt.Println(cust1.Amount())
 	// var tagList []customer.Customer
 	// results := []customer.Customer{customer.Customer{Firstname: "Jeff", Lastname: "Bogard", Password: "1234", Username: "Jefe", Balance:1000.64}}
 	// for _, details := range results{
@@ -35,20 +43,6 @@ func main() {
 	// 		 Password: details.Password, Username: details.Username, Balance: details.Balance})
 	// 	}
 	// 	fmt.Println("Customers: ", tagList)
-
-	// //create a file
-	// dataFile, err := os.Create("Customer.gob")
-
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	os.Exit(1)
-	// }
-
-	// // serialize the data
-	// dataEncoder := gob.NewEncoder(dataFile)
-	// dataEncoder.Encode(results)
-	// fmt.Println("inside datafile", results)
-	// dataFile.Close()
 
 	// reader := bufio.NewReader(os.Stdin)
 	// fmt.Println("Are you a customer or employee?")
