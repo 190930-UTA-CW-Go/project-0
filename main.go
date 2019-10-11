@@ -21,6 +21,13 @@ type Users struct {
     Username string
     Password string
 }
+type Applications struct {
+    Firstname string
+    Lastname string
+    Address string
+    Phone  string
+}
+var currentUser string = "-1"
 func index(response http.ResponseWriter, request *http.Request){
      temp, _ := template.ParseFiles("templates/index.html")
      temp.Execute(response,nil)	
@@ -79,6 +86,7 @@ func login(response http.ResponseWriter, request *http.Request){
                 temp.Execute(response,nil)
                 return
 	}
+	currentUser = user.Username
 	status = getStatus(db,user.Username)
 	if status == "notapplied"{
 		db.Close()
@@ -88,6 +96,23 @@ func login(response http.ResponseWriter, request *http.Request){
 	}
 	defer db.Close()
         temp.Execute(response,user)
+}
+func apply(response http.ResponseWriter, request *http.Request){
+        db := connect()
+	var query string
+        temp, _ := template.ParseFiles("templates/apply.html")
+	statement := "UPDATE users SET status=$1 WHERE username=$2"
+	db.Exec(statement,"pending",currentUser)
+	ap := Applications{}
+	ap.Firstname =  request.FormValue("first")
+        ap.Lastname = request.FormValue("last")
+	ap.Address =  request.FormValue("address")
+        ap.Phone = request.FormValue("phone")
+	query = "INSERT INTO applications (username, firstname, lastname, address, phone)"
+        query += " VALUES ($1, $2, $3, $4, $5)"
+        db.QueryRow(query, currentUser, ap.Firstname, ap.Lastname, ap.Address, ap.Phone)	
+	defer db.Close()
+	temp.Execute(response,ap)
 }
 func uniqueName(db *sql.DB, name string) bool {
 	rows, _ := db.Query("select username from users")
@@ -131,6 +156,7 @@ func main() {
      http.HandleFunc("/register",register)
      http.HandleFunc("/confirm",confirm)
      http.HandleFunc("/login",login)
+     http.HandleFunc("/apply",apply)
      http.ListenAndServe(":7000",nil)
 }
 
