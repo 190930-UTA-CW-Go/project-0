@@ -1,7 +1,5 @@
 package gen
 
-import "math/rand"
-
 /*
 MakeStock generates a slice that wil tell the database how many
 of each drink is in the row. It does by creating a random integer
@@ -11,7 +9,7 @@ func MakeStock(rows int, columns int, max int) []int {
 	StockAmount := make([]int, rows*columns)
 
 	for i := 0; i < (rows * columns); i++ {
-		StockAmount[i] = rand.Intn(max)
+		StockAmount[i] = UseSeed(0, max)
 	}
 
 	return StockAmount

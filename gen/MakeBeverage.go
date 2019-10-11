@@ -3,7 +3,6 @@ package gen
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 )
 
 /*
@@ -15,8 +14,8 @@ func MakeBeverage(db *sql.DB, rows int, columns int) []string {
 	tablerows, _ := db.Query("SELECT * FROM drinklist")
 	list := make([]string, 11)
 
-	brand := MakeSeed(0, 2)
-	var id, sta, sto, x, i int
+	brand := UseSeed(0, 2)
+	var id, x, i, sta, sto int
 	var name, tablebrand string
 	var prob float64
 
@@ -33,16 +32,18 @@ func MakeBeverage(db *sql.DB, rows int, columns int) []string {
 	sto = sta + 10
 
 	x = 0
-	fmt.Println(strconv.Itoa(sta))
-	for i = sta; i < sto; i++ {
+	i = 0
+	for tablerows.Next() {
 		tablerows.Scan(&id, &name, &tablebrand, &prob)
-		fmt.Println(name)
-		list[x] = name
+		if (x >= sta) && (x <= sto) {
+			list[i] = name
+			i++
+		}
 		x++
 	}
 
 	for i = range BeverageList {
-		switch x = MakeSeed(0, 35); {
+		switch x = UseSeed(0, 35); {
 		case x == 0:
 			BeverageList[i] = list[10]
 		case x <= 2:
@@ -67,6 +68,6 @@ func MakeBeverage(db *sql.DB, rows int, columns int) []string {
 			BeverageList[i] = list[0]
 		}
 	}
-	fmt.Println(list)
+	fmt.Println(BeverageList)
 	return BeverageList
 }
