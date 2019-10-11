@@ -1,6 +1,9 @@
 package gen
 
-import "fmt"
+import (
+	"database/sql"
+	"fmt"
+)
 
 /*
 Generate is the main function inside the gen package. Really, Generate should
@@ -14,7 +17,7 @@ into the database table. Finally, Generate has a catch if it is sent a zero or
 less. It does not make sense to have a vending machine with zero rows or zero
 stock capacity.
 */
-func Generate(rows int, columns int, max int) int {
+func Generate(db *sql.DB, rows int, columns int, max int) int {
 	r := 0
 	if (rows <= 0) || (columns <= 0) || (max <= 0) {
 		fmt.Println("Error! Could not generate machine.")
@@ -23,8 +26,25 @@ func Generate(rows int, columns int, max int) int {
 		index := MakeIndex(rows, columns)
 		beverage := MakeBeverage(rows, columns)
 		stock := MakeStock(rows, columns, max)
-		WriteTo(index, beverage, stock)
+		WriteTo(db, index, beverage, stock)
 		r = 1
 	}
 	return r
 }
+
+// package gen
+
+// import (
+// 	"testing"
+// )
+
+// func TestGenerate(t *testing.T) {
+// 	for c := 0; c < 3; c++ {
+// 		r := Generate(c, c-1, c-2)
+// 		if r == 1 {
+// 			t.Errorf("Generate was passed 0(s) and slices were created.")
+// 		} else {
+// 			t.Log("Generate catches normally")
+// 		}
+// 	}
+// }
