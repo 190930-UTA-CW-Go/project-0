@@ -1,8 +1,15 @@
+# gen
+Welcome to the technical documentation of the gen package.
+The purpose of the gen package is to generate a new vending machine.
+The information pertaining to the vending machine is stored in the database table **machine**.
+Each time the main function is run, gen should be called to create a new machine.
+To get this to work properly, gen should first erase all data in the machine table.
+Then, gen generates new data and writes it to the machine table.
 
-package gen // import "github.com/Tony-Moon/project-0/gen"
+>package gen // import "github.com/Tony-Moon/project-0/gen"
 
 
-FUNCTIONS
+## Functions in gen
 
 >func Generate(rows int, columns int, max int) ([]string, []string, []int)
     Generate is the main function inside the gen package. Really, Generate should
