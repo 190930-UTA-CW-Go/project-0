@@ -60,6 +60,35 @@ func confirm(response http.ResponseWriter, request *http.Request){
 	defer db.Close()
 	temp.Execute(response,user)
 }
+func login(response http.ResponseWriter, request *http.Request){
+        db := connect()
+        temp, _ := template.ParseFiles("templates/login.html")
+	var status string
+	user := Users{}
+        user.Username =  request.FormValue("name")
+        user.Password = request.FormValue("pw")
+	if uniqueName(db, user.Username)==true{
+		db.Close()
+                temp, _ := template.ParseFiles("templates/namenotfound.html")
+                temp.Execute(response,nil)
+		return
+	}
+	if passwordMatches(db,user.Username, user.Password)==false {
+		db.Close()
+                temp, _ := template.ParseFiles("templates/pwnotmatch.html")
+                temp.Execute(response,nil)
+                return
+	}
+	status = getStatus(db,user.Username)
+	if status == "notapplied"{
+		db.Close()
+		temp, _ := template.ParseFiles("templates/application.html")
+		temp.Execute(response,user)
+		return
+	}
+	defer db.Close()
+        temp.Execute(response,user)
+}
 func uniqueName(db *sql.DB, name string) bool {
 	rows, _ := db.Query("select username from users")
         for rows.Next() {
@@ -71,6 +100,21 @@ func uniqueName(db *sql.DB, name string) bool {
         }
 	return true
 }
+func passwordMatches(db *sql.DB, name string, password string) bool {
+	var pw string
+	row := db.QueryRow("select password from users where username = $1",name)
+	row.Scan(&pw)
+	if password == pw {
+		return true
+	}
+	return false
+}
+func getStatus(db *sql.DB, name string) string{
+	var status string
+	row := db.QueryRow("select status from users where username = $1",name)
+	row.Scan(&status)
+	return status
+} 
 func connect() *sql.DB {
      var conn string 
      conn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -86,7 +130,7 @@ func main() {
      http.HandleFunc("/",index)
      http.HandleFunc("/register",register)
      http.HandleFunc("/confirm",confirm)
+     http.HandleFunc("/login",login)
      http.ListenAndServe(":7000",nil)
 }
-
 
