@@ -120,3 +120,6 @@ PROJECT 0 ALGORITHIM
             Functions:
                 View customers
                 Approve/Deny pending applications
+### d
+**bold testtt**
+*itali*

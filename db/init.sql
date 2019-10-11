@@ -1,11 +1,10 @@
 create table customer (
-    userID integer primary key,
-    userName varchar unique NOT NULL,
+    userName varchar primary key unique,
     password varchar NOT NULL,
-    firstName varchar NOT NULL,
-    lastName varchar NOT NULL,
-    balance int NOT NULL, 
+    name varchar NOT NULL,
+    balance float64 NOT NULL, 
 
 );
 
-insert into customer values (1, 'Bulbasaury', 'pAsSwOrdd', 'Bulba', 'Saur', 0);
+insert into customer values ('Bulbasaury', 'pAsSwOrdd', 'Bulb', 10);
+insert into customer values ('adfh', 'password', 'Kdfa', 5000);

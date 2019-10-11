@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"project-0/guest"
 	_ "project-0/guest"
 	_ "strconv"
 
@@ -29,19 +28,28 @@ func main() {
 
 	//db.Exec("INSERT INTO pokemon VALUES (6, 'Eeeevee')")
 
-	db.Exec("INSERT INTO customer VALUES (2, 'Ivysaury', 'pAsSwOrdd', 'Ivy', 'Saur', 3400)")
-	//getAll(db)
+	db.Exec("INSERT INTO customer VALUES ('Ivysaury', 'pAsSwOrdd', 'Saur', 3400)")
+	getAll(db)
 
-	var customer1 = guest.NewCustomer("ggarnerdeng", "badpassword", "Garner Deng",
-		99999999.99)
+	/*var customer1 = guest.NewCustomer("ggarnerdeng", "badpassword", "Garner Deng",
+		999.99)
 	fmt.Println(customer1)
-	/*
-		Customer struct {
-			userName string
-			password string
-			name     string
-			balance  int
-		}*/
+	fmt.Println(customer1.Balance())
+	customer1.Withdraw(99)
+	fmt.Println(customer1.Balance())
+	customer1.Deposit(1.01)
+	fmt.Println(customer1.Balance())
+	fmt.Println(customer1)
+	var customer2 = guest.NewCustomer("wat", "badpassword", "wgat Deng",
+		0)
+	fmt.Println(customer2)
+
+	customer1.Transfer(5, customer2)
+	fmt.Println(customer2.Balance())
+	fmt.Println(customer2)
+
+	customer2.Withdraw(100)
+	fmt.Println(customer2)*/
 }
 
 func ping(db *sql.DB) {
@@ -56,25 +64,20 @@ func ping(db *sql.DB) {
 func getAll(db *sql.DB) {
 	rows, _ := db.Query("SELECT * FROM CUSTOMER")
 	for rows.Next() {
-		var userID int
-		var userName, password, firstName, lastName string
-		var balance int
+		var userName, password, name string
+		var balance float64
 		//var isApproved bool
-		rows.Scan(&userID, &userName, &password, &firstName,
-			&lastName, &balance)
-		fmt.Println(userID, userName, password, firstName,
-			lastName, balance)
+		rows.Scan(&userName, &password, &name, &balance)
+		fmt.Println(userName, password, name)
+		fmt.Println(balance)
 	}
 }
 
 func searchByName(db *sql.DB, searchvalue string) {
 	row := db.QueryRow("SELECT * FROM customer WHERE name = $1", searchvalue)
-	var userID int
-	var userName, password, firstName, lastName string
-	var balance int
+	var userName, password, name string
+	var balance float64
 	//var isApproved bool
-	row.Scan(&userID, &userName, &password, &firstName,
-		&lastName, &balance)
-	fmt.Println(userID, userName, password, firstName,
-		lastName, balance)
+	row.Scan(&userName, &password, &name, &balance)
+	fmt.Println(userName, password, name, balance)
 }

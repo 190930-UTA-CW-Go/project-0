@@ -24,7 +24,6 @@ func NewCustomer(userName string, password string,
 
 func (a Customer) String() string {
 	var output string
-	//t := strconv.Itoa(a.balance)
 	t := fmt.Sprintf("%.2f", a.balance)
 	output = a.userName + " | " + a.password + " | " + a.name + " | $" + t + "\n"
 	return output
@@ -37,10 +36,25 @@ func (a *Customer) Balance() float64 {
 
 // Withdraw removes money from a customer's balance
 func (a *Customer) Withdraw(i float64) {
-	a.balance -= i
+	if a.balance < i {
+		fmt.Println("Insufficient funds, transaction canceled")
+	} else {
+		a.balance -= i
+	}
+
 }
 
 // Deposit adds money to a customer's balance
 func (a *Customer) Deposit(i float64) {
 	a.balance += i
+}
+
+// Transfer moves money from one customer to another customer's balance
+func (a *Customer) Transfer(i float64, b *Customer) {
+	if a.balance < i {
+		fmt.Println("Insufficient funds, transaction canceled")
+	} else {
+		a.Withdraw(i)
+		b.balance += i
+	}
 }
