@@ -5,6 +5,7 @@ import (
     "net/http"
     "fmt"
     "database/sql"
+    "strconv"
 
     _ "github.com/lib/pq"
 
@@ -92,28 +93,32 @@ func login(response http.ResponseWriter, request *http.Request){
 	var status string
 	ac := Accountholders{}
 	user := Users{}
-        user.Username =  request.FormValue("name")
-        user.Password = request.FormValue("pw")
-	user.Approved = false
-	user.Denied = false
-	user.Pending = false
-	user.Notapplied = false
 	view := ViewInfo{}
-	if uniqueName(db, user.Username)==true{
-		db.Close()
-                temp, _ := template.ParseFiles("templates/namenotfound.html")
-                temp.Execute(response,nil)
-		return
-	}
-	if passwordMatches(db,user.Username, user.Password)==false {
-		db.Close()
-                temp, _ := template.ParseFiles("templates/pwnotmatch.html")
-                temp.Execute(response,nil)
-                return
+	user.Approved = false
+        user.Denied = false
+        user.Pending = false
+        user.Notapplied = false
+	if currentUser == "-1"{
+        	user.Username =  request.FormValue("name")
+        	user.Password = request.FormValue("pw")
+		if uniqueName(db, user.Username)==true{
+			db.Close()
+                	temp, _ := template.ParseFiles("templates/namenotfound.html")
+                	temp.Execute(response,nil)
+			return
+		}
+		if passwordMatches(db,user.Username, user.Password)==false {
+			db.Close()
+                	temp, _ := template.ParseFiles("templates/pwnotmatch.html")
+                	temp.Execute(response,nil)
+                	return
+		}
+		currentUser = user.Username
+		employee = false
+	}else{
+		user.Username = currentUser
 	}
 	status = getStatus(db,user.Username)
-	currentUser = user.Username
-	employee = false
 	if status == "notapplied"{
 		user.Notapplied = true
 	}else if status == "approved" {
@@ -125,10 +130,54 @@ func login(response http.ResponseWriter, request *http.Request){
 	}
 	defer db.Close()
 	view.Singleuser = user
-	fmt.Println("status:",status)
 	ac.Checking, ac.Savings = getBalance(db,user.Username)
 	view.Singleaccount = ac
         temp.Execute(response,view)
+}
+func deposit(response http.ResponseWriter, request *http.Request){
+	db := connect()
+	var current int
+	var query,statement,status string
+        ac := Accountholders{}
+        user := Users{}
+        view := ViewInfo{}
+	user.Username = currentUser
+        user.Approved = false
+        user.Denied = false
+        user.Pending = false
+        user.Notapplied = false
+	temp, _ := template.ParseFiles("templates/login.html")
+	amount,_ := strconv.Atoi(request.FormValue("amount"))
+	choice := request.FormValue("account")
+	if choice == "checking" {
+		 query = "SELECT checking FROM accountholders WHERE username=$1" 
+	}else{
+		 query = "SELECT savings FROM accountholders WHERE username=$1" 
+	}
+	row := db.QueryRow(query,currentUser)
+        row.Scan(&current)
+	amount += current
+	if choice == "checking" {
+                 statement = "UPDATE accountholders SET checking=$1 WHERE username=$2" 
+        }else{
+                 statement = "UPDATE accountholders SET savings=$1 WHERE username=$2" 
+        }
+        db.Exec(statement,amount,currentUser)
+	status = getStatus(db,user.Username)
+        if status == "notapplied"{
+                user.Notapplied = true
+        }else if status == "approved" {
+                user.Approved = true
+        }else if status == "denied" {
+                user.Denied = true
+        }else {
+                user.Pending = true
+        }
+        defer db.Close()
+        view.Singleuser = user
+        ac.Checking, ac.Savings = getBalance(db,user.Username)
+        view.Singleaccount = ac
+	temp.Execute(response,view)
 }
 func employeelogin(response http.ResponseWriter, request *http.Request){
 	db := connect()
@@ -328,6 +377,7 @@ func main() {
      http.HandleFunc("/employeelogin", employeelogin)
      http.HandleFunc("/process", process)
      http.HandleFunc("/viewaccounts", viewAccounts)
+     http.HandleFunc("/deposit", deposit)
      http.ListenAndServe(":7000",nil)
 }
 

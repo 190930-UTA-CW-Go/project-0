@@ -25,6 +25,17 @@ Thank you for logging in {{.Singleuser.Username}}. Please apply for a checking a
 {{ else if .Singleuser.Approved}}
 Checking: ${{ .Singleaccount.Checking }}<br>
 Savings: ${{ .Singleaccount.Savings }}
+<br>
+    <br>
+    <form action="deposit" method="POST">
+        <input type="radio" name="account" value="checking" checked>
+        <label>Checking</label><br>
+        <input type="radio" name="account" value="savings">
+        <label>Savings</label><br><br>
+	<label>Deposit amount: $</label>
+	<input type="text" name="amount"><br>
+        <input type="submit" value="Deposit">
+     </form>
 {{ else if .Singleuser.Denied}}
 Your application was denied.
 {{ else }}
