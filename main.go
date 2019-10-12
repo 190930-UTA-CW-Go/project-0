@@ -20,6 +20,10 @@ const (
 type Users struct {
     Username string
     Password string
+    Approved bool
+    Denied bool
+    Pending bool
+    Notapplied bool
 }
 type Applications struct {
     Username string
@@ -29,14 +33,17 @@ type Applications struct {
     Phone  string
 }
 type Accountholders struct {
-   Username string
-   Checking int
-   Savings int
+    Username string
+    Checking int
+    Savings int
 }
 type ViewInfo struct {
     Ap []Applications
     Usr []Users
     Ac []Accountholders
+    Singleuser  Users
+    Singleaccount  Accountholders
+    Singleapp Applications
 }
 var currentUser string = "-1"
 var employee bool = false;
@@ -65,13 +72,13 @@ func confirm(response http.ResponseWriter, request *http.Request){
 			temp, _ = template.ParseFiles("templates/notunique.html")
 			temp.Execute(response,nil)
 		}
-		return;
+		return
 	}
 	if len(user.Password) < 3 {
 		db.Close()
 		temp, _ := template.ParseFiles("templates/pwtooshort.html")
 		temp.Execute(response,nil)
-		return;
+		return
 	}
 	query = "INSERT INTO users (username, password, status)"
         query += " VALUES ($1, $2, $3)"
@@ -83,9 +90,15 @@ func login(response http.ResponseWriter, request *http.Request){
         db := connect()
         temp, _ := template.ParseFiles("templates/login.html")
 	var status string
+	ac := Accountholders{}
 	user := Users{}
         user.Username =  request.FormValue("name")
         user.Password = request.FormValue("pw")
+	user.Approved = false
+	user.Denied = false
+	user.Pending = false
+	user.Notapplied = false
+	view := ViewInfo{}
 	if uniqueName(db, user.Username)==true{
 		db.Close()
                 temp, _ := template.ParseFiles("templates/namenotfound.html")
@@ -98,17 +111,24 @@ func login(response http.ResponseWriter, request *http.Request){
                 temp.Execute(response,nil)
                 return
 	}
+	status = getStatus(db,user.Username)
 	currentUser = user.Username
 	employee = false
-	status = getStatus(db,user.Username)
 	if status == "notapplied"{
-		db.Close()
-		temp, _ := template.ParseFiles("templates/application.html")
-		temp.Execute(response,user)
-		return
+		user.Notapplied = true
+	}else if status == "approved" {
+		user.Approved = true
+	}else if status == "denied" {
+		user.Denied = true
+	}else {
+		user.Pending = true
 	}
 	defer db.Close()
-        temp.Execute(response,user)
+	view.Singleuser = user
+	fmt.Println("status:",status)
+	ac.Checking, ac.Savings = getBalance(db,user.Username)
+	view.Singleaccount = ac
+        temp.Execute(response,view)
 }
 func employeelogin(response http.ResponseWriter, request *http.Request){
 	db := connect()
@@ -279,6 +299,14 @@ func getStatus(db *sql.DB, name string) string{
 	row := db.QueryRow("select status from users where username = $1",name)
 	row.Scan(&status)
 	return status
+}
+func getBalance(db *sql.DB, name string) (int,int){
+	var checking, savings int
+	row := db.QueryRow("select checking from accountholders where username = $1",name)
+	row.Scan(&checking)
+	row = db.QueryRow("select savings from accountholders where username = $1",name)
+        row.Scan(&savings)
+	return checking,savings
 } 
 func connect() *sql.DB {
      var conn string 
