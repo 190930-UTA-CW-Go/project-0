@@ -36,7 +36,6 @@ func main() {
 // Interactive Text Menu
 func menu() {
 	var input string
-
 Top:
 	fmt.Println("Welcome!")
 	fmt.Println("1) Login Returning Customer")
@@ -51,7 +50,7 @@ Top:
 	case "1":
 		authenticate("customer")
 	case "2":
-		addTable("customer")
+		addRecord("customer")
 	case "3":
 		authenticate("employee")
 	case "4":
@@ -63,7 +62,7 @@ Top:
 
 // Insert new data to table
 // param1 = identify either "customer" or "employee"
-func addTable(who string) {
+func addRecord(who string) {
 	var email, pass, first, last string
 	fmt.Print("Insert Email: ")
 	fmt.Scan(&email)
@@ -73,6 +72,7 @@ func addTable(who string) {
 	fmt.Scan(&first)
 	fmt.Print("Insert Last Name: ")
 	fmt.Scan(&last)
+	fmt.Println()
 
 	sqlStatement := ``
 	if who == "customer" {
@@ -94,6 +94,7 @@ func addTable(who string) {
 // Prints table
 // param1 = identify either "customer" or "employee"
 func printTable(who string) {
+	fmt.Println("==============================")
 	sqlStatement := ``
 	if who == "customer" {
 		sqlStatement = `select * from customer`
@@ -102,7 +103,10 @@ func printTable(who string) {
 	}
 
 	rows, _ := db.Query(sqlStatement)
+	var count int
+
 	for rows.Next() {
+		count++
 		var email string
 		var pass string
 		var first string
@@ -110,6 +114,13 @@ func printTable(who string) {
 		rows.Scan(&email, &pass, &first, &last)
 		fmt.Println(email, pass, first, last)
 	}
+
+	if count == 0 {
+		fmt.Println("No Data in Table")
+	}
+
+	fmt.Println("==============================")
+	fmt.Println()
 }
 
 // Authenticate login and password input
@@ -144,7 +155,7 @@ Top:
 		}
 	} else {
 		var input string
-		fmt.Println("Incorrect Credentials")
+		fmt.Println("Username or Password do not match.")
 		fmt.Println("1) Retry")
 		fmt.Println("2) Go to Menu")
 		fmt.Print(": ")
@@ -167,9 +178,10 @@ func customerMenu() {
 	var input string
 	fmt.Println("1) View Accounts")
 	fmt.Println("2) Open New Account")
-	fmt.Println("3) Join Accoun")
+	fmt.Println("3) Join Account")
 	fmt.Print(": ")
 	fmt.Scan(&input)
+	fmt.Println()
 
 	switch input {
 	case "1":
@@ -187,9 +199,14 @@ func employeeMenu() {
 	var input string
 	fmt.Println("1) Print Customer Table")
 	fmt.Println("2) Print Employee Table")
-	fmt.Println("3) Add New Employee")
+	fmt.Println("3) Delete Customer Record")
+	fmt.Println("4) Delete Employee Record")
+	fmt.Println("5) Approve/Deny Customer Applications")
+	fmt.Println("6) Add New Employee")
+	fmt.Println("7) Exit")
 	fmt.Print(": ")
 	fmt.Scan(&input)
+	fmt.Println()
 
 	switch input {
 	case "1":
@@ -197,8 +214,47 @@ func employeeMenu() {
 	case "2":
 		printTable("employee")
 	case "3":
+		deleteRecord("customer")
+	case "4":
+		deleteRecord("employee")
+	case "5":
 		//
+	case "6":
+		addRecord("employee")
+	case "7":
+		fmt.Println("Bye")
+		goto End
 	default:
-		//
+		employeeMenu()
+	}
+
+	employeeMenu()
+End:
+}
+
+// Delete record
+// param1 = identify either "customer" or "employee"
+func deleteRecord(who string) {
+	var email string
+	fmt.Print("Login ID: ")
+	fmt.Scan(&email)
+
+	sqlStatement := ``
+	if who == "customer" {
+		sqlStatement = `delete from customer where email = $1`
+	} else {
+		sqlStatement = `delete from employee where email = $1`
+	}
+	res, err := db.Exec(sqlStatement, email)
+	if err == nil {
+		count, err := res.RowsAffected()
+		if err == nil {
+			if count == 0 {
+				fmt.Println("> Invalid Login ID")
+			} else {
+				fmt.Println("> Successfully Deleted")
+			}
+			fmt.Println()
+		}
 	}
 }
