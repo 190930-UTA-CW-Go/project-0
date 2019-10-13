@@ -1,6 +1,17 @@
 package guest
 
-import "fmt"
+import (
+	"database/sql"
+	"fmt"
+)
+
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "postgres"
+	dbname   = "postgres"
+)
 
 // Customer data
 type Customer struct {
@@ -19,6 +30,18 @@ func NewCustomer(userName string, password string,
 		name:     name,
 		balance:  balance,
 	}
+
+	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	db, err := sql.Open("postgres", datasource)
+	defer db.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	db.Exec("INSERT INTO customer"+"(userName,password,name,balance)"+
+		"VALUES($1,$2,$3,$4)", userName, password, name, balance)
+
 	return &n
 }
 

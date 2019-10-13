@@ -1,5 +1,5 @@
 create table customer (
-    userName varchar primary key unique,
+    userName varchar primary key,
     password varchar NOT NULL,
     name varchar NOT NULL,
     balance float64 NOT NULL, 
