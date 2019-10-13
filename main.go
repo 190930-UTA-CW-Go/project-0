@@ -36,10 +36,9 @@ func main() {
 // Interactive Text Menu
 func menu() {
 	var input string
-Top:
 	fmt.Println("Welcome!")
 	fmt.Println("1) Login Returning Customer")
-	fmt.Println("2) Sign Up New Customer")
+	fmt.Println("2) Register New Customer")
 	fmt.Println("3) Employee Only")
 	fmt.Println("4) Exit")
 	fmt.Print(": ")
@@ -54,10 +53,13 @@ Top:
 	case "3":
 		authenticate("employee")
 	case "4":
-		fmt.Println("Bye")
+		fmt.Println("> Goodbye")
+		goto Exit
 	default:
-		goto Top
+		menu()
 	}
+	menu()
+Exit:
 }
 
 // Insert new data to table
@@ -94,7 +96,13 @@ func addRecord(who string) {
 // Prints table
 // param1 = identify either "customer" or "employee"
 func printTable(who string) {
-	fmt.Println("==============================")
+	fmt.Printf("%-30v", "Login ID:")
+	fmt.Printf("%-20v", "Password:")
+	fmt.Printf("%-20v", "First Name:")
+	fmt.Printf("%-20v", "Last Name:")
+	fmt.Println()
+	fmt.Print("================================================")
+	fmt.Println("==============================================")
 	sqlStatement := ``
 	if who == "customer" {
 		sqlStatement = `select * from customer`
@@ -112,14 +120,21 @@ func printTable(who string) {
 		var first string
 		var last string
 		rows.Scan(&email, &pass, &first, &last)
-		fmt.Println(email, pass, first, last)
+		//fmt.Println(email, pass, first, last)
+
+		fmt.Printf("%-30v", email)
+		fmt.Printf("%-20v", pass)
+		fmt.Printf("%-20v", first)
+		fmt.Printf("%-20v", last)
+		fmt.Println()
 	}
 
 	if count == 0 {
 		fmt.Println("No Data in Table")
 	}
 
-	fmt.Println("==============================")
+	fmt.Print("================================================")
+	fmt.Println("==============================================")
 	fmt.Println()
 }
 
@@ -128,12 +143,11 @@ func printTable(who string) {
 func authenticate(who string) {
 	var email string
 	var pass string
-Top:
+
 	fmt.Print("Login: ")
 	fmt.Scan(&email)
 	fmt.Print("Password: ")
 	fmt.Scan(&pass)
-	fmt.Println()
 
 	sqlStatement := ``
 	if who == "customer" {
@@ -147,55 +161,55 @@ Top:
 	row.Scan(&hold)
 
 	if pass == hold {
-		fmt.Println("Login Successful")
+		fmt.Println("> Login Successful")
+		fmt.Println()
 		if who == "customer" {
-			customerMenu()
+			customerMenu(email)
 		} else {
-			employeeMenu()
+			employeeMenu(email)
 		}
 	} else {
-		var input string
-		fmt.Println("Username or Password do not match.")
-		fmt.Println("1) Retry")
-		fmt.Println("2) Go to Menu")
-		fmt.Print(": ")
-		fmt.Scan(&input)
+		fmt.Println("> Login ID or Password do not match.")
 		fmt.Println()
-
-		switch input {
-		case "1":
-			goto Top
-		case "2":
-			menu()
-		case "3":
-			fmt.Println("Invalid input going to Menu")
-			menu()
-		}
+		menu()
 	}
 }
 
-func customerMenu() {
+// Menu for Customers
+// param1 = customer login id
+func customerMenu(login string) {
+	fmt.Println("Customer:", login)
 	var input string
 	fmt.Println("1) View Accounts")
 	fmt.Println("2) Open New Account")
 	fmt.Println("3) Join Account")
+	fmt.Println("4) Exit")
 	fmt.Print(": ")
 	fmt.Scan(&input)
 	fmt.Println()
 
 	switch input {
 	case "1":
-		fmt.Println("ahhh")
+		printAccounts(login)
 	case "2":
-		fmt.Println("ooooo")
+		openAccount(login)
 	case "3":
 		fmt.Println("weeee")
+	case "4":
+		fmt.Println("> Goodbye")
+		fmt.Println()
+		goto End
 	default:
-		fmt.Println("dead")
+		customerMenu(login)
 	}
+	customerMenu(login)
+End:
 }
 
-func employeeMenu() {
+// Menu for Employees
+// param1 = employee login id
+func employeeMenu(login string) {
+	fmt.Println("Employee:", login)
 	var input string
 	fmt.Println("1) Print Customer Table")
 	fmt.Println("2) Print Employee Table")
@@ -222,14 +236,14 @@ func employeeMenu() {
 	case "6":
 		addRecord("employee")
 	case "7":
-		fmt.Println("Bye")
-		goto End
+		fmt.Println("> Goodbye")
+		fmt.Println()
+		goto Exit
 	default:
-		employeeMenu()
+		employeeMenu(login)
 	}
-
-	employeeMenu()
-End:
+	employeeMenu(login)
+Exit:
 }
 
 // Delete record
@@ -257,4 +271,65 @@ func deleteRecord(who string) {
 			fmt.Println()
 		}
 	}
+}
+
+// Open new account input name and balance
+// param1 = customer login id
+func openAccount(login string) {
+	var name string
+	var balance float32
+	fmt.Print("Insert Account Name: ")
+	fmt.Scan(&name)
+	fmt.Print("Insert Account Balance: $")
+	fmt.Scan(&balance)
+	fmt.Println()
+
+	sqlStatement := `
+	insert into account (email, acc_type, acc_balance)
+	values ($1, $2, $3)`
+
+	_, err := db.Exec(sqlStatement, login, name, balance)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// Print accounts associated with login id
+// param1 = customer login id
+func printAccounts(login string) {
+	fmt.Printf("%-30v", "Login ID:")
+	fmt.Printf("%-20v", "Account Type:")
+	fmt.Printf("%-20v", "Account Balance:")
+	fmt.Printf("%-20v", "Account Number:")
+	fmt.Println()
+	fmt.Print("================================================")
+	fmt.Println("==============================================")
+	sqlStatement := `select * from account`
+
+	rows, _ := db.Query(sqlStatement)
+	var count int
+
+	for rows.Next() {
+		count++
+		var email string
+		var name string
+		var balance float32
+		var number int
+		rows.Scan(&email, &name, &balance, &number)
+		//fmt.Println(email, name, balance, number)
+
+		fmt.Printf("%-30v", email)
+		fmt.Printf("%-20v$", name)
+		fmt.Printf("%-20v", balance)
+		fmt.Printf("%-20v", number)
+		fmt.Println()
+	}
+
+	if count == 0 {
+		fmt.Println("No Data in Table")
+	}
+
+	fmt.Print("================================================")
+	fmt.Println("==============================================")
+	fmt.Println()
 }
