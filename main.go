@@ -46,11 +46,16 @@ type ViewInfo struct {
     Singleaccount  Accountholders
     Singleapp Applications
 }
-var currentUser string = "-1"
-var employee bool = false;
+type LoginInfo struct {
+     CurrentUser string 
+     Employee bool
+     Loggedin bool
+}
+var Signin = LoginInfo{}
+
 func index(response http.ResponseWriter, request *http.Request){
      temp, _ := template.ParseFiles("templates/index.html")
-     temp.Execute(response,nil)	
+     temp.Execute(response,Signin)	
 }
 func register(response http.ResponseWriter, request *http.Request){
      temp, _ := template.ParseFiles("templates/register.html")
@@ -98,7 +103,7 @@ func login(response http.ResponseWriter, request *http.Request){
         user.Denied = false
         user.Pending = false
         user.Notapplied = false
-	if currentUser == "-1"{
+	if !Signin.Loggedin {
         	user.Username =  request.FormValue("name")
         	user.Password = request.FormValue("pw")
 		if uniqueName(db, user.Username)==true{
@@ -113,10 +118,11 @@ func login(response http.ResponseWriter, request *http.Request){
                 	temp.Execute(response,nil)
                 	return
 		}
-		currentUser = user.Username
-		employee = false
+		Signin.CurrentUser = user.Username
+		Signin.Loggedin = true
+		Signin.Employee = false
 	}else{
-		user.Username = currentUser
+		user.Username = Signin.CurrentUser
 	}
 	status = getStatus(db,user.Username)
 	if status == "notapplied"{
@@ -141,7 +147,7 @@ func deposit(response http.ResponseWriter, request *http.Request){
         ac := Accountholders{}
         user := Users{}
         view := ViewInfo{}
-	user.Username = currentUser
+	user.Username = Signin.CurrentUser
         user.Approved = false
         user.Denied = false
         user.Pending = false
@@ -154,7 +160,7 @@ func deposit(response http.ResponseWriter, request *http.Request){
 	}else{
 		 query = "SELECT savings FROM accountholders WHERE username=$1" 
 	}
-	row := db.QueryRow(query,currentUser)
+	row := db.QueryRow(query,Signin.CurrentUser)
         row.Scan(&current)
 	amount += current
 	if choice == "checking" {
@@ -162,7 +168,7 @@ func deposit(response http.ResponseWriter, request *http.Request){
         }else{
                  statement = "UPDATE accountholders SET savings=$1 WHERE username=$2" 
         }
-        db.Exec(statement,amount,currentUser)
+        db.Exec(statement,amount,Signin.CurrentUser)
 	status = getStatus(db,user.Username)
         if status == "notapplied"{
                 user.Notapplied = true
@@ -185,7 +191,7 @@ func employeelogin(response http.ResponseWriter, request *http.Request){
 	user := Users{}
         user.Username = request.FormValue("name")
         user.Password = request.FormValue("pw")
-	if !employee {
+	if !Signin.Employee {
 		if user.Username =="" {
 			db.Close()
 			temp, _ := template.ParseFiles("templates/notauthorized.html")
@@ -205,8 +211,8 @@ func employeelogin(response http.ResponseWriter, request *http.Request){
                 	return
         	}
 	}	 
-	currentUser = user.Username
-	employee = true 
+	Signin.CurrentUser = user.Username
+	Signin.Employee = true 
 	view := ViewInfo{}
 	rows, _ := db.Query("select * from applications")
         for rows.Next() {
@@ -263,7 +269,7 @@ func process(response http.ResponseWriter, request *http.Request){
 func viewAccounts(response http.ResponseWriter, request *http.Request){
 	db := connect()
 	temp, _ := template.ParseFiles("templates/viewaccounts.html")
-	if !employee {
+	if !Signin.Employee {
                db.Close()
                temp, _ := template.ParseFiles("templates/notauthorized.html")
                temp.Execute(response,nil)
@@ -290,7 +296,7 @@ func apply(response http.ResponseWriter, request *http.Request){
 	var query string
         temp, _ := template.ParseFiles("templates/apply.html")
 	statement := "UPDATE users SET status=$1 WHERE username=$2"
-	db.Exec(statement,"pending",currentUser)
+	db.Exec(statement,"pending",Signin.CurrentUser)
 	ap := Applications{}
 	ap.Firstname =  request.FormValue("first")
         ap.Lastname = request.FormValue("last")
@@ -298,9 +304,15 @@ func apply(response http.ResponseWriter, request *http.Request){
         ap.Phone = request.FormValue("phone")
 	query = "INSERT INTO applications (username, firstname, lastname, address, phone)"
         query += " VALUES ($1, $2, $3, $4, $5)"
-        db.QueryRow(query, currentUser, ap.Firstname, ap.Lastname, ap.Address, ap.Phone)	
+        db.QueryRow(query, Signin.CurrentUser, ap.Firstname, ap.Lastname, ap.Address, ap.Phone)	
 	defer db.Close()
 	temp.Execute(response,ap)
+}
+func logout(response http.ResponseWriter, request *http.Request){
+	temp, _ := template.ParseFiles("templates/index.html")
+	Signin.Loggedin = false
+	Signin.Employee = false
+	temp.Execute(response,Signin)
 }
 func uniqueName(db *sql.DB, name string) bool {
 	rows, _ := db.Query("select username from users")
@@ -378,6 +390,9 @@ func main() {
      http.HandleFunc("/process", process)
      http.HandleFunc("/viewaccounts", viewAccounts)
      http.HandleFunc("/deposit", deposit)
+     http.HandleFunc("/logout", logout)
+     Signin.Loggedin = false
+     Signin.Employee = false
      http.ListenAndServe(":7000",nil)
 }
 
