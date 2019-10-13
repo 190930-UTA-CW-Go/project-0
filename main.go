@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"project-0/guest"
 	_ "project-0/guest"
 	_ "strconv"
 
@@ -29,8 +30,12 @@ func main() {
 	//db.Exec("INSERT INTO pokemon VALUES (6, 'Eeeevee')")
 
 	db.Exec("INSERT INTO customer VALUES ('Ivysaury', 'pAsSwOrdd', 'Saur', 3400)")
-	getAll(db)
-
+	//getAll(db)
+	guest.NewCustomer("garner1", "pass", "vgarneDeng", 69)
+	guest.SearchByName("garner1")
+	guest.SearchByName("Bulbasaury")
+	guest.SearchByName("adfh")
+	//getAll(db)
 	/*var customer1 = guest.NewCustomer("ggarnerdeng", "badpassword", "Garner Deng",
 		999.99)
 	fmt.Println(customer1)
@@ -73,11 +78,11 @@ func getAll(db *sql.DB) {
 	}
 }
 
-func searchByName(db *sql.DB, searchvalue string) {
+/*func searchByName(db *sql.DB, searchvalue string) {
 	row := db.QueryRow("SELECT * FROM customer WHERE name = $1", searchvalue)
 	var userName, password, name string
 	var balance float64
 	//var isApproved bool
 	row.Scan(&userName, &password, &name, &balance)
 	fmt.Println(userName, password, name, balance)
-}
+}*/

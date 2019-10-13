@@ -23,7 +23,7 @@ type Customer struct {
 
 // NewCustomer is a Constructor for Customer
 func NewCustomer(userName string, password string,
-	name string, balance float64) *Customer {
+	name string, balance float64) {
 	n := Customer{
 		userName: userName,
 		password: password,
@@ -39,12 +39,29 @@ func NewCustomer(userName string, password string,
 		panic(err)
 	}
 
-	db.Exec("INSERT INTO customer"+"(userName,password,name,balance)"+
-		"VALUES($1,$2,$3,$4)", userName, password, name, balance)
+	db.Exec("INSERT INTO customer"+"(n.userName,n.password,n.name,n.balance)"+
+		"VALUES($1,$2,$3,$4)", n.userName, n.password, n.name, n.balance)
 
-	return &n
+	//return &n
 }
 
+//SearchByName func
+func SearchByName(userName string) {
+	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	db, err := sql.Open("postgres", datasource)
+	defer db.Close()
+	if err != nil {
+		panic(err)
+	}
+	row := db.QueryRow("SELECT userName FROM customer WHERE userName = $1", userName)
+	var password, name string
+	var balance float64
+	//var isApproved bool
+	row.Scan(&userName, &password, &name, &balance)
+	fmt.Println(userName, password, name, balance)
+
+}
 func (a Customer) String() string {
 	var output string
 	t := fmt.Sprintf("%.2f", a.balance)
