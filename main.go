@@ -54,6 +54,7 @@ func menu() {
 		authenticate("employee")
 	case "4":
 		fmt.Println("> Goodbye")
+		fmt.Println()
 		goto Exit
 	default:
 		menu()
@@ -182,7 +183,7 @@ func customerMenu(login string) {
 	var input string
 	fmt.Println("1) View Accounts")
 	fmt.Println("2) Open New Account")
-	fmt.Println("3) Join Account")
+	fmt.Println("3) Apply for Joint Account")
 	fmt.Println("4) Exit")
 	fmt.Print(": ")
 	fmt.Scan(&input)
@@ -190,11 +191,11 @@ func customerMenu(login string) {
 
 	switch input {
 	case "1":
-		printAccounts(login)
+		printAccount(login)
 	case "2":
 		openAccount(login)
 	case "3":
-		fmt.Println("weeee")
+		applyJoint(login)
 	case "4":
 		fmt.Println("> Goodbye")
 		fmt.Println()
@@ -213,11 +214,12 @@ func employeeMenu(login string) {
 	var input string
 	fmt.Println("1) Print Customer Table")
 	fmt.Println("2) Print Employee Table")
-	fmt.Println("3) Delete Customer Record")
-	fmt.Println("4) Delete Employee Record")
-	fmt.Println("5) Approve/Deny Customer Applications")
-	fmt.Println("6) Add New Employee")
-	fmt.Println("7) Exit")
+	fmt.Println("3) Print Account Table")
+	fmt.Println("4) Delete Customer Record")
+	fmt.Println("5) Delete Employee Record")
+	fmt.Println("6) Approve/Deny Customer Applications")
+	fmt.Println("7) Add New Employee")
+	fmt.Println("8) Exit")
 	fmt.Print(": ")
 	fmt.Scan(&input)
 	fmt.Println()
@@ -228,14 +230,16 @@ func employeeMenu(login string) {
 	case "2":
 		printTable("employee")
 	case "3":
-		deleteRecord("customer")
+		printAllAccounts()
 	case "4":
-		deleteRecord("employee")
+		deleteRecord("customer")
 	case "5":
-		//
+		deleteRecord("employee")
 	case "6":
-		addRecord("employee")
+		//
 	case "7":
+		addRecord("employee")
+	case "8":
 		fmt.Println("> Goodbye")
 		fmt.Println()
 		goto Exit
@@ -296,7 +300,7 @@ func openAccount(login string) {
 
 // Print accounts associated with login id
 // param1 = customer login id
-func printAccounts(login string) {
+func printAllAccounts() {
 	fmt.Printf("%-30v", "Login ID:")
 	fmt.Printf("%-20v", "Account Type:")
 	fmt.Printf("%-20v", "Account Balance:")
@@ -304,7 +308,7 @@ func printAccounts(login string) {
 	fmt.Println()
 	fmt.Print("================================================")
 	fmt.Println("==============================================")
-	sqlStatement := `select * from account`
+	sqlStatement := `select * from account order by email`
 
 	rows, _ := db.Query(sqlStatement)
 	var count int
@@ -332,4 +336,69 @@ func printAccounts(login string) {
 	fmt.Print("================================================")
 	fmt.Println("==============================================")
 	fmt.Println()
+}
+
+func printAccount(login string) {
+	fmt.Printf("%-30v", "Login ID:")
+	fmt.Printf("%-20v", "Account Type:")
+	fmt.Printf("%-20v", "Account Balance:")
+	fmt.Printf("%-20v", "Account Number:")
+	fmt.Println()
+	fmt.Print("================================================")
+	fmt.Println("==============================================")
+	sqlStatement := `select * from account where email = $1`
+
+	rows, _ := db.Query(sqlStatement, login)
+	var count int
+
+	for rows.Next() {
+		count++
+		var email string
+		var name string
+		var balance float32
+		var number int
+		rows.Scan(&email, &name, &balance, &number)
+		//fmt.Println(email, name, balance, number)
+
+		fmt.Printf("%-30v", email)
+		fmt.Printf("%-20v$", name)
+		fmt.Printf("%-20v", balance)
+		fmt.Printf("%-20v", number)
+		fmt.Println()
+	}
+
+	if count == 0 {
+		fmt.Println("No Data in Table")
+	}
+
+	fmt.Print("================================================")
+	fmt.Println("==============================================")
+	fmt.Println()
+}
+
+func applyJoint(login string) {
+	var oneNumber string
+	var twoNumber string
+	var hold1 string
+	var hold2 string
+
+	fmt.Print("Input Your Account Number: ")
+	fmt.Scan(&oneNumber)
+	fmt.Print("Input Joint Account Number: ")
+	fmt.Scan(&twoNumber)
+	fmt.Println()
+
+	sqlStatement := `select email from account where acc_num = $1`
+	result1 := db.QueryRow(sqlStatement, oneNumber)
+	result1.Scan(&hold1)
+
+	result2 := db.QueryRow(sqlStatement, twoNumber)
+	result2.Scan(&hold2)
+
+	if hold1 == "" || hold2 == "" {
+		fmt.Println("> Invalid account number")
+		fmt.Println()
+	} else {
+		fmt.Println("Found it")
+	}
 }
