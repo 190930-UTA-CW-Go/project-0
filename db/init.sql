@@ -16,7 +16,14 @@ create table account (
     email varchar references customer(email) on delete cascade,
     acc_type varchar,
     acc_balance float,
-    acc_num serial unique
+    acc_num serial
+);
+
+create table joint (
+    email1 varchar references customer(email) on delete cascade,
+    email2 varchar references customer(email) on delete cascade,
+    num1 int,
+    num2 int
 );
 
 insert into employee values ('user', 'pass', 'David', 'Chang');
