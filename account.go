@@ -1,43 +1,41 @@
 package main
 
-import "fmt"
+import (
+	"database/sql"
+	"fmt"
+	"os"
+
+	dbconnection "github.com/NGKlaure/project-0/dbConnection"
+)
 
 type account struct {
-	custUserName string
-	custName     string
-	custNum      string
-	accountName  string //checking or saving
-	accountNum   string
+	accountNum string
+	custName   string
+
+	accountType  string //checking or saving
 	availableBal float64
 }
 
-/*
-func New(custUserName string, custName string, custNum string, accountName string, accountNum string, availableBal float64) account {
-	a := account{custUserName, custName, custNum, accountName, accountNum, availableBal}
-	return a
-} */
+var db *sql.DB
 
+//Newcustomer data
 type NewCustomer struct {
 	userName    string
 	password    string
 	userAccList []account
 }
 
-/* func New1(userName string, password string, userAccList []account) NewCustomer {
-	c := NewCustomer{userName, password, userAccList}
-	return c
-} */
-
 //method to add an account to a list of customer account
 
 func (n *NewCustomer) addNewAccount(a account) {
 	n.userAccList = append(n.userAccList, a)
+
 }
 
-//method to list the account af a customer
-func (n *NewCustomer) listCustAccount() {
+//method to display the account af a customer
+func (n *NewCustomer) displayCustAccountInfos() {
 	for _, account := range n.userAccList {
-		fmt.Println("the list of account :", account.accountName, account.accountNum, account.custUserName)
+		fmt.Println("the list of account :", account.accountNum, account.custName, account.accountType, account.availableBal)
 	}
 }
 
@@ -60,20 +58,24 @@ func (c *NewCustomer) Register() {
 	//fmt.Println("customer length is:", len(customerList))
 	index1 := searchCustomerPass(psswrd)
 
-	if index1 >= 0 {
-		fmt.Println("already register,please login")
+	if index1 == psswrd {
+		fmt.Println(" the password you enter already exist")
+		fmt.Println("Please login to selection and action")
 		c.login()
 	} else {
-		c.addNewCustomer()
-		fmt.Println("successfully register")
+		db := dbconnection.DbConnection()
+		defer db.Close()
+		//c.addNewCustomer()
+		db.Exec("INSERT INTO newCustomer (name, password) VALUES ($1,$2)", uName, psswrd)
+
+		fmt.Println(" successfully register")
+		fmt.Println("  Now login to select an action")
 		c.login()
 	}
-	//fmt.Println("customer list", customerList)
-
 }
 
 func (c *NewCustomer) login() {
-	fmt.Println("the customerlist has:", customerList)
+	//fmt.Println("the customerlist has:", customerList)
 	fmt.Println("please enter login information ")
 	fmt.Println("please enter your user name ")
 	var usName string
@@ -86,7 +88,7 @@ func (c *NewCustomer) login() {
 
 	index := searchCustomerPass(pass)
 
-	if index >= 0 {
+	if index == pass {
 		fmt.Println(" login successfully")
 
 		c.managebank()
@@ -97,7 +99,7 @@ func (c *NewCustomer) login() {
 
 //customer mager the bank
 func (c *NewCustomer) managebank() {
-	fmt.Println("select an option  c to create an account, d to deposit,w to withdraw")
+	fmt.Println("select an option  c to create an account, d to deposit,w to withdraw , e to exit")
 	var choice string
 	fmt.Scanln(&choice)
 	switch choice {
@@ -109,35 +111,36 @@ func (c *NewCustomer) managebank() {
 		c.Withdraw()
 	case "d":
 		c.Deposit()
+	case "e":
+		os.Exit(0)
 
 	}
-
 }
 
 //method to seaarch customer password in the customer list
-func searchCustomerPass(pass string) int {
-	for i := 0; i < len(customerList); i++ {
-		if customerList[i].password == pass {
-			fmt.Println(i)
-			return i
-		}
-	}
-	return -1
+func searchCustomerPass(password string) string {
+
+	var upass string
+
+	db := dbconnection.DbConnection()
+	defer db.Close()
+	row := db.QueryRow("select password from newCustomer where password = $1", password)
+	row.Scan(&upass)
+
+	return upass
 }
 
-func (a *account) AccountSummary() {
-	fmt.Printf("hello\n")
-	fmt.Println("your account information: \n", a.custUserName, a.custName, a.custNum, a.accountName, a.accountNum, a.availableBal)
-}
+//method to search customer accountnum in the account list
+func searchCustomeaccNum(accountNum string) string {
+	var acnum string
 
-//method to search customer ssn in the account list
-func searchCustomerSsn(ssn string) int {
-	for i := 0; i < len(accountList); i++ {
-		if accountList[i].custNum == ssn {
-			return i
-		}
-	}
-	return -1
+	db := dbconnection.DbConnection()
+	defer db.Close()
+	row := db.QueryRow("select accountNum from account where accountNum  = $1", accountNum)
+	row.Scan(&acnum)
+
+	return acnum
+
 }
 
 //this method create an account
@@ -147,71 +150,105 @@ func (c *NewCustomer) CreateNewAccount() {
 	var name string
 	fmt.Scanln(&name)
 	a.custName = name
-	fmt.Println("enter a customer ssn number")
-	var ssNum string
-	fmt.Scanln(&ssNum)
-	a.custNum = ssNum
+
 	fmt.Println("enter a account type ")
 	var accType string
 	fmt.Scanln(&accType)
-	a.accountName = accType
+	a.accountType = accType
 	fmt.Println("enter the account number")
 	var accNum string
 	fmt.Scanln(&accNum)
 	a.accountNum = accNum
+	var availbal float64 = 0.0
+	a.availableBal = availbal
 
 	//check if a customer alredy have an account
-	//we search if he is in the accountlist
-	index := searchCustomerSsn(a.custNum)
-	if index < 0 {
+	//we search if the account number is alredy in our db
+	index := searchCustomeaccNum(accNum)
+	if index == accNum {
+		fmt.Println("already have an account")
 
+	} else {
+		db := dbconnection.DbConnection()
+		defer db.Close()
+		//c.addNewCustomer()
+		db.Exec("INSERT INTO account (accountNum, custName,accountType,availableBal) VALUES ($1,$2,$3,$4)", name, accType, accNum, availbal)
 		//a.addAccount()
 		c.addNewAccount(a)
 		fmt.Println("account create succeffully")
 		//fmt.Println("the available balance is", a.availableBal)
-
-	} else {
-		fmt.Println("already have an account")
 
 	}
 
 	fmt.Println("the account list has:", c.userAccList)
 }
 
-//function to add and account in an account list
-func (a *account) addAccount() {
-	accountList = append(accountList, *a)
-
-}
-
 //method to add new customer to a customer list
-func (c *NewCustomer) addNewCustomer() {
-	customerList = append(customerList, *c)
+
+//method to return the balance of a given account number
+func getAccountBalance(accountNum string) float64 {
+
+	var balance float64
+	db := dbconnection.DbConnection()
+	defer db.Close()
+	row := db.QueryRow("select availableBal from account where accountNum = $1", accountNum)
+	row.Scan(&balance)
+
+	return balance
+
 }
 
 func (c *NewCustomer) Withdraw() {
-	var a account
-	fmt.Println(a.availableBal)
+
+	fmt.Println("enter the account number you want to withdraw from")
+	var accountNum string
+	fmt.Scanln(&accountNum)
 	fmt.Println("enter the amount you want to withdraw")
 	var amount float64
 	fmt.Scanln(&amount)
-	if a.availableBal < amount {
-		fmt.Println("available balance is less than the amount you want to withdraw")
+	var availBalance float64
+
+	if accountNum != searchCustomeaccNum(accountNum) {
+		fmt.Println("invalid account number")
+	} else if accountNum == "" {
+		fmt.Println("invalid account number")
+
 	} else {
+		availBalance = getAccountBalance(accountNum)
 
-		a.availableBal = a.availableBal - amount
-		fmt.Println("withdraw successfully")
-		//fmt.Println(" %d is your remaining balance", a.availableBal)
-
+		if amount > availBalance {
+			fmt.Println(" not enough money to withdraw from")
+		} else {
+			db := dbconnection.DbConnection()
+			defer db.Close()
+			db.Exec("UPDATE account SET balance =$1 WHERE accountNum =$2", availBalance-amount, accountNum)
+			fmt.Println("withdraw successfull")
+			fmt.Println("the remainning balance is:", availBalance-amount)
+		}
 	}
-
 }
+
+//method to deposit into an  account
 func (c *NewCustomer) Deposit() {
-	var a account
-	fmt.Println("enter the deposit amount")
+	fmt.Println("enter the account number you want to Deposit into")
+	var accountNum string
+	fmt.Scanln(&accountNum)
+	fmt.Println("enter the amount you want to Deposit")
 	var amount float64
 	fmt.Scanln(&amount)
-	a.availableBal = a.availableBal + amount
-	fmt.Println("current balance", a.availableBal)
+	var availBalance float64
+	if accountNum != searchCustomeaccNum(accountNum) {
+		fmt.Println("invalid account number")
+	} else if accountNum == "" {
+		fmt.Println("invalid account number")
+	} else {
+		availBalance = getAccountBalance(accountNum)
+
+		db := dbconnection.DbConnection()
+		defer db.Close()
+		db.Exec("UPDATE account SET balance =$1 WHERE accountNum =$2", availBalance+amount, accountNum)
+		fmt.Println("Deposit successfull")
+		fmt.Println("the totalbalance is:", availBalance+amount)
+	}
 
 }

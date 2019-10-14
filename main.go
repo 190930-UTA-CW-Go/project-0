@@ -1,19 +1,62 @@
 package main
 
 import (
+
+	//"database/sql"
+
+	//"database/sql"
 	"database/sql"
 	"fmt"
 
-	_ "github.com/lib/pq"
+	dbconnection "github.com/NGKlaure/project-0/dbConnection"
+	//_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "postgres"
-)
+var newCustomer NewCustomer
+
+func main() {
+	fmt.Println("banking system is running")
+
+	db := dbconnection.DbConnection()
+	ping(db)
+	//db.Exec("INSERT INTO newCustomer VALUES (7, 'Vevee','1234')")
+	//db.Exec("INSERT INTO newCustomer values (6, 'Fevee','2345')")
+	//db.Exec("INSERT INTO account VALUES ('1234567','nad','checking',123.00)")
+	//db.Exec("delete from newCustomer ")
+	//getAll(db)
+	//getAllAcc(db)
+	//searchByName(db, "nadine")
+
+	newCustomer = NewCustomer{}
+	//newCustomer.Register()
+	newCustomer.login()
+	//newCustomer.CreateNewAccount()
+	//newCustomer.Withdraw()
+	//newCustomer.Deposit()
+	getAllAcc(db)
+
+}
+
+func getAll(db *sql.DB) {
+	rows, _ := db.Query("SELECT * FROM newCustomer")
+	defer db.Close()
+	for rows.Next() {
+
+		var userName string
+		var password string
+		rows.Scan(&userName, &password)
+		fmt.Println(userName, password)
+	}
+}
+
+func searchByName(db *sql.DB, searchvalue string) {
+	row := db.QueryRow("SELECT * FROM newCustomer WHERE name = $1", searchvalue)
+
+	var name string
+	var password string
+	row.Scan(&name, &password)
+	fmt.Println(name, password)
+}
 
 func ping(db *sql.DB) {
 	err := db.Ping()
@@ -21,43 +64,18 @@ func ping(db *sql.DB) {
 		panic(err)
 	}
 
-	fmt.Println("Successfully connected5!")
+	fmt.Println("Successfully connected3!")
 }
 
-var newCustomer NewCustomer
-
-func main() {
-	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-	db, err := sql.Open("postgres", datasource)
+func getAllAcc(db *sql.DB) {
+	rows, _ := db.Query("SELECT * FROM account")
 	defer db.Close()
-	if err != nil {
-		panic(err)
-	}
-
-	//ping(db)
-	//db.Exec("INSERT INTO newCustomer VALUES (1, 'Vevee','1234')")
-	//db.Exec("INSERT INTO account VALUES (2, 'Fevee')")
-	//getAll(db)
-
-	fmt.Println("banking system is running")
-
-	//a := New("mmm", "nad", "234", "nadine", "1132", 233.23)
-	//c := New1("mimi", "1234",)
-
-	newCustomer = NewCustomer{}
-	newCustomer.Register()
-	//newCustomer.login()
-
-}
-
-func getAll(db *sql.DB) {
-	rows, _ := db.Query("SELECT * FROM newCustomer")
 	for rows.Next() {
-		var id int
-		var userName string
-		var password string
-		rows.Scan(&id, &userName, &password)
-		fmt.Println(id, userName, password)
+		var accountNum string
+		var custName string
+		var accountType string
+		var availableBal float64
+		rows.Scan(&accountNum, &custName, &accountType, &availableBal)
+		fmt.Println(accountNum, custName, accountType, availableBal)
 	}
 }

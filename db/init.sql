@@ -1,22 +1,24 @@
+CREATE TABLE account(
+  	accountNum varchar(200) PRIMARY KEY,
+    custName varchar (222) NOT NULL,
+	accountType varchar(222),
+	availableBal DECIMAL
+); 
+
 CREATE table newCustomer(
-    id integer PRIMARY KEY,
-    userName varchar,
-	password varchar UNIQUE
+    name varchar(234) PRIMARY KEY,
+	password varchar(222) NOT NULL
+	
 );
-insert into newCustomer values(1,'nadine', '1234');
-insert into newCustomer values (2,'laure', '1235');
 
-/* create table account(
-    id integer primary key,
-    custName  varchar,
-	custNum     varchar unique,
-	accountName  varchar ,
-	accountNum   varchar unique,
-	availableBal integer UNIQUE
-); */
+/* insert into newCustomer values('nadine','1234');
+insert into newCustomer values('laure','345');
+insert into newCustomer values ('lauree','3456');  */
+
+ 
 
 
-/* insert into account values (1, 'nadine',1234);
-insert into account values (2, 'Ivysaur');
-insert into account values (3, 'Venasaur'); */ 
+insert into account values ('1234','nadine','checking',100.33);
+insert into account values ('2345', 'Ivysaur','saving',200.33);
+insert into account values ('12345', 'Venasaur', 'checking',25.34);  
 
