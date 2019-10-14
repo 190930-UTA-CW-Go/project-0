@@ -1,11 +1,13 @@
-create table customerLogin (
-    userName varchar primary key,
+create table employeeLogin (
+    id SERIAL primary key,
+    userName varchar NOT NULL unique,
     password varchar NOT NULL,
     fname varchar NOT NULL,
     lname varchar NOT NULL
 );
-insert into customerLogin values ('Bulbasaury', 'pAsSwOrdd', 'Bulb', 'saur');
-insert into customerLogin values ('adfh', 'password', 'Kdfa', 'miakhalifa');
+insert into employeeLogin values ('Bulbasaur', 'pAsSwOrdd', 'Bulb', 'Saur');
+insert into employeeLogin values ('Ivysaur', 'password', 'Ivy', 'Saur');
+insert into employeeLogin values ('BigDaddyKane', 'password', 'Antonio', 'Hardy');
 
 
 
@@ -15,14 +17,12 @@ create table employeeAccounts(
 );
 insert into employeeAccounts values ('god', 'password');
 
-create table pokemon (
-    id integer primary key,
-    name varchar unique
+create table tickets(
+    ticketNum SERIAL primary key,
+    userName varchar NOT NULL,
+    fName varchar NOT NULL,
+    lName varchar NOT NULL,
+    reimburse float NOT NULL,
+    reason varchar NOT NULL,
 );
-
-insert into pokemon values (1, 'Bulbasaur');
-insert into pokemon values (2, 'Ivysaur');
-insert into pokemon values (3, 'Venasaur');
-insert into pokemon values (4, 'V1enasaur');
-insert into pokemon values (5, 'Vena2saur');
-insert into pokemon values (7, 'Vena2sa2ur');
+insert into tickets values (1, 'BigDaddyKane', 'Antonio', 'Hardy', 9001, 'Gimme da monay');
