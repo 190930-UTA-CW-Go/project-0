@@ -11,13 +11,6 @@ import (
 	_ "github.com/lib/pq" // no
 )
 
-// Customer data
-type Customer struct {
-	userName string
-	password string
-	name     string
-}
-
 // NewAccGuest fdsf
 func NewAccGuest() {
 	var userName string
@@ -44,31 +37,13 @@ func NewAccGuest() {
 		"VALUES($1,$2,$3, $4)", userName, password, fname, lname)
 }
 
-// NewCustomer is a Constructor for Customer
-func NewCustomer(userName string, password string,
-	name string) {
-	n := Customer{
-		userName: userName,
-		password: password,
-		name:     name,
-	}
-
-	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		"localhost", 5432, "postgres", "postgres", "postgres")
-	db, err := sql.Open("postgres", datasource)
-	defer db.Close()
-	if err != nil {
-		panic(err)
-	}
-
-	db.Exec("INSERT INTO customer"+"(n.userName,n.password,n.name)"+
-		"VALUES($1,$2,$3)", n.userName, n.password, n.name)
-
-	//return &n
-}
-
 //SearchByName func
-func SearchByName(userName string) {
+func SearchByName(use string) {
+
+	var n1 string
+	var n2 string
+	var n3 string
+	var n4 string
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		"localhost", 5432, "postgres", "postgres", "postgres")
 	db, err := sql.Open("postgres", datasource)
@@ -77,9 +52,8 @@ func SearchByName(userName string) {
 		panic(err)
 	}
 
-	row := db.QueryRow("SELECT userName, password, fname, lname FROM customerLogin WHERE userName = $1", userName)
-	var n1, n2, n3, n4 string
-	//var isApproved bool
+	row := db.QueryRow("SELECT userName, password, fname, lname FROM customerLogin WHERE userName = $1", use)
+
 	row.Scan(&n1, &n2, &n3, &n4)
 	fmt.Println(n1)
 	fmt.Println(n2)
@@ -107,6 +81,36 @@ func GetAll(db *sql.DB) {
 }
 
 /*
+
+
+// Customer data
+type Customer struct {
+	userName string
+	password string
+	name     string
+}
+// NewCustomer is a Constructor for Customer
+func NewCustomer(userName string, password string,
+	name string) {
+	n := Customer{
+		userName: userName,
+		password: password,
+		name:     name,
+	}
+
+	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		"localhost", 5432, "postgres", "postgres", "postgres")
+	db, err := sql.Open("postgres", datasource)
+	defer db.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	db.Exec("INSERT INTO customer"+"(n.userName,n.password,n.name)"+
+		"VALUES($1,$2,$3)", n.userName, n.password, n.name)
+
+	//return &n
+}
 func (a Customer) String() string {
 	var output string
 	t := fmt.Sprintf("%.2f", a.balance)
