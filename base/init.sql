@@ -12,6 +12,18 @@ create table drinklist (
     prob float
 );
 
+create table services (
+    account varchar unique,
+    pass varchar,
+    company varchar,
+    firstname varchar,
+    lastname varchar
+);
+
+insert into services values ('superd', 'SEC1verbose', 'Duda-Cola', 'D', 'Admin');
+insert into services values ('supers', 'SEC2verbose', 'Salt-PhD',  'S', 'Admin');
+insert into services values ('supert', 'SEC3verbose', 'TipsyCo',   'T', 'Admin');
+
 insert into drinklist values (01, 'Duda-Cola',    'Duda-Cola', 5);
 insert into drinklist values (02, 'Sprunk',       'Duda-Cola', 5);
 insert into drinklist values (03, 'Diet Dude',    'Duda-Cola', 4);

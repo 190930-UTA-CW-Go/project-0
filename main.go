@@ -2,10 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"log"
 
-	_ "github.com/Tony-Moon/project-0/base"
+	"github.com/Tony-Moon/project-0/app"
 	"github.com/Tony-Moon/project-0/gen"
 	"github.com/Tony-Moon/project-0/vend"
 	_ "github.com/lib/pq"
@@ -30,7 +31,17 @@ func main() {
 		panic(err)
 	}
 
-	r := gen.Generate(data, 5, 5, 10)
+	row := flag.Int("row", 3, "number of rows in vending machine")
+	col := flag.Int("col", 5, "number of columns in vending machine")
+	cap := flag.Int("cap", 10, "number of capacity each slot in vending machine has")
+	apply := flag.String("apply", "none", "apply to be technician, follow with d , s or t ")
+	flag.Parse()
+
+	if *apply != "none" {
+		app.Apply(*apply)
+	}
+
+	r := gen.Generate(data, *row, *col, *cap)
 	if r == true {
 		vend.Navigate()
 	} else {
