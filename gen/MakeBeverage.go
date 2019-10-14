@@ -2,17 +2,17 @@ package gen
 
 import (
 	"database/sql"
-	"fmt"
+	"sort"
 )
 
 /*
-MakeBeverage generates a slice that wil tell the database which
-type of drink goes where.
+MakeBeverage generates a slice that wil tell the database which type of drink goes where.
 */
-func MakeBeverage(db *sql.DB, rows int, columns int) []string {
+func MakeBeverage(db *sql.DB, rows int, columns int) ([]string, string) {
 	BeverageList := make([]string, rows*columns)
 	tablerows, _ := db.Query("SELECT * FROM drinklist")
 	list := make([]string, 11)
+	var brandName string
 
 	brand := UseSeed(0, 2)
 	var id, x, i, sta, sto int
@@ -22,12 +22,16 @@ func MakeBeverage(db *sql.DB, rows int, columns int) []string {
 	switch brand {
 	case 0:
 		sta = 0
+		brandName = "Dud-Cola"
 	case 1:
 		sta = 11
+		brandName = "Salt-PhD"
 	case 2:
 		sta = 22
+		brandName = "TipsyCo"
 	default:
 		sta = 0
+		brandName = "Dud-Cola"
 	}
 	sto = sta + 10
 
@@ -68,6 +72,6 @@ func MakeBeverage(db *sql.DB, rows int, columns int) []string {
 			BeverageList[i] = list[0]
 		}
 	}
-	fmt.Println(BeverageList)
-	return BeverageList
+	sort.Strings(BeverageList)
+	return BeverageList, brandName
 }

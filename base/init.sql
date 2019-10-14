@@ -1,5 +1,5 @@
 create table machine (
-    index integer,
+    index varchar unique,
     name varchar,
     stock integer,
     brand varchar

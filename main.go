@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	_ "github.com/lib/pq"
-
+	_ "github.com/Tony-Moon/project-0/base"
 	"github.com/Tony-Moon/project-0/gen"
+	_ "github.com/lib/pq"
 )
 
 const (
@@ -35,5 +35,5 @@ func main() {
 	} else {
 		fmt.Println("Generate returned false")
 	}
-	// db.ListDrinks(data)
+	//base.ListMachine(data)
 }
