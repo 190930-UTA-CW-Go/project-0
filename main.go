@@ -1,10 +1,10 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"html/template"
 	"net/http"
+	"database/sql"
 	"strconv"
 
 	_ "github.com/lib/pq"
