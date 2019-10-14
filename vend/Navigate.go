@@ -13,11 +13,9 @@ func Navigate() {
 	for n := 0; n < 1; n = n + 0 {
 		switch nav1 {
 		case 1:
-			fmt.Println("Buy Drink")
-			n++
+			nav1 = Vending()
 		case 2:
-			fmt.Println("Restock Machine")
-			n++
+			nav1 = Restock()
 		case 3:
 			fmt.Println("Goodbye!")
 			n++
