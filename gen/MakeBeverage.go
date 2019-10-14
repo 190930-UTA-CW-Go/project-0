@@ -30,7 +30,7 @@ func MakeBeverage(db *sql.DB, rows int, columns int) ([]string, string) {
 	switch brand {
 	case 0:
 		sta = 0
-		brandName = "Dud-Cola"
+		brandName = "Duda-Cola"
 	case 1:
 		sta = 11
 		brandName = "Salt-PhD"
@@ -39,7 +39,7 @@ func MakeBeverage(db *sql.DB, rows int, columns int) ([]string, string) {
 		brandName = "TipsyCo"
 	default:
 		sta = 0
-		brandName = "Dud-Cola"
+		brandName = "Duda-Cola"
 	}
 	sto = sta + 10
 

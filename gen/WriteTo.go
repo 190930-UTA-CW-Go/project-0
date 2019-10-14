@@ -10,6 +10,7 @@ table. The format will be *index, beverage name, amount of stock, brand name*.
 func WriteTo(db *sql.DB, index []string, beverage []string, stock []int, br string) {
 	var in, be string
 	var st int
+	db.Exec("DELETE FROM machine;")
 
 	for i := range index {
 		in = index[i]
