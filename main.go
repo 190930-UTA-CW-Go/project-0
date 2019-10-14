@@ -44,7 +44,8 @@ type ViewInfo struct {
     Ac []Accountholders
     Singleuser  Users
     Singleaccount  Accountholders
-    Singleapp Applications
+	Singleapp Applications
+	Insufficient bool
 }
 type LoginInfo struct {
      CurrentUser string 
@@ -168,7 +169,7 @@ func deposit(response http.ResponseWriter, request *http.Request){
         }else{
                  statement = "UPDATE accountholders SET savings=$1 WHERE username=$2" 
         }
-        db.Exec(statement,amount,Signin.CurrentUser)
+    db.Exec(statement,amount,Signin.CurrentUser)
 	status = getStatus(db,user.Username)
         if status == "notapplied"{
                 user.Notapplied = true
@@ -185,12 +186,64 @@ func deposit(response http.ResponseWriter, request *http.Request){
         view.Singleaccount = ac
 	temp.Execute(response,view)
 }
+func withdraw(response http.ResponseWriter, request *http.Request){
+	db := connect()
+	var current int
+	var query,statement,status string
+    ac := Accountholders{}
+    user := Users{}
+    view := ViewInfo{}
+	user.Username = Signin.CurrentUser
+    user.Approved = false
+    user.Denied = false
+    user.Pending = false
+    user.Notapplied = false
+	temp, _ := template.ParseFiles("templates/login.html")
+	amount,_ := strconv.Atoi(request.FormValue("amount"))
+	choice := request.FormValue("account")
+	if choice == "checking" {
+		 query = "SELECT checking FROM accountholders WHERE username=$1" 
+	}else{
+		 query = "SELECT savings FROM accountholders WHERE username=$1" 
+	}
+	row := db.QueryRow(query,Signin.CurrentUser)
+    row.Scan(&current)
+	current -= amount
+	if choice == "checking" {
+            statement = "UPDATE accountholders SET checking=$1 WHERE username=$2" 
+    }else{
+            statement = "UPDATE accountholders SET savings=$1 WHERE username=$2" 
+	}
+	if current >= 0{
+		db.Exec(statement,current,Signin.CurrentUser)
+	}
+	status = getStatus(db,user.Username)
+    if status == "notapplied"{
+        user.Notapplied = true
+    }else if status == "approved" {
+        user.Approved = true
+    }else if status == "denied" {
+        user.Denied = true
+    }else {
+        user.Pending = true
+    }
+    defer db.Close()
+	view.Singleuser = user
+	view.Insufficient = false
+    ac.Checking, ac.Savings = getBalance(db,user.Username)
+	view.Singleaccount = ac
+	if(current < 0){
+		view.Insufficient = true
+	}
+	temp.Execute(response,view)
+}
+
 func employeelogin(response http.ResponseWriter, request *http.Request){
 	db := connect()
 	temp, _ := template.ParseFiles("templates/employeelogin.html")
 	user := Users{}
-        user.Username = request.FormValue("name")
-        user.Password = request.FormValue("pw")
+    user.Username = request.FormValue("name")
+    user.Password = request.FormValue("pw")
 	if !Signin.Employee {
 		if user.Username =="" {
 			db.Close()
@@ -199,17 +252,17 @@ func employeelogin(response http.ResponseWriter, request *http.Request){
 			return
 		}
 		if uniqueEmployeeName(db, user.Username)==true{
-                	db.Close()
-                	temp, _ := template.ParseFiles("templates/employeenotfound.html")
-                	temp.Execute(response,nil)
-                	return
-        	}
-        	if employeePasswordMatches(db,user.Username, user.Password)==false {
-                	db.Close()
-                	temp, _ := template.ParseFiles("templates/employeepwnotmatch.html")
-                	temp.Execute(response,nil)
-                	return
-        	}
+            db.Close()
+                temp, _ := template.ParseFiles("templates/employeenotfound.html")
+                temp.Execute(response,nil)
+                return
+        }
+        if employeePasswordMatches(db,user.Username, user.Password)==false {
+            db.Close()
+            temp, _ := template.ParseFiles("templates/employeepwnotmatch.html")
+            temp.Execute(response,nil)
+            return
+        }
 	}	 
 	Signin.CurrentUser = user.Username
 	Signin.Employee = true 
@@ -389,7 +442,8 @@ func main() {
      http.HandleFunc("/employeelogin", employeelogin)
      http.HandleFunc("/process", process)
      http.HandleFunc("/viewaccounts", viewAccounts)
-     http.HandleFunc("/deposit", deposit)
+	 http.HandleFunc("/deposit", deposit)
+	 http.HandleFunc("/withdraw", withdraw)
      http.HandleFunc("/logout", logout)
      Signin.Loggedin = false
      Signin.Employee = false
