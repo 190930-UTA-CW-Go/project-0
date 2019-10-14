@@ -6,14 +6,6 @@ import (
 	"testing"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "postgres"
-)
-
 func TestWriteTo(t *testing.T) {
 	var index, beverage, brand string
 	var stock int
