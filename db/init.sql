@@ -1,10 +1,23 @@
-create table customer (
+create table customerLogin (
     userName varchar primary key,
     password varchar NOT NULL,
     name varchar NOT NULL,
-    balance float64 NOT NULL, 
-
 );
+insert into customerLogin values ('Bulbasaury', 'pAsSwOrdd', 'Bulb');
+insert into customerLogin values ('adfh', 'password', 'Kdfa');
 
-insert into customer values ('Bulbasaury', 'pAsSwOrdd', 'Bulb', 10);
-insert into customer values ('adfh', 'password', 'Kdfa', 5000);
+
+create table customerAccounts(
+    routingNumber serial primary key,
+    balance float,
+    userName varchar,
+    userName2 varchar,
+)
+insert into customerAccounts values (123123, 500, 'Bulbasaury', 'adfh' );
+
+
+create table employeeAccounts(
+    adminLogin varchar primary key,
+    password varchar NOT NULL,
+)
+insert into employeeAccounts values ('god', 'password');

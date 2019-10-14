@@ -16,7 +16,6 @@ type Customer struct {
 	userName string
 	password string
 	name     string
-	balance  float64
 }
 
 // NewAccGuest fdsf
@@ -24,15 +23,13 @@ func NewAccGuest() {
 	var userName string
 	var password string
 	var name string
-	var balance float64
-	fmt.Println("Creating a new account:")
+	fmt.Printf("Creating a new account:")
 	fmt.Printf("Enter a username  ")
 	fmt.Scanln(&userName)
 	fmt.Printf("Enter a password  ")
 	fmt.Scanln(password)
 	fmt.Printf("Enter your full name  ")
 	fmt.Scanln(name)
-	balance = 0
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		"localhost", 5432, "postgres", "postgres", "postgres")
 	db, err := sql.Open("postgres", datasource)
@@ -40,18 +37,17 @@ func NewAccGuest() {
 	if err != nil {
 		panic(err)
 	}
-	db.Exec("INSERT INTO customer(userName,password,name,balance)"+
-		"VALUES($1,$2,$3,$4)", userName, password, name, balance)
+	db.Exec("INSERT INTO customerLogin(userName,password,name)"+
+		"VALUES($1,$2,$3)", userName, password, name)
 }
 
 // NewCustomer is a Constructor for Customer
 func NewCustomer(userName string, password string,
-	name string, balance float64) {
+	name string) {
 	n := Customer{
 		userName: userName,
 		password: password,
 		name:     name,
-		balance:  balance,
 	}
 
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
@@ -62,8 +58,8 @@ func NewCustomer(userName string, password string,
 		panic(err)
 	}
 
-	db.Exec("INSERT INTO customer"+"(n.userName,n.password,n.name,n.balance)"+
-		"VALUES($1,$2,$3,$4)", n.userName, n.password, n.name, n.balance)
+	db.Exec("INSERT INTO customer"+"(n.userName,n.password,n.name)"+
+		"VALUES($1,$2,$3)", n.userName, n.password, n.name)
 
 	//return &n
 }
@@ -79,12 +75,13 @@ func SearchByName(userName string) {
 	}
 	row := db.QueryRow("SELECT userName FROM customer WHERE userName = $1", userName)
 	var password, name string
-	var balance float64
 	//var isApproved bool
-	row.Scan(&userName, &password, &name, &balance)
-	fmt.Println(userName, password, name, balance)
+	row.Scan(&userName, &password, &name)
+	fmt.Println(userName, password, name)
 
 }
+
+/*
 func (a Customer) String() string {
 	var output string
 	t := fmt.Sprintf("%.2f", a.balance)
@@ -120,4 +117,4 @@ func (a *Customer) Transfer(i float64, b *Customer) {
 		a.Withdraw(i)
 		b.balance += i
 	}
-}
+}*/

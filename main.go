@@ -37,14 +37,14 @@ func main() {
 
 	//db.Exec("INSERT INTO pokemon VALUES (6, 'Eeeevee')")
 
-	db.Exec("INSERT INTO customer VALUES ('Ivysaury', 'pAsSwOrdd', 'Saur', 3400)")
+	db.Exec("INSERT INTO customerLogin VALUES ('Ivysaury', 'pAsSwOrdd', 'Saur')")
 	//getAll(db)
-	guest.NewCustomer("garner1", "pass", "vgarneDeng", 69)
+	guest.NewCustomer("garner1", "pass", "vgarneDeng")
 	guest.SearchByName("garner1")
 	guest.SearchByName("Bulbasaury")
 	guest.SearchByName("adfh")
 	guest.NewAccGuest()
-	getAll(db)
+	//getAll(db)
 
 	//getAll(db)
 	/*var customer1 = guest.NewCustomer("ggarnerdeng", "badpassword", "Garner Deng",
@@ -78,14 +78,12 @@ func ping(db *sql.DB) {
 }
 
 func getAll(db *sql.DB) {
-	rows, _ := db.Query("SELECT * FROM customer")
+	rows, _ := db.Query("SELECT * FROM customerLogin")
 	for rows.Next() {
 		var userName, password, name string
-		var balance float64
 		//var isApproved bool
-		rows.Scan(&userName, &password, &name, &balance)
+		rows.Scan(&userName, &password, &name)
 		fmt.Println(userName, password, name)
-		fmt.Println(balance)
 	}
 }
 
