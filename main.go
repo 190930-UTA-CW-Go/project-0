@@ -7,6 +7,7 @@ import (
 
 	_ "github.com/Tony-Moon/project-0/base"
 	"github.com/Tony-Moon/project-0/gen"
+	"github.com/Tony-Moon/project-0/vend"
 	_ "github.com/lib/pq"
 )
 
@@ -31,9 +32,9 @@ func main() {
 
 	r := gen.Generate(data, 5, 5, 10)
 	if r == true {
-		fmt.Println("Generate returned true")
+		vend.Navigate()
 	} else {
-		fmt.Println("Generate returned false")
+		fmt.Println("Failed to generate vending machine.")
 	}
-	//base.ListMachine(data)
+
 }

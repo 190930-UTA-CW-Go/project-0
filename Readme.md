@@ -54,7 +54,21 @@ The stock amount is simply a random integer between zero and a specified value. 
 
 The three slices are then sent back to the main method inside the gen package entitled "Generate." See "GenDocumentation" for technicalities of this package.
 
-### Store vending machine in a database
+### Bug fixing and database reading
+Generate creates three slices as mentioned in the story above. I ran into a handful of problems however. 
+
+First, the randomness of the slices were, in fact, not random at all. As I learned, the way Go generates random integers is using a "seed." To be quite honest, I don't fully understand how seeds work, but basiically if you use the same seed over and over again, you will get the same random integers in order. Most people, myself included, use the current time to build a seed. This means each time you want a random integer, a new seed is built and you get different random integers. 
+
+The second problem I ran into was actually know what to do with the database. I decided to set up two tables in my database, *machine* and *drinklist*. When building the drinklist table, I hard-coded all the values into the table, you can find that in the init.sql file in the base package. Essentially, each row describes one kind of drink. It has the name of the drink, the manufacturer, and the probablitiy. I wound up not really using the manufacturer or probablity except for refereance. I have one of those "it'd-be-cool-if" ideas for actually making this table dynamic, but at the current moment, it's complex enough to impress. At the moment I am writing this story, MakeBeverage file in the gen package actually grabs a list of all beverages from a single manufacturer (chose at random) then choses them with a weighted randomness. 
+
+"What is 'weighted randomness'?" you may say. This is where that probablity I mentioned earlier comes into play. In the real world, different drinks have varying levels of popularity. To emmulate this, I set a value to each drink called a "probablity." Imagine rolling a 36 sided die. Instead of each face having a number on it, each face has a drink name on it. Now imagine that one drink is on five faces of the die and a different drink is only on one side of the die. This is how I set up the popularity of the drinks. 
+
+Finally, you hardly ever see a vending machine that has a random order to beverages. For this reason, I had to order the randomly generated slice so that the same kind of drinks are placed next to eachother. Currently, they are arranged alphabetically. I want to change that in the future, but that have to wait.
+
+### Writing to the database
+Now that I can read from the database, it is time to write to the database! Easier said then done. First order of buisiness is to rebuild the machine table. If you're asking why I had to do, it's this because I goofed and accedentailly made one column an integer when I should have made it a varying character. It's fine though, three hours later, but fine. Onto the next task!
+
+I create a WriteTo function that takes in the generated slices and writes them into the machine table. First it has to clear out all the old data, but that is actually easier done than said, unlike most things. Really, I was expecting this part to be much more difficult. Thanks SQL for making life easy!
 
 ### Add ability to "purchase" a drink
 
