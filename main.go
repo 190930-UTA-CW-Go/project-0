@@ -13,9 +13,7 @@ import (
 // Global variable for database
 var db *sql.DB
 
-// Global variable for account ids
-var m map[string]bool
-
+// Global constant for length of account id
 const idLength = 3
 
 // Connection string information
@@ -38,14 +36,17 @@ func main() {
 		panic(err)
 	}
 
-	//Main Menu
-	m = make(map[string]bool)
+	//Set Seed
 	rand.Seed(time.Now().UTC().UnixNano())
-	fmt.Println(generateID())
+
+	//Main Menu
 	menu()
 
 }
 
+// Randomly generate id that doesn't start with 0
+// Double check it doesn't already exist in account table
+// return = the generated id
 func generateID() (s string) {
 Top:
 	var x int
@@ -57,13 +58,16 @@ Top:
 		s += strconv.Itoa(x)
 	}
 
-	_, ok := m[s]
-	if ok {
-		goto Top
+	var hold string
+	sqlStatement := `select acc_id from account where acc_id = $1`
+	result := db.QueryRow(sqlStatement, s)
+	result.Scan(&hold)
+
+	if hold == "" {
+		return
 	} else {
-		m[s] = true
+		goto Top
 	}
-	return
 }
 
 // Main Menu
@@ -234,7 +238,7 @@ func customerMenu(login string) {
 		fmt.Println()
 		goto End
 	default:
-		customerMenu(login)
+		invalidPrint()
 	}
 	customerMenu(login)
 End:
@@ -277,7 +281,7 @@ func employeeMenu(login string) {
 		fmt.Println()
 		goto Exit
 	default:
-		employeeMenu(login)
+		invalidPrint()
 	}
 	employeeMenu(login)
 Exit:
@@ -302,11 +306,11 @@ func deleteRecord(who string) {
 		count, err := res.RowsAffected()
 		if err == nil {
 			if count == 0 {
-				fmt.Println("> Invalid Login ID")
+				invalidPrint()
 			} else {
 				fmt.Println("> Successfully Deleted")
+				fmt.Println()
 			}
-			fmt.Println()
 		}
 	}
 }
@@ -323,10 +327,10 @@ func openAccount(login string) {
 	fmt.Println()
 
 	sqlStatement := `
-	insert into account (email, acc_type, acc_balance)
-	values ($1, $2, $3)`
+	insert into account (email, acc_type, acc_balance, acc_id)
+	values ($1, $2, $3, $4)`
 
-	_, err := db.Exec(sqlStatement, login, name, balance)
+	_, err := db.Exec(sqlStatement, login, name, balance, generateID())
 	if err != nil {
 		panic(err)
 	}
@@ -398,27 +402,30 @@ func applyJoint(login string) {
 	fmt.Scan(&twoNumber)
 	fmt.Println()
 
-	sqlStatement := `select email from account where acc_num = $1`
-
-	result1 := db.QueryRow(sqlStatement, oneNumber)
-	result1.Scan(&hold1)
-
-	result2 := db.QueryRow(sqlStatement, twoNumber)
-	result2.Scan(&hold2)
-
-	if hold1 == "" || hold2 == "" || hold1 != login {
-		fmt.Println("> Invalid account number")
-		fmt.Println()
+	if oneNumber == twoNumber {
+		invalidPrint()
 	} else {
-		fmt.Println("Found it")
-		fmt.Println()
-		sqlStatement = `
-		insert into joint (email1, email2, num1, num2)
-		values ($1, $2, $3, $4)`
+		sqlStatement := `select email from account where acc_id = $1`
 
-		_, err := db.Exec(sqlStatement, hold1, hold2, oneNumber, twoNumber)
-		if err != nil {
-			panic(err)
+		result1 := db.QueryRow(sqlStatement, oneNumber)
+		result1.Scan(&hold1)
+
+		result2 := db.QueryRow(sqlStatement, twoNumber)
+		result2.Scan(&hold2)
+
+		if hold1 == "" || hold2 == "" || hold1 != login || hold1 == hold2 {
+			invalidPrint()
+		} else {
+			fmt.Println("Submitted Joint Account Request")
+			fmt.Println()
+			sqlStatement = `
+			insert into joint (email1, email2, num1, num2)
+			values ($1, $2, $3, $4)`
+
+			_, err := db.Exec(sqlStatement, hold1, hold2, oneNumber, twoNumber)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 }
@@ -427,68 +434,106 @@ func applyJoint(login string) {
 func verifyJoint() {
 	var count = printJoints()
 	var input string
+	var hold string
 
 	if count != 0 {
 		fmt.Print("Input: ")
 		fmt.Scan(&input)
 
-		convert, _ := strconv.Atoi(input)
-		if convert > 0 && convert <= count {
+		sqlStatement := `select index from joint where index = $1`
+		result := db.QueryRow(sqlStatement, input)
+		result.Scan(&hold)
+
+		if hold == "" {
+			invalidPrint()
+		} else {
+			var choice string
 			fmt.Println()
 			fmt.Println("1) Approve")
 			fmt.Println("2) Deny")
 			fmt.Print(": ")
-			fmt.Scan(&input)
+			fmt.Scan(&choice)
 
-			switch input {
+			switch choice {
 			case "1":
+				// Get acc_id values
+				var idOne, idTwo string
+				sqlOne := `select num1 from joint where index = $1`
+				sqlTwo := `select num2 from joint where index = $1`
+				resOne := db.QueryRow(sqlOne, input)
+				resOne.Scan(&idOne)
+				resTwo := db.QueryRow(sqlTwo, input)
+				resTwo.Scan(&idTwo)
+
+				// Use acc_id values to get acc_balance
+				var balOne, balTwo float32
+				sqlThree := `select acc_balance from account where acc_id = $1`
+				resThree := db.QueryRow(sqlThree, idOne)
+				resThree.Scan(&balOne)
+				resFour := db.QueryRow(sqlThree, idTwo)
+				resFour.Scan(&balTwo)
+
+				// Update the affect records
+				var newID string = generateID()
+				sqlUpdate := `
+				update account
+				set acc_type = $1, acc_balance = $2, acc_id = $3
+				where acc_id = $4`
+				_, err := db.Exec(sqlUpdate, "JOINT", balOne+balTwo, newID, idOne)
+				if err != nil {
+					panic(err)
+				}
+
+				_, err = db.Exec(sqlUpdate, "JOINT", balOne+balTwo, newID, idTwo)
+				if err != nil {
+					panic(err)
+				}
+
+				// Delete the joint record now that it's been approved
+				deleteJoint(input, "Joint Application Approved")
+
 			case "2":
-				/*
-					var email string
-					fmt.Print("Login ID: ")
-					fmt.Scan(&email)
-
-					sqlStatement := ``
-					if who == "customer" {
-						sqlStatement = `delete from customer where email = $1`
-					} else {
-						sqlStatement = `delete from employee where email = $1`
-					}
-
-					res, err := db.Exec(sqlStatement, email)
-					if err == nil {
-						count, err := res.RowsAffected()
-						if err == nil {
-							if count == 0 {
-								fmt.Println("> Invalid Login ID")
-							} else {
-								fmt.Println("> Successfully Deleted")
-							}
-							fmt.Println()
-						}
-					}
-				*/
+				deleteJoint(input, "Joint Application Denied")
 			default:
 			}
-		} else {
-			fmt.Println("> Invalid Input")
-			fmt.Println()
+		}
+		fmt.Println()
+	}
+}
+
+// Deletes a record from the joint table
+// param1 = index primary key to delete record
+// param2 = string message to output
+func deleteJoint(input string, print string) {
+	sqlStatement := `delete from joint where index = $1`
+	res, err := db.Exec(sqlStatement, input)
+	if err == nil {
+		count, err := res.RowsAffected()
+		if err == nil {
+			if count == 0 {
+				invalidPrint()
+			} else {
+				fmt.Println(">", print)
+				fmt.Println()
+			}
 		}
 	}
 }
 
+// Prints joint table
 func printJoints() (count int) {
 	count = 0
+	var index string
 	var email1 string
 	var email2 string
 	var num1 int
 	var num2 int
 
 	fmt.Print("   ")
-	fmt.Printf("%-25v", "#1 Account ID:")
-	fmt.Printf("%-25v", "#2 Account ID:")
-	fmt.Printf("%-20v", "#1 Account Number:")
-	fmt.Printf("%-20v", "#2 Account Number:")
+	fmt.Printf("%-25v", "#1 Login:")
+	fmt.Printf("%-25v", "#2 Login:")
+	fmt.Printf("%-20v", "#1 Account ID:")
+	fmt.Printf("%-20v", "#2 Account ID:")
 	fmt.Println()
 	fmt.Print("================================================")
 	fmt.Println("==============================================")
@@ -498,8 +543,8 @@ func printJoints() (count int) {
 	for rows.Next() {
 		count++
 
-		rows.Scan(&email1, &email2, &num1, &num2)
-		fmt.Print(strconv.Itoa(count) + ") ")
+		rows.Scan(&index, &email1, &email2, &num1, &num2)
+		fmt.Print(index + ") ")
 		fmt.Printf("%-25v", email1)
 		fmt.Printf("%-25v", email2)
 		fmt.Printf("%-20v", num1)
@@ -515,4 +560,9 @@ func printJoints() (count int) {
 	fmt.Println("==============================================")
 	fmt.Println()
 	return
+}
+
+func invalidPrint() {
+	fmt.Println("> Invalid Input")
+	fmt.Println()
 }
