@@ -37,14 +37,15 @@ func main() {
 
 	//db.Exec("INSERT INTO pokemon VALUES (6, 'Eeeevee')")
 
-	db.Exec("INSERT INTO customerLogin VALUES ('Ivysaury', 'pAsSwOrdd', 'Saur')")
+	db.Exec("INSERT INTO customerLogin VALUES ('Ivysaury', 'pAsSwOrdd', 'bulba','Saur')")
 	//getAll(db)
-	guest.NewCustomer("garner1", "pass", "vgarneDeng")
-	guest.SearchByName("garner1")
+	//guest.NewCustomer("garner1", "pass", "vgarneDeng")
+	//guest.SearchByName("garner1")
 	guest.SearchByName("Bulbasaury")
+	//guest.SearchByName("adfh")
+	//guest.NewAccGuest()
 	guest.SearchByName("adfh")
-	guest.NewAccGuest()
-	//getAll(db)
+	//guest.GetAll(db)
 
 	//getAll(db)
 	/*var customer1 = guest.NewCustomer("ggarnerdeng", "badpassword", "Garner Deng",
@@ -75,16 +76,6 @@ func ping(db *sql.DB) {
 	}
 
 	fmt.Println("Successfully connected!")
-}
-
-func getAll(db *sql.DB) {
-	rows, _ := db.Query("SELECT * FROM customerLogin")
-	for rows.Next() {
-		var userName, password, name string
-		//var isApproved bool
-		rows.Scan(&userName, &password, &name)
-		fmt.Println(userName, password, name)
-	}
 }
 
 /*func searchByName(db *sql.DB, searchvalue string) {

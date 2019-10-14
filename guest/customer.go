@@ -22,14 +22,17 @@ type Customer struct {
 func NewAccGuest() {
 	var userName string
 	var password string
-	var name string
+	var fname string
+	var lname string
 	fmt.Printf("Creating a new account:")
 	fmt.Printf("Enter a username  ")
 	fmt.Scanln(&userName)
 	fmt.Printf("Enter a password  ")
-	fmt.Scanln(password)
-	fmt.Printf("Enter your full name  ")
-	fmt.Scanln(name)
+	fmt.Scanln(&password)
+	fmt.Printf("Enter your first  ")
+	fmt.Scanln(&fname)
+	fmt.Printf("Enter your last  ")
+	fmt.Scanln(&lname)
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		"localhost", 5432, "postgres", "postgres", "postgres")
 	db, err := sql.Open("postgres", datasource)
@@ -37,8 +40,8 @@ func NewAccGuest() {
 	if err != nil {
 		panic(err)
 	}
-	db.Exec("INSERT INTO customerLogin(userName,password,name)"+
-		"VALUES($1,$2,$3)", userName, password, name)
+	db.Exec("INSERT INTO customerLogin(userName,password,fname, lname)"+
+		"VALUES($1,$2,$3, $4)", userName, password, fname, lname)
 }
 
 // NewCustomer is a Constructor for Customer
@@ -73,12 +76,34 @@ func SearchByName(userName string) {
 	if err != nil {
 		panic(err)
 	}
-	row := db.QueryRow("SELECT userName FROM customer WHERE userName = $1", userName)
-	var password, name string
-	//var isApproved bool
-	row.Scan(&userName, &password, &name)
-	fmt.Println(userName, password, name)
 
+	row := db.QueryRow("SELECT userName, password, fname, lname FROM customerLogin WHERE userName = $1", userName)
+	var n1, n2, n3, n4 string
+	//var isApproved bool
+	row.Scan(&n1, &n2, &n3, &n4)
+	fmt.Println(n1)
+	fmt.Println(n2)
+	fmt.Println(n3)
+	fmt.Println(n4)
+
+}
+
+//GetAll is a func
+func GetAll(db *sql.DB) {
+	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		"localhost", 5432, "postgres", "postgres", "postgres")
+	db, err := sql.Open("postgres", datasource)
+	defer db.Close()
+	if err != nil {
+		panic(err)
+	}
+	rows, _ := db.Query("SELECT * FROM customerLogin")
+	for rows.Next() {
+		var userName, password, fname, lname string
+		//var isApproved bool
+		rows.Scan(&userName, &password, &fname, &lname)
+		fmt.Println(userName, password, fname, lname)
+	}
 }
 
 /*

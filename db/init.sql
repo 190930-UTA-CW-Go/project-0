@@ -1,10 +1,11 @@
 create table customerLogin (
     userName varchar primary key,
     password varchar NOT NULL,
-    name varchar NOT NULL,
+    fname varchar NOT NULL,
+    lname varchar NOT NULL,
 );
-insert into customerLogin values ('Bulbasaury', 'pAsSwOrdd', 'Bulb');
-insert into customerLogin values ('adfh', 'password', 'Kdfa');
+insert into customerLogin values ('Bulbasaury', 'pAsSwOrdd', 'Bulb', 'saur');
+insert into customerLogin values ('adfh', 'password', 'Kdfa', 'miakhalifa');
 
 
 create table customerAccounts(
