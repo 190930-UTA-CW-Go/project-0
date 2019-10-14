@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	_ "os"
 	"project-0/guest"
 	_ "project-0/guest"
 	_ "strconv"
@@ -10,17 +11,25 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "postgres"
-)
-
 func main() {
+	fmt.Println("Welcome to Banking app.")
+	fmt.Println("Press number:")
+	fmt.Println("1: Log on")
+	fmt.Println("2: Create Account")
+	fmt.Println("3. Exit")
+	var choice int
+	fmt.Scanln(&choice)
+	switch choice {
+	case 1:
+		fmt.Println("1: Guest")
+		fmt.Println("2: Employee")
+	case 2:
+		fmt.Println("Creating a new account:")
+
+	}
+
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+		"localhost", 5432, "postgres", "postgres", "postgres")
 	db, err := sql.Open("postgres", datasource)
 	defer db.Close()
 	if err != nil {

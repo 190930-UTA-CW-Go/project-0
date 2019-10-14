@@ -3,6 +3,10 @@ package guest
 import (
 	"database/sql"
 	"fmt"
+	_ "os" //no
+	_ "strconv"
+
+	_ "github.com/lib/pq" // no
 )
 
 const (
@@ -19,6 +23,34 @@ type Customer struct {
 	password string
 	name     string
 	balance  float64
+}
+
+// NewAcc fdsf
+func NewAcc() {
+	var userName string
+	var password string
+	var name string
+	var balance float64
+	fmt.Println("Creating a new account:")
+	fmt.Printf("Enter a username")
+	fmt.Scanln(&userName)
+	fmt.Printf("Enter a password")
+	fmt.Scanln(password)
+	fmt.Printf("Enter your full name")
+	fmt.Scanln(name)
+	balance = 0
+	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", datasource)
+	defer db.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	db.Exec("INSERT INTO customer(userName,password,name,balance)"+
+		"VALUES($1,$2,$3,$4)", userName, password, name, balance)
+
 }
 
 // NewCustomer is a Constructor for Customer
