@@ -48,6 +48,23 @@ Thank you for logging in {{.Singleuser.Username}}. Please apply for a checking a
         <input type="submit" value="Withdraw">
     </form>
     <br><br>
+    <form action="transfer" method="POST">
+    	Transfer from:<br>
+    	<input type="radio" name="fromaccount" value="checking" checked>
+    	<label>Checking</label><br>
+    	<input type="radio" name="fromaccount" value="savings">
+    	<label>Savings</label><br><br>
+    	Transfer to:<br>
+    	<input type="radio" name="toaccount" value="checking" checked>
+    	<label>Checking</label><br>
+    	<input type="radio" name="toaccount" value="savings">
+    	<label>Savings</label><br><br>
+    	<label>Transfer amount: $</label>
+    	<input type="text" name="amount"><br>
+    	<input type="submit" value="Transfer">
+    	</form>	
+	<br><br><br>
+
 {{ else if .Singleuser.Approved}}
 Checking: ${{ .Singleaccount.Checking }}<br>
 Savings: ${{ .Singleaccount.Savings }}
@@ -73,6 +90,22 @@ Savings: ${{ .Singleaccount.Savings }}
     <input type="submit" value="Withdraw">
 </form>
 <br><br>
+<form action="transfer" method="POST">
+    Transfer from:<br>
+    <input type="radio" name="fromaccount" value="checking" checked>
+    <label>Checking</label><br>
+    <input type="radio" name="fromaccount" value="savings">
+    <label>Savings</label><br><br>
+    Transfer to:<br>
+    <input type="radio" name="toaccount" value="checking" checked>
+    <label>Checking</label><br>
+    <input type="radio" name="toaccount" value="savings">
+    <label>Savings</label><br><br>
+    <label>Transfer amount: $</label>
+    <input type="text" name="amount"><br>
+    <input type="submit" value="Transfer">
+</form>
+<br><br><br>
 {{ else if .Singleuser.Denied}}
 Your application was denied.
 {{ else }}
