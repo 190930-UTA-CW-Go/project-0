@@ -17,7 +17,7 @@ func main() {
 	fmt.Println("1: Log on")
 	fmt.Println("2: Create Account")
 	fmt.Println("3. Exit")
-	var choice int
+	/*var choice int
 	fmt.Scanln(&choice)
 	switch choice {
 	case 1:
@@ -25,8 +25,7 @@ func main() {
 		fmt.Println("2: Employee")
 	case 2:
 		fmt.Println("Creating a new account:")
-
-	}
+	}*/
 
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		"localhost", 5432, "postgres", "postgres", "postgres")
@@ -44,6 +43,9 @@ func main() {
 	guest.SearchByName("garner1")
 	guest.SearchByName("Bulbasaury")
 	guest.SearchByName("adfh")
+	guest.NewAccGuest()
+	getAll(db)
+
 	//getAll(db)
 	/*var customer1 = guest.NewCustomer("ggarnerdeng", "badpassword", "Garner Deng",
 		999.99)
@@ -76,7 +78,7 @@ func ping(db *sql.DB) {
 }
 
 func getAll(db *sql.DB) {
-	rows, _ := db.Query("SELECT * FROM CUSTOMER")
+	rows, _ := db.Query("SELECT * FROM customer")
 	for rows.Next() {
 		var userName, password, name string
 		var balance float64

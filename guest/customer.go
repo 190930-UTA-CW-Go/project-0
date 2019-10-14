@@ -3,18 +3,12 @@ package guest
 import (
 	"database/sql"
 	"fmt"
-	_ "os" //no
+	_ "log" //no
+	_ "os"  //no
+	_ "os/exec"
 	_ "strconv"
 
 	_ "github.com/lib/pq" // no
-)
-
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "postgres"
 )
 
 // Customer data
@@ -25,32 +19,29 @@ type Customer struct {
 	balance  float64
 }
 
-// NewAcc fdsf
-func NewAcc() {
+// NewAccGuest fdsf
+func NewAccGuest() {
 	var userName string
 	var password string
 	var name string
 	var balance float64
 	fmt.Println("Creating a new account:")
-	fmt.Printf("Enter a username")
+	fmt.Printf("Enter a username  ")
 	fmt.Scanln(&userName)
-	fmt.Printf("Enter a password")
+	fmt.Printf("Enter a password  ")
 	fmt.Scanln(password)
-	fmt.Printf("Enter your full name")
+	fmt.Printf("Enter your full name  ")
 	fmt.Scanln(name)
 	balance = 0
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
+		"localhost", 5432, "postgres", "postgres", "postgres")
 	db, err := sql.Open("postgres", datasource)
 	defer db.Close()
 	if err != nil {
 		panic(err)
 	}
-
 	db.Exec("INSERT INTO customer(userName,password,name,balance)"+
 		"VALUES($1,$2,$3,$4)", userName, password, name, balance)
-
 }
 
 // NewCustomer is a Constructor for Customer
@@ -64,7 +55,7 @@ func NewCustomer(userName string, password string,
 	}
 
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+		"localhost", 5432, "postgres", "postgres", "postgres")
 	db, err := sql.Open("postgres", datasource)
 	defer db.Close()
 	if err != nil {
@@ -80,7 +71,7 @@ func NewCustomer(userName string, password string,
 //SearchByName func
 func SearchByName(userName string) {
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+		"localhost", 5432, "postgres", "postgres", "postgres")
 	db, err := sql.Open("postgres", datasource)
 	defer db.Close()
 	if err != nil {
