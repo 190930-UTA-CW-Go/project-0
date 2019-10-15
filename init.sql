@@ -6,9 +6,9 @@ create table accounts (
     balance FLOAT
 );
 
-create table newcustomers(
+create table newcustomers (
     username varchar unique primary key,
-    password varchar,
+    password varchar
 );
 
 insert into accounts values ('Dio', 'Brando', 'DIO','ZAWARUDO',5000.75);

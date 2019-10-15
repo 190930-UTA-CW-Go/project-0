@@ -170,13 +170,13 @@ func OpenDB() *sql.DB {
 
 	//db.Exec("INSERT INTO accounts VALUES ('Dio', 'Brando', 'DIO','ZAWARUDO',5000.75)")
 	addAccounts(db, "Khang", "Tran", "Deathberry", "Pika", 75.87)
-	searchByName(db, "Khang")
+	//searchByName(db, "Khang")
 	//deposit(db, 50.25, 75.87, "Khang")
 	withdraw(db, 50.42, 75.87, "Khang")
 	//searchByUsrNm(db, "Deathberry")
-	searchByUsrNm(db, "Deathberry")
-	register(db, "Deathberry", "I eat birds")
-	getAll(db)
+	register(db, "C9Sneaky", "cosplayfnc")
+	//getAll(db)
+	getAllCusts(db)
 	return db
 }
 
@@ -207,6 +207,19 @@ func getAll(db *sql.DB) {
 	}
 }
 
+func getAllCusts(db *sql.DB) {
+	rows, err := db.Query("SELECT * FROM newcustomers")
+	if err != nil {
+		fmt.Println(err)
+	}
+	for rows.Next() {
+		var username string
+		var password string
+		rows.Scan(&username, &password)
+		fmt.Println(username, password)
+	}
+}
+
 //NEED TO EDIT
 func searchByName(db *sql.DB, searchvalue string) {
 	row := db.QueryRow("SELECT * FROM accounts WHERE firstname = $1", searchvalue)
@@ -220,6 +233,19 @@ func searchByName(db *sql.DB, searchvalue string) {
 }
 
 func searchByUsrNm(db *sql.DB, searchusr string) bool {
+	row := db.QueryRow("SELECT username FROM accounts WHERE username = $1", searchusr)
+	var username string
+	row.Scan(&username)
+	if searchusr == username {
+		fmt.Println("The username ", searchusr, " was found")
+		return true
+	} else {
+		fmt.Println("The username ", searchusr, "was not found")
+		return false
+	}
+}
+
+func searchByCustNm(db *sql.DB, searchusr string) bool {
 	row := db.QueryRow("SELECT username FROM newcustomers WHERE username = $1", searchusr)
 	var username string
 	row.Scan(&username)
@@ -251,10 +277,10 @@ func withdraw(db *sql.DB, money float64, balance float64, fname string) {
 }
 
 func register(db *sql.DB, usrname string, pw string) {
-	if searchByUsrNm(db, usrname) == true {
+	if searchByCustNm(db, usrname) == true {
 		fmt.Println("Sorry this user is already in the list!")
 	} else {
-		db.Exec("INSERT INTO newcustomers username, password)"+"VALUES ($1, $2)", usrname, pw)
+		db.Exec("INSERT INTO newcustomers (username, password) VALUES ($1, $2)", usrname, pw)
 		fmt.Println("User has now been added!")
 	}
 }
