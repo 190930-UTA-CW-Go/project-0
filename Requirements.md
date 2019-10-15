@@ -23,9 +23,9 @@ A Go CLI program. Update `Readme.md` with a name, a list of implemented and plan
 - [] unit tests/benchmarks
 
 ### Functionality
-- [] CRUD - Create, Read, Update, Delete data
+- [x] CRUD - Create, Read, Update, Delete data
 - [x] CLI - command-line args and/or event-driven text menus
-- [] Execute OS commands
+- [x] Execute OS commands
 - [x] Login - Authentication & Authorization
 - [x] Persisting State - Save/Load to file or DB
 - [] HTTP - API endpoints accessible through browser endpoints, HTML/JS, and/or `curl` commands
