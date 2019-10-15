@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"project-0/employee"
 	_ "project-0/employee"
 
 	_ "github.com/lib/pq"
@@ -22,8 +23,8 @@ func main() {
 	//	getAll(db)
 	GetAll3(db) //tickets
 
-	se(db, "firstacc")
-	//employee.Approvedeny()
+	//se(db, 2)
+	employee.Approvedeny()
 	//searchByName(db, "Eeesevee")
 	//employee.NewAcc()
 	//GetAll4(db) //admins
@@ -73,8 +74,8 @@ func searchByName(db *sql.DB, searchvalue string) {
 	fmt.Println(id, name)
 }
 
-func se(db *sql.DB, searchvalue string) {
-	row := db.QueryRow("SELECT * FROM tickets WHERE userName = $1", searchvalue)
+func se(db *sql.DB, searchvalue int) {
+	row := db.QueryRow("SELECT * FROM tickets WHERE ticketNum = $1", searchvalue)
 	var u1 int
 	var u2 string
 	var u3 string

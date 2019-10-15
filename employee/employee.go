@@ -397,7 +397,7 @@ func Approvedeny() {
 		}
 		fmt.Println("id is ")
 		fmt.Println(asdf)
-		row := db.QueryRow("SELECT * FROM tickets WHERE id = $1", asdf)
+		row := db.QueryRow("SELECT * FROM tickets WHERE ticketNum = $1", asdf)
 		var u1 int
 		var u2 string
 		var u3 string
@@ -448,7 +448,7 @@ func Approvedeny() {
 			if err != nil {
 				panic(err)
 			}
-			db.Exec("UPDATE tickets SET reason = $1 WHERE id = $2", yess, u1)
+			db.Exec("UPDATE tickets SET what = $1 WHERE ticketNum = $2", yess, u1)
 			fmt.Println("SUCCESSFULLY UPDATED DATABASE. RETURNING YOU. . .")
 			Approvedeny()
 		case 2:
@@ -460,7 +460,7 @@ func Approvedeny() {
 			if err != nil {
 				panic(err)
 			}
-			db.Exec("UPDATE tickets SET reason = $1 WHERE id = $2", noo, u1)
+			db.Exec("UPDATE tickets SET what = $1 WHERE ticketNum = $2", noo, u1)
 			fmt.Println("SUCCESSFULLY UPDATED DATABASE. RETURNING YOU. . .")
 			Approvedeny()
 		case 3:
