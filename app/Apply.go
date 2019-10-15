@@ -1,15 +1,20 @@
 package app
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
+
+	"github.com/Tony-Moon/project-0/gen"
 )
 
 /*
 Apply documentation
 */
-func Apply(app string) {
+func Apply(db *sql.DB, app string) {
 	var acc, pass, comp, first, last string
+	var stat, check int
+
 	switch app {
 	case "d":
 		comp = "Duda-Cola"
@@ -37,5 +42,17 @@ func Apply(app string) {
 	}
 	application := NewTech(acc, pass, comp, first, last)
 	application.print(comp)
+
+	for stat = 0; stat > 0; stat = stat + 0 {
+		check = Check(db, application)
+		if check == 1 {
+			stat = gen.UseSeed(1, 2)
+		}
+		application.result(stat, comp)
+	}
+
+	if stat == 2 {
+		WriteTo(db, application)
+	}
 
 }

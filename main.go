@@ -38,7 +38,7 @@ func main() {
 	flag.Parse()
 
 	if *apply != "none" {
-		app.Apply(*apply)
+		app.Apply(data, *apply)
 	}
 
 	r := gen.Generate(data, *row, *col, *cap)
