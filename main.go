@@ -36,12 +36,19 @@ func main() {
 		panic(err)
 	}
 
-	//Set Seed
+	//Set RNG Seed
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	//Main Menu
 	menu()
+}
 
+func selectQuery(target string, table string, condition string, value string) (hold string) {
+	sqlStatement := `select $1 from $2 where $3 = $4`
+	result := db.QueryRow(sqlStatement, target, table, condition, value)
+	result.Scan(&hold)
+	fmt.Println(hold)
+	return
 }
 
 // Randomly generate id that doesn't start with 0
@@ -58,16 +65,12 @@ Top:
 		s += strconv.Itoa(x)
 	}
 
-	var hold string
-	sqlStatement := `select acc_id from account where acc_id = $1`
-	result := db.QueryRow(sqlStatement, s)
-	result.Scan(&hold)
-
+	hold := selectQuery("acc_id", "account", "acc_id", s)
 	if hold == "" {
 		return
-	} else {
-		goto Top
 	}
+	// Else
+	goto Top
 }
 
 // Main Menu
@@ -153,8 +156,12 @@ func printTable(who string) {
 	} else {
 		sqlStatement = `select * from employee`
 	}
-
 	rows, _ := db.Query(sqlStatement)
+
+	/*
+		sqlStatement := `select * from $1`
+		rows, _ := db.Query(sqlStatement, who)
+	*/
 
 	for rows.Next() {
 		// count variable used as empty table error checker
@@ -181,22 +188,23 @@ func printTable(who string) {
 func authenticate(who string) {
 	var email string
 	var pass string
-	var hold string
 
 	fmt.Print("Login: ")
 	fmt.Scan(&email)
 	fmt.Print("Password: ")
 	fmt.Scan(&pass)
 
+	var hold string
 	sqlStatement := ``
 	if who == "customer" {
 		sqlStatement = `select pass from customer where email=$1`
 	} else {
 		sqlStatement = `select pass from employee where email=$1`
 	}
-
 	row := db.QueryRow(sqlStatement, email)
 	row.Scan(&hold)
+
+	//hold := selectQuery("pass", who, "email", email)
 
 	if pass == hold {
 		fmt.Println("> Login Successful")
@@ -209,7 +217,6 @@ func authenticate(who string) {
 	} else {
 		fmt.Println("> Login ID or Password do not match.")
 		fmt.Println()
-		menu()
 	}
 }
 
@@ -393,9 +400,6 @@ func printAccounts(login string) {
 func applyJoint(login string) {
 	var oneNumber string
 	var twoNumber string
-	var hold1 string
-	var hold2 string
-
 	fmt.Print("Input Your Account Number: ")
 	fmt.Scan(&oneNumber)
 	fmt.Print("Input Joint Account Number: ")
@@ -405,15 +409,31 @@ func applyJoint(login string) {
 	if oneNumber == twoNumber {
 		invalidPrint()
 	} else {
-		sqlStatement := `select email from account where acc_id = $1`
+		var hold1 string
+		var hold2 string
+		var hold3 string
+		var hold4 string
 
+		// Get email values
+		sqlStatement := `select email from account where acc_id = $1`
 		result1 := db.QueryRow(sqlStatement, oneNumber)
 		result1.Scan(&hold1)
+
+		//hold1 = selectQuery("email", "account", "acc_id", oneNumber)
 
 		result2 := db.QueryRow(sqlStatement, twoNumber)
 		result2.Scan(&hold2)
 
-		if hold1 == "" || hold2 == "" || hold1 != login || hold1 == hold2 {
+		// Get account names
+		sqlStatement2 := `select acc_type from account where acc_id = $1`
+		result3 := db.QueryRow(sqlStatement2, oneNumber)
+		result3.Scan(&hold3)
+
+		result4 := db.QueryRow(sqlStatement2, hold4)
+		result4.Scan(&hold4)
+
+		if hold1 == "" || hold2 == "" || hold1 != login || hold1 == hold2 ||
+			hold3 == "JOINT" || hold4 == "JOINT" {
 			invalidPrint()
 		} else {
 			fmt.Println("Submitted Joint Account Request")
@@ -473,7 +493,7 @@ func verifyJoint() {
 				resFour := db.QueryRow(sqlThree, idTwo)
 				resFour.Scan(&balTwo)
 
-				// Update the affect records
+				// Update the affected records
 				var newID string = generateID()
 				sqlUpdate := `
 				update account
@@ -490,10 +510,11 @@ func verifyJoint() {
 				}
 
 				// Delete the joint record now that it's been approved
-				deleteJoint(input, "Joint Application Approved")
+				print := "> Joint Application Approved\n> Joint Account Number is " + newID
+				deleteJoint(input, print)
 
 			case "2":
-				deleteJoint(input, "Joint Application Denied")
+				deleteJoint(input, "> Joint Application Denied")
 			default:
 			}
 		}
@@ -513,7 +534,7 @@ func deleteJoint(input string, print string) {
 			if count == 0 {
 				invalidPrint()
 			} else {
-				fmt.Println(">", print)
+				fmt.Println(print)
 				fmt.Println()
 			}
 		}
