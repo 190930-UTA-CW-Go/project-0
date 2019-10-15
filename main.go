@@ -452,16 +452,18 @@ func applyJoint(login string) {
 
 // Approve/Deny Customer Applications
 func verifyJoint() {
-	var count = printJoints()
+	count, slice := printJoints()
 	var input string
 	var hold string
 
 	if count != 0 {
 		fmt.Print("Input: ")
 		fmt.Scan(&input)
+		convInput, _ := strconv.Atoi(input)
+		newInput := slice[convInput-1]
 
 		sqlStatement := `select index from joint where index = $1`
-		result := db.QueryRow(sqlStatement, input)
+		result := db.QueryRow(sqlStatement, newInput)
 		result.Scan(&hold)
 
 		if hold == "" {
@@ -511,10 +513,10 @@ func verifyJoint() {
 
 				// Delete the joint record now that it's been approved
 				print := "> Joint Application Approved\n> Joint Account Number is " + newID
-				deleteJoint(input, print)
+				deleteJoint(newInput, print)
 
 			case "2":
-				deleteJoint(input, "> Joint Application Denied")
+				deleteJoint(newInput, "> Joint Application Denied")
 			default:
 			}
 		}
@@ -542,7 +544,7 @@ func deleteJoint(input string, print string) {
 }
 
 // Prints joint table
-func printJoints() (count int) {
+func printJoints() (count int, slice []string) {
 	count = 0
 	var index string
 	var email1 string
@@ -565,7 +567,8 @@ func printJoints() (count int) {
 		count++
 
 		rows.Scan(&index, &email1, &email2, &num1, &num2)
-		fmt.Print(index + ") ")
+		slice = append(slice, index)
+		fmt.Print(strconv.Itoa(count) + ") ")
 		fmt.Printf("%-25v", email1)
 		fmt.Printf("%-25v", email2)
 		fmt.Printf("%-20v", num1)
