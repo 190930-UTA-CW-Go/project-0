@@ -1,10 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"html/template"
 	"net/http"
-	"database/sql"
 	"strconv"
 
 	_ "github.com/lib/pq"
@@ -66,7 +66,7 @@ func register(response http.ResponseWriter, request *http.Request) {
 func confirm(response http.ResponseWriter, request *http.Request) {
 	db := connect()
 	temp, _ := template.ParseFiles("templates/confirm.html")
-	var query string
+	var statement string
 	user := Users{}
 	user.Username = request.FormValue("name")
 	user.Password = request.FormValue("pw")
@@ -88,9 +88,12 @@ func confirm(response http.ResponseWriter, request *http.Request) {
 		temp.Execute(response, nil)
 		return
 	}
-	query = "INSERT INTO users (username, password, status)"
-	query += " VALUES ($1, $2, $3)"
-	db.QueryRow(query, user.Username, user.Password, "notapplied")
+	statement = "INSERT INTO users (username, password, status)"
+	statement += " VALUES ($1, $2, $3);"
+	_, err := db.Exec(statement, user.Username, user.Password, "notapplied")
+	if err != nil {
+		panic(err)
+	}
 	defer db.Close()
 	temp.Execute(response, user)
 }
@@ -158,19 +161,22 @@ func deposit(response http.ResponseWriter, request *http.Request) {
 	amount, _ := strconv.Atoi(request.FormValue("amount"))
 	choice := request.FormValue("account")
 	if choice == "checking" {
-		query = "SELECT checking FROM accountholders WHERE username=$1"
+		query = "SELECT checking FROM accountholders WHERE username=$1;"
 	} else {
-		query = "SELECT savings FROM accountholders WHERE username=$1"
+		query = "SELECT savings FROM accountholders WHERE username=$1;"
 	}
 	row := db.QueryRow(query, Signin.CurrentUser)
 	row.Scan(&current)
 	amount += current
 	if choice == "checking" {
-		statement = "UPDATE accountholders SET checking=$1 WHERE username=$2"
+		statement = "UPDATE accountholders SET checking=$1 WHERE username=$2;"
 	} else {
-		statement = "UPDATE accountholders SET savings=$1 WHERE username=$2"
+		statement = "UPDATE accountholders SET savings=$1 WHERE username=$2;"
 	}
-	db.Exec(statement, amount, Signin.CurrentUser)
+	_, err := db.Exec(statement, amount, Signin.CurrentUser)
+	if err != nil {
+		panic(err)
+	}
 	status = getStatus(db, user.Username)
 	if status == "notapplied" {
 		user.Notapplied = true
@@ -203,20 +209,23 @@ func withdraw(response http.ResponseWriter, request *http.Request) {
 	amount, _ := strconv.Atoi(request.FormValue("amount"))
 	choice := request.FormValue("account")
 	if choice == "checking" {
-		query = "SELECT checking FROM accountholders WHERE username=$1"
+		query = "SELECT checking FROM accountholders WHERE username=$1;"
 	} else {
-		query = "SELECT savings FROM accountholders WHERE username=$1"
+		query = "SELECT savings FROM accountholders WHERE username=$1;"
 	}
 	row := db.QueryRow(query, Signin.CurrentUser)
 	row.Scan(&current)
 	current -= amount
 	if choice == "checking" {
-		statement = "UPDATE accountholders SET checking=$1 WHERE username=$2"
+		statement = "UPDATE accountholders SET checking=$1 WHERE username=$2;"
 	} else {
-		statement = "UPDATE accountholders SET savings=$1 WHERE username=$2"
+		statement = "UPDATE accountholders SET savings=$1 WHERE username=$2;"
 	}
 	if current >= 0 {
-		db.Exec(statement, current, Signin.CurrentUser)
+		_, err := db.Exec(statement, current, Signin.CurrentUser)
+		if err != nil {
+			panic(err)
+		}
 	}
 	status = getStatus(db, user.Username)
 	if status == "notapplied" {
@@ -257,27 +266,27 @@ func transfer(response http.ResponseWriter, request *http.Request) {
 	toAccount := request.FormValue("toaccount")
 	// query amount in account transferring from
 	if fromAccount == "checking" {
-		query = "SELECT checking FROM accountholders WHERE username=$1"
+		query = "SELECT checking FROM accountholders WHERE username=$1;"
 	} else {
-		query = "SELECT savings FROM accountholders WHERE username=$1"
+		query = "SELECT savings FROM accountholders WHERE username=$1;"
 	}
 	row := db.QueryRow(query, Signin.CurrentUser)
 	row.Scan(&fromAmount)
 	// query amount in account transferring to
 	if toAccount == "checking" {
-		query = "SELECT checking FROM accountholders WHERE username=$1"
+		query = "SELECT checking FROM accountholders WHERE username=$1;"
 	} else {
-		query = "SELECT savings FROM accountholders WHERE username=$1"
+		query = "SELECT savings FROM accountholders WHERE username=$1;"
 	}
 	row = db.QueryRow(query, Signin.CurrentUser)
 	row.Scan(&toAmount)
 	// create statements to transfer money
 	if fromAccount == "checking" {
-		statement1 = "UPDATE accountholders SET checking=$1 WHERE username=$2"
-		statement2 = "UPDATE accountholders SET savings=$1 WHERE username=$2"
+		statement1 = "UPDATE accountholders SET checking=$1 WHERE username=$2;"
+		statement2 = "UPDATE accountholders SET savings=$1 WHERE username=$2;"
 	} else {
-		statement1 = "UPDATE accountholders SET savings=$1 WHERE username=$2"
-		statement2 = "UPDATE accountholders SET checking=$1 WHERE username=$2"
+		statement1 = "UPDATE accountholders SET savings=$1 WHERE username=$2;"
+		statement2 = "UPDATE accountholders SET checking=$1 WHERE username=$2;"
 	}
 	fromAmount -= transferAmount
 	toAmount += transferAmount
@@ -286,8 +295,14 @@ func transfer(response http.ResponseWriter, request *http.Request) {
 		sameAccount = true
 	}
 	if fromAmount >= 0 && !sameAccount {
-		db.Exec(statement1, fromAmount, Signin.CurrentUser)
-		db.Exec(statement2, toAmount, Signin.CurrentUser)
+		_, err := db.Exec(statement1, fromAmount, Signin.CurrentUser)
+		if err != nil {
+			panic(err)
+		}
+		_, err = db.Exec(statement2, toAmount, Signin.CurrentUser)
+		if err != nil {
+			panic(err)
+		}
 	}
 	status = getStatus(db, user.Username)
 	if status == "notapplied" {
@@ -338,7 +353,7 @@ func employeelogin(response http.ResponseWriter, request *http.Request) {
 	Signin.CurrentUser = user.Username
 	Signin.Employee = true
 	view := ViewInfo{}
-	rows, _ := db.Query("select * from applications")
+	rows, _ := db.Query("SELECT * FROM applications;")
 	for rows.Next() {
 		var username, firstname, lastname, address, phone string
 		var ap = Applications{}
@@ -356,21 +371,32 @@ func employeelogin(response http.ResponseWriter, request *http.Request) {
 func process(response http.ResponseWriter, request *http.Request) {
 	db := connect()
 	temp, _ := template.ParseFiles("templates/employeelogin.html")
-	var query, statement, choice, action string
+	var statement, choice, action string
 	choice = request.FormValue("choice")
 	action = request.FormValue("action")
-	statement = "delete from applications where username = $1"
-	db.Exec(statement, choice)
+	statement = "DELETE FROM applications WHERE username = $1;"
+	_, err := db.Exec(statement, choice)
+	if err != nil {
+		panic(err)
+	}
 	if action == "approve" {
-		query = "INSERT INTO accountholders (username, checking, savings)"
-		query += " VALUES ($1, $2, $3)"
-		db.QueryRow(query, choice, 0, 0)
-		statement = "UPDATE users SET status=$1 WHERE username=$2"
-		db.Exec(statement, "approved", choice)
-
+		statement = "INSERT INTO accountholders (username, checking, savings)"
+		statement += " VALUES ($1, $2, $3);"
+		_, err = db.Exec(statement, choice, 0, 0)
+		if err != nil {
+			panic(err)
+		}
+		statement = "UPDATE users SET status=$1 WHERE username=$2;"
+		_, err = db.Exec(statement, "approved", choice)
+		if err != nil {
+			panic(err)
+		}
 	} else {
-		statement = "UPDATE users SET status=$1 WHERE username=$2"
-		db.Exec(statement, "denied", choice)
+		statement = "UPDATE users SET status=$1 WHERE username=$2;"
+		_, err = db.Exec(statement, "denied", choice)
+		if err != nil {
+			panic(err)
+		}
 	}
 	view := ViewInfo{}
 	rows, _ := db.Query("select * from applications")
@@ -415,18 +441,24 @@ func viewAccounts(response http.ResponseWriter, request *http.Request) {
 }
 func apply(response http.ResponseWriter, request *http.Request) {
 	db := connect()
-	var query string
+	var statement string
 	temp, _ := template.ParseFiles("templates/apply.html")
-	statement := "UPDATE users SET status=$1 WHERE username=$2"
-	db.Exec(statement, "pending", Signin.CurrentUser)
+	statement = "UPDATE users SET status=$1 WHERE username=$2;"
+	_, err := db.Exec(statement, "pending", Signin.CurrentUser)
+	if err != nil {
+		panic(err)
+	}
 	ap := Applications{}
 	ap.Firstname = request.FormValue("first")
 	ap.Lastname = request.FormValue("last")
 	ap.Address = request.FormValue("address")
 	ap.Phone = request.FormValue("phone")
-	query = "INSERT INTO applications (username, firstname, lastname, address, phone)"
-	query += " VALUES ($1, $2, $3, $4, $5)"
-	db.QueryRow(query, Signin.CurrentUser, ap.Firstname, ap.Lastname, ap.Address, ap.Phone)
+	statement = "INSERT INTO applications (username, firstname, lastname, address, phone)"
+	statement += " VALUES ($1, $2, $3, $4, $5);"
+	_, err = db.Exec(statement, Signin.CurrentUser, ap.Firstname, ap.Lastname, ap.Address, ap.Phone)
+	if err != nil {
+		panic(err)
+	}
 	defer db.Close()
 	temp.Execute(response, ap)
 }
