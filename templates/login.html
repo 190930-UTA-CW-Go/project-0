@@ -60,7 +60,7 @@ Thank you for logging in {{.Singleuser.Username}}. Please apply for a checking a
     Savings: ${{ .Singleaccount.Savings }}
     <br>
         <br>
-        <form action="deposit" method="POST">
+        <form action="/deposit" method="POST">
             <input type="radio" name="account" value="checking" checked>
             <label>Checking</label><br>
             <input type="radio" name="account" value="savings">
@@ -70,7 +70,7 @@ Thank you for logging in {{.Singleuser.Username}}. Please apply for a checking a
             <input type="submit" value="Deposit">
         </form>
     <br><br>
-    <form action="withdraw" method="POST">
+    <form action="/withdraw" method="POST">
         <input type="radio" name="account" value="checking" checked>
         <label>Checking</label><br>
         <input type="radio" name="account" value="savings">
@@ -80,7 +80,7 @@ Thank you for logging in {{.Singleuser.Username}}. Please apply for a checking a
         <input type="submit" value="Withdraw">
     </form>
     <br><br>
-    <form action="transfer" method="POST">
+    <form action="/transfer" method="POST">
     	Transfer from:<br>
     	<input type="radio" name="fromaccount" value="checking" checked>
     	<label>Checking</label><br>
@@ -104,7 +104,7 @@ Checking: ${{ .Singleaccount.Checking }}<br>
 Savings: ${{ .Singleaccount.Savings }}
 <br>
     <br>
-    <form action="deposit" method="POST">
+    <form action="/deposit" method="POST">
         <input type="radio" name="account" value="checking" checked>
         <label>Checking</label><br>
         <input type="radio" name="account" value="savings">
@@ -114,7 +114,7 @@ Savings: ${{ .Singleaccount.Savings }}
         <input type="submit" value="Deposit">
      </form>
 <br><br>
-<form action="withdraw" method="POST">
+<form action="/withdraw" method="POST">
     <input type="radio" name="account" value="checking" checked>
     <label>Checking</label><br>
     <input type="radio" name="account" value="savings">
@@ -124,7 +124,7 @@ Savings: ${{ .Singleaccount.Savings }}
     <input type="submit" value="Withdraw">
 </form>
 <br><br>
-<form action="transfer" method="POST">
+<form action="/transfer" method="POST">
     Transfer from:<br>
     <input type="radio" name="fromaccount" value="checking" checked>
     <label>Checking</label><br>

@@ -19,15 +19,15 @@ const (
 )
 
 type Users struct {
-	Username   string
-	Password   string
-	Approved   bool
-	Denied     bool
-	Pending    bool
-	Notapplied bool
-	Nametooshort bool
+	Username      string
+	Password      string
+	Approved      bool
+	Denied        bool
+	Pending       bool
+	Notapplied    bool
+	Nametooshort  bool
 	Namenotunique bool
-	Pwtooshort bool
+	Pwtooshort    bool
 }
 type Applications struct {
 	Username  string
@@ -37,14 +37,14 @@ type Applications struct {
 	Phone     string
 }
 type Accountholders struct {
-	Username string
-	Firstname string
-	Lastname string
-	Address string
-	Phone string
+	Username      string
+	Firstname     string
+	Lastname      string
+	Address       string
+	Phone         string
 	Accountnumber int
-	Checking int
-	Savings  int
+	Checking      int
+	Savings       int
 }
 type ViewInfo struct {
 	Ap            []Applications
@@ -54,12 +54,12 @@ type ViewInfo struct {
 	Singleaccount Accountholders
 	Singleapp     Applications
 	Insufficient  bool
-	Login 	      LoginInfo
+	Login         LoginInfo
 }
 type LoginInfo struct {
-	CurrentUser string
-	Employee    bool
-	Loggedin    bool
+	CurrentUser   string
+	Employee      bool
+	Loggedin      bool
 	Invalidname   bool
 	Invalidpw     bool
 	Notauthorized bool
@@ -84,7 +84,7 @@ func register(response http.ResponseWriter, request *http.Request) {
 	if len(user.Username) < 3 {
 		user.Nametooshort = true
 
-	} else if uniqueName(db, user.Username) == false{
+	} else if uniqueName(db, user.Username) == false {
 		user.Namenotunique = true
 	} else if len(user.Password) < 3 {
 		user.Pwtooshort = true
@@ -118,13 +118,13 @@ func login(response http.ResponseWriter, request *http.Request) {
 			login.Invalidname = true
 		} else if passwordMatches(db, user.Username, user.Password) == false {
 			login.Invalidpw = true
-		} else{
+		} else {
 			Signin.CurrentUser = user.Username
-	                Signin.Loggedin = true
-        	        Signin.Employee = false
+			Signin.Loggedin = true
+			Signin.Employee = false
 		}
 	} else {
-		
+
 		user.Username = Signin.CurrentUser
 	}
 	status = getStatus(db, user.Username)
@@ -359,7 +359,7 @@ func employeelogin(response http.ResponseWriter, request *http.Request) {
 		}
 		rows, _ = db.Query("SELECT * FROM accountholders")
 		for rows.Next() {
-			var username,fn,ln,ph,add string
+			var username, fn, ln, ph, add string
 			var accountnumber, checking, savings int
 			var ac = Accountholders{}
 			rows.Scan(&username, &accountnumber, &fn, &ln, &add, &ph, &checking, &savings)
@@ -380,12 +380,12 @@ func employeelogin(response http.ResponseWriter, request *http.Request) {
 func process(response http.ResponseWriter, request *http.Request) {
 	db := connect()
 	temp, _ := template.ParseFiles("templates/employeelogin.html")
-	var statement,query,choice, action, fn, ln, add, ph string
+	var statement, query, choice, action, fn, ln, add, ph string
 	choice = request.FormValue("choice")
 	action = request.FormValue("action")
-	query =  "SELECT firstname,lastname,address,phone FROM applications WHERE username = $1;"
+	query = "SELECT firstname,lastname,address,phone FROM applications WHERE username = $1;"
 	row := db.QueryRow(query, choice)
-        row.Scan(&fn,&ln,&add,&ph)
+	row.Scan(&fn, &ln, &add, &ph)
 	statement = "DELETE FROM applications WHERE username = $1;"
 	_, err := db.Exec(statement, choice)
 	if err != nil {
@@ -395,7 +395,7 @@ func process(response http.ResponseWriter, request *http.Request) {
 		statement = "INSERT INTO accountholders (username,firstname,lastname,address,phone,"
 		statement += "checking,savings)"
 		statement += " VALUES ($1, $2, $3, $4, $5, $6, $7);"
-		_, err = db.Exec(statement, choice,fn,ln,add,ph,0, 0)
+		_, err = db.Exec(statement, choice, fn, ln, add, ph, 0, 0)
 		if err != nil {
 			panic(err)
 		}
@@ -425,21 +425,21 @@ func process(response http.ResponseWriter, request *http.Request) {
 		view.Ap = append(view.Ap, ap)
 	}
 	rows, _ = db.Query("SELECT * FROM accountholders")
-        for rows.Next() {
-                var username,fn,ln,ph,add string
-                var accountnumber, checking, savings int
-                var ac = Accountholders{}
-                rows.Scan(&username, &accountnumber, &fn, &ln, &add, &ph, &checking, &savings)
-                ac.Username = username
-                ac.Firstname = fn
-                ac.Lastname = ln
-                ac.Address = add
-                ac.Phone = ph
-                ac.Accountnumber = accountnumber
-                ac.Checking = checking
-                ac.Savings = savings
-                view.Ac = append(view.Ac, ac)
-        }
+	for rows.Next() {
+		var username, fn, ln, ph, add string
+		var accountnumber, checking, savings int
+		var ac = Accountholders{}
+		rows.Scan(&username, &accountnumber, &fn, &ln, &add, &ph, &checking, &savings)
+		ac.Username = username
+		ac.Firstname = fn
+		ac.Lastname = ln
+		ac.Address = add
+		ac.Phone = ph
+		ac.Accountnumber = accountnumber
+		ac.Checking = checking
+		ac.Savings = savings
+		view.Ac = append(view.Ac, ac)
+	}
 	defer db.Close()
 	temp.Execute(response, view)
 }
