@@ -15,15 +15,22 @@ func main() {
 	defer db.Close()
 	if err != nil {
 		panic(err)
-		fmt.Println("die")
-	} else {
-		fmt.Println("live")
 	}
+
+	//db.Exec("INSERT INTO pokemon VALUES (4, 'Eevee')")
+	//db.Exec("INSERT INTO pokemon VALUES (8, 'tyrannitar')")
+	//	getAll(db)
+	//GetAll3(db)
+	//searchByName(db, "Eeesevee")
 	//employee.NewAcc()
-	db.Exec("INSERT INTO employeeAccounts VALUES ('adf', 'Eeeevee')")
+	//GetAll2(db)
+	//employee.SearchUser("thirdacc")
+	//employee.Welcome()
+	//employee.NewAcc()
+	////db.Exec("INSERT INTO employeeAccounts VALUES ('adf', 'Eeeevee')")
 	GetAll3(db)
-	fmt.Println("die")
-	SearchByName2(db, "password")
+	//fmt.Println("die")
+	//SearchByName2(db, "password")
 	//employee.Welcome()
 	//GetAll2(db)
 	/*db.Exec("INSERT INTO pokemon VALUES (6, 'Eeeevee')")
@@ -33,6 +40,33 @@ func main() {
 	employee.SearchByName2(db, "passwords")
 	employee.NewAcc()
 	employee.GetAll2(db)*/
+}
+
+func ping(db *sql.DB) {
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Successfully connected!")
+}
+
+func getAll(db *sql.DB) {
+	rows, _ := db.Query("SELECT * FROM POKEMON")
+	for rows.Next() {
+		var id int
+		var name string
+		rows.Scan(&id, &name)
+		fmt.Println(id, name)
+	}
+}
+
+func searchByName(db *sql.DB, searchvalue string) {
+	row := db.QueryRow("SELECT * FROM pokemon WHERE name = $1", searchvalue)
+	var id int
+	var name string
+	row.Scan(&id, &name)
+	fmt.Println(id, name)
 }
 
 //GetAll2 comment
@@ -51,23 +85,15 @@ func GetAll2(db *sql.DB) {
 
 //GetAll3 suck
 func GetAll3(db *sql.DB) {
-	rows, _ := db.Query("SELECT * FROM employeeAccounts")
+	rows, _ := db.Query("SELECT * FROM TICKETS")
 	for rows.Next() {
-
-		var adminLogin string
-		var password string
-
-		rows.Scan(&adminLogin, &password)
-		fmt.Println(adminLogin, password)
+		var u1 int
+		var u2 string
+		var u3 string
+		var u4 string
+		var u5 float32
+		var u6 string
+		rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6)
+		fmt.Println(u1, u2, u3, u4, u5, u6)
 	}
-}
-
-//SearchByName2 d
-func SearchByName2(db *sql.DB, searchvalue string) {
-	row := db.QueryRow("SELECT * FROM employeeAccounts WHERE userName = $1", searchvalue)
-	var u1 string
-	var u2 string
-
-	row.Scan(&u1, &u2)
-	fmt.Println(u1, u2)
 }
