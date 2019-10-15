@@ -2,47 +2,102 @@
 <head>
 <title>
 </title>
-
+</head>
 <body>
+{{ if .Login.Notauthorized }}
+   You are not authorized to view this page.
+   <br>
+   <br>
+   <a href="/index">Login</a>
+{{ else if .Login.Invalidname }}
+   Invalid user name<br>
+   Please re-enter your username and password:
+   <br>
+   <form method="POST" action="/employeelogin">
+      <label>Username:</label><br />
+      <input type="text" name="name"><br>
+      <label>Password:</label><br />
+      <input type="password" name="pw"><br>
+      <br>
+      <input type="submit" value="Login">
+   </form>
+{{ else if .Login.Invalidpw }}
+   Invalid password<br>
+   Please re-enter your username and password:
+   <br>
+   <form method="POST" action="/employeelogin">
+      <label>Username:</label><br />
+      <input type="text" name="name"><br>
+      <label>Password:</label><br />
+      <input type="password" name="pw"><br>
+      <br>
+      <input type="submit" value="Login">
+   </form>
+{{ else }}
    <a href="/logout"><button>Logout</button></a> <br><br>
    <h2> Applicants </h2>
-   <br><br>	
+   <br>
    <table border="1">
-   <tr>
-	<th>User name</th>
-	<th>First name</th>
-	<th>Last name</th>
-	<th>Address</th>
-	<th>Phone</th>
-   </tr>
-   {{ range .Ap }}
-   <tr>
-	<td>{{ .Username }}</td>
-	<td>{{ .Firstname }}</td>
-	<td>{{ .Lastname }}</td>
-	<td>{{ .Address }}</td>
-	<td>{{ .Phone }}</td>
-   </tr>
-   {{ end }}
+      <tr>
+         <th>User name</th>
+         <th>First name</th>
+         <th>Last name</th>
+         <th>Address</th>
+         <th>Phone</th>
+      </tr>
+      {{ range .Ap }}
+         <tr>
+         <td>{{ .Username }}</td>
+         <td>{{ .Firstname }}</td>
+         <td>{{ .Lastname }}</td>
+         <td>{{ .Address }}</td>
+         <td>{{ .Phone }}</td>
+         </tr>
+      {{ end }}
    </table>
-    <br>
-    <br>
-    <form action="process" method="POST">
-	<label>Username:</label><br>
-	<select name="choice">
-		{{ range .Ap}}
-		<option value="{{ .Username }}">{{ .Username }}</option>
-		{{ end }}
-	</select>
-	<br>
-	<input type="radio" name="action" value="approve" checked>
-	<label>Approve</label><br>
-	<input type="radio" name="action" value="deny">
-        <label>Deny</label><br>
-	<input type="submit" value="submit">
-     </form>
-     <br><br><br>
-     <a href="/viewaccounts">View Account Holders</a>
+   <br>
+   <br>
+   <form action="process" method="POST">
+      <label>Username:</label><br>
+      <select name="choice">
+         {{ range .Ap}}
+         <option value="{{ .Username }}">{{ .Username }}</option>
+         {{ end }}
+      </select>
+      <br>
+      <input type="radio" name="action" value="approve" checked>
+      <label>Approve</label><br>
+      <input type="radio" name="action" value="deny">
+      <label>Deny</label><br>
+      <input type="submit" value="submit">
+   </form>
+   <br><br>
+   <h2>Account Holders</h2>
+   <br>
+   <table border="1">
+      <tr>
+         <th>Account number</th>
+         <th>First name</th>
+         <th>Last name</th>
+         <th>Address</th>
+         <th>Phone</th>
+         <th>Checking</th>
+         <th>Savings</th>
+      </tr>
+      {{ range .Ac }}
+         <tr>
+            <td>{{ .Accountnumber }} </td>
+            <td>{{ .Firstname }}</td>
+            <td>{{ .Lastname }}</td>
+            <td>{{ .Address }}</td>
+            <td>{{ .Phone }}</td>
+            <td>${{ .Checking }}</td>
+            <td>${{ .Savings }}</td>
+         </tr>
+      {{ end }}
+   </table>
+   <br><br><br>
+{{ end }}
 </body>
 </html>
 

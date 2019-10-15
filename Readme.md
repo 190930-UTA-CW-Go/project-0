@@ -8,7 +8,6 @@ This is a banking app.
         [] Register with a username and password
         [] Authenticate (login) with that usename and password
         [] Apply to open an account
-        [] Apply for joint accounts with other customers
         [] Withdraw, deposit, and transfer funds between accounts
     [] Employees should be able to:
         [] View customer information

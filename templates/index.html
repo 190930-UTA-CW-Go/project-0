@@ -9,11 +9,11 @@ You are logged in.
 <br><br>
 <a href="/logout"><button>Logout</button></a>
 {{ else }}
-<a href="/register">Register</a>
+<a href="/registrationform">Register</a>
 <br><br>
 Customer Login:
 <br>
-   <form method="POST" action="/login">
+   <form method="POST" action="login">
         <label>Username:</label><br />
         <input type="text" name="name"><br>
         <label>Password:</label><br />
@@ -24,7 +24,7 @@ Customer Login:
     <br><br><br>
     Employee Login:
 <br>
-   <form method="POST" action="/employeelogin">
+   <form method="POST" action="employeelogin">
         <label>Username:</label><br />
         <input type="text" name="name"><br>
         <label>Password:</label><br />

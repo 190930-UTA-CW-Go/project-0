@@ -25,6 +25,9 @@ type Users struct {
 	Denied     bool
 	Pending    bool
 	Notapplied bool
+	Nametooshort bool
+	Namenotunique bool
+	Pwtooshort bool
 }
 type Applications struct {
 	Username  string
@@ -51,11 +54,15 @@ type ViewInfo struct {
 	Singleaccount Accountholders
 	Singleapp     Applications
 	Insufficient  bool
+	Login 	      LoginInfo
 }
 type LoginInfo struct {
 	CurrentUser string
 	Employee    bool
 	Loggedin    bool
+	Invalidname   bool
+	Invalidpw     bool
+	Notauthorized bool
 }
 
 var Signin = LoginInfo{}
@@ -64,40 +71,30 @@ func index(response http.ResponseWriter, request *http.Request) {
 	temp, _ := template.ParseFiles("templates/index.html")
 	temp.Execute(response, Signin)
 }
-func register(response http.ResponseWriter, request *http.Request) {
-	temp, _ := template.ParseFiles("templates/register.html")
+func registrationForm(response http.ResponseWriter, request *http.Request) {
+	temp, _ := template.ParseFiles("templates/registrationform.html")
 	temp.Execute(response, nil)
 }
-func confirm(response http.ResponseWriter, request *http.Request) {
+func register(response http.ResponseWriter, request *http.Request) {
 	db := connect()
-	temp, _ := template.ParseFiles("templates/confirm.html")
-	var statement string
+	temp, _ := template.ParseFiles("templates/register.html")
 	user := Users{}
 	user.Username = request.FormValue("name")
 	user.Password = request.FormValue("pw")
-	if uniqueName(db, user.Username) == false || len(user.Username) < 3 {
-		db.Close()
-		if len(user.Username) < 3 {
-			temp, _ := template.ParseFiles("templates/nametooshort.html")
-			temp.Execute(response, nil)
+	if len(user.Username) < 3 {
+		user.Nametooshort = true
 
-		} else {
-			temp, _ = template.ParseFiles("templates/notunique.html")
-			temp.Execute(response, nil)
+	} else if uniqueName(db, user.Username) == false{
+		user.Namenotunique = true
+	} else if len(user.Password) < 3 {
+		user.Pwtooshort = true
+	} else {
+		statement := "INSERT INTO users (username, password, status)"
+		statement += " VALUES ($1, $2, $3);"
+		_, err := db.Exec(statement, user.Username, user.Password, "notapplied")
+		if err != nil {
+			panic(err)
 		}
-		return
-	}
-	if len(user.Password) < 3 {
-		db.Close()
-		temp, _ := template.ParseFiles("templates/pwtooshort.html")
-		temp.Execute(response, nil)
-		return
-	}
-	statement = "INSERT INTO users (username, password, status)"
-	statement += " VALUES ($1, $2, $3);"
-	_, err := db.Exec(statement, user.Username, user.Password, "notapplied")
-	if err != nil {
-		panic(err)
 	}
 	defer db.Close()
 	temp.Execute(response, user)
@@ -109,6 +106,7 @@ func login(response http.ResponseWriter, request *http.Request) {
 	ac := Accountholders{}
 	user := Users{}
 	view := ViewInfo{}
+	login := LoginInfo{}
 	user.Approved = false
 	user.Denied = false
 	user.Pending = false
@@ -117,21 +115,16 @@ func login(response http.ResponseWriter, request *http.Request) {
 		user.Username = request.FormValue("name")
 		user.Password = request.FormValue("pw")
 		if uniqueName(db, user.Username) == true {
-			db.Close()
-			temp, _ := template.ParseFiles("templates/namenotfound.html")
-			temp.Execute(response, nil)
-			return
+			login.Invalidname = true
+		} else if passwordMatches(db, user.Username, user.Password) == false {
+			login.Invalidpw = true
+		} else{
+			Signin.CurrentUser = user.Username
+	                Signin.Loggedin = true
+        	        Signin.Employee = false
 		}
-		if passwordMatches(db, user.Username, user.Password) == false {
-			db.Close()
-			temp, _ := template.ParseFiles("templates/pwnotmatch.html")
-			temp.Execute(response, nil)
-			return
-		}
-		Signin.CurrentUser = user.Username
-		Signin.Loggedin = true
-		Signin.Employee = false
 	} else {
+		
 		user.Username = Signin.CurrentUser
 	}
 	status = getStatus(db, user.Username)
@@ -148,6 +141,7 @@ func login(response http.ResponseWriter, request *http.Request) {
 	view.Singleuser = user
 	ac.Checking, ac.Savings = getBalance(db, user.Username)
 	view.Singleaccount = ac
+	view.Login = login
 	temp.Execute(response, view)
 }
 func deposit(response http.ResponseWriter, request *http.Request) {
@@ -333,42 +327,52 @@ func employeelogin(response http.ResponseWriter, request *http.Request) {
 	db := connect()
 	temp, _ := template.ParseFiles("templates/employeelogin.html")
 	user := Users{}
-	user.Username = request.FormValue("name")
-	user.Password = request.FormValue("pw")
+	login := LoginInfo{}
+	view := ViewInfo{}
 	if !Signin.Employee {
-		if user.Username == "" {
-			db.Close()
-			temp, _ := template.ParseFiles("templates/notauthorized.html")
-			temp.Execute(response, nil)
-			return
-		}
-		if uniqueEmployeeName(db, user.Username) == true {
-			db.Close()
-			temp, _ := template.ParseFiles("templates/employeenotfound.html")
-			temp.Execute(response, nil)
-			return
-		}
-		if employeePasswordMatches(db, user.Username, user.Password) == false {
-			db.Close()
-			temp, _ := template.ParseFiles("templates/employeepwnotmatch.html")
-			temp.Execute(response, nil)
-			return
+		user.Username = request.FormValue("name")
+		user.Password = request.FormValue("pw")
+		if len(user.Username) == 0 {
+			login.Notauthorized = true
+		} else if uniqueEmployeeName(db, user.Username) {
+			login.Invalidname = true
+		} else if employeePasswordMatches(db, user.Username, user.Password) == false {
+			login.Invalidpw = true
+		} else {
+			Signin.CurrentUser = user.Username
+			Signin.Employee = true
 		}
 	}
-	Signin.CurrentUser = user.Username
-	Signin.Employee = true
-	view := ViewInfo{}
-	rows, _ := db.Query("SELECT * FROM applications;")
-	for rows.Next() {
-		var username, firstname, lastname, address, phone string
-		var ap = Applications{}
-		rows.Scan(&username, &firstname, &lastname, &address, &phone)
-		ap.Username = username
-		ap.Firstname = firstname
-		ap.Lastname = lastname
-		ap.Address = address
-		ap.Phone = phone
-		view.Ap = append(view.Ap, ap)
+	view.Login = login
+	if Signin.Employee {
+		rows, _ := db.Query("SELECT * FROM applications;")
+		for rows.Next() {
+			var username, firstname, lastname, address, phone string
+			var ap = Applications{}
+			rows.Scan(&username, &firstname, &lastname, &address, &phone)
+			ap.Username = username
+			ap.Firstname = firstname
+			ap.Lastname = lastname
+			ap.Address = address
+			ap.Phone = phone
+			view.Ap = append(view.Ap, ap)
+		}
+		rows, _ = db.Query("SELECT * FROM accountholders")
+		for rows.Next() {
+			var username,fn,ln,ph,add string
+			var accountnumber, checking, savings int
+			var ac = Accountholders{}
+			rows.Scan(&username, &accountnumber, &fn, &ln, &add, &ph, &checking, &savings)
+			ac.Username = username
+			ac.Firstname = fn
+			ac.Lastname = ln
+			ac.Address = add
+			ac.Phone = ph
+			ac.Accountnumber = accountnumber
+			ac.Checking = checking
+			ac.Savings = savings
+			view.Ac = append(view.Ac, ac)
+		}
 	}
 	defer db.Close()
 	temp.Execute(response, view)
@@ -420,38 +424,24 @@ func process(response http.ResponseWriter, request *http.Request) {
 		ap.Phone = phone
 		view.Ap = append(view.Ap, ap)
 	}
+	rows, _ = db.Query("SELECT * FROM accountholders")
+        for rows.Next() {
+                var username,fn,ln,ph,add string
+                var accountnumber, checking, savings int
+                var ac = Accountholders{}
+                rows.Scan(&username, &accountnumber, &fn, &ln, &add, &ph, &checking, &savings)
+                ac.Username = username
+                ac.Firstname = fn
+                ac.Lastname = ln
+                ac.Address = add
+                ac.Phone = ph
+                ac.Accountnumber = accountnumber
+                ac.Checking = checking
+                ac.Savings = savings
+                view.Ac = append(view.Ac, ac)
+        }
 	defer db.Close()
 	temp.Execute(response, view)
-}
-func viewAccounts(response http.ResponseWriter, request *http.Request) {
-	db := connect()
-	temp, _ := template.ParseFiles("templates/viewaccounts.html")
-	if !Signin.Employee {
-		db.Close()
-		temp, _ := template.ParseFiles("templates/notauthorized.html")
-		temp.Execute(response, nil)
-		return
-	}
-	view := ViewInfo{}
-	rows, _ := db.Query("SELECT * FROM accountholders")
-	for rows.Next() {
-		var username,fn,ln,ph,add string
-		var accountnumber, checking, savings int
-		var ac = Accountholders{}
-		rows.Scan(&username, &accountnumber, &fn, &ln, &add, &ph, &checking, &savings)
-		ac.Username = username
-		ac.Firstname = fn
-		ac.Lastname = ln
-		ac.Address = add
-		ac.Phone = ph
-		ac.Accountnumber = accountnumber
-		ac.Checking = checking
-		ac.Savings = savings
-		view.Ac = append(view.Ac, ac)
-	}
-	defer db.Close()
-	temp.Execute(response, view)
-
 }
 func apply(response http.ResponseWriter, request *http.Request) {
 	db := connect()
@@ -550,13 +540,12 @@ func connect() *sql.DB {
 }
 func main() {
 	http.HandleFunc("/", index)
+	http.HandleFunc("/registrationform", registrationForm)
 	http.HandleFunc("/register", register)
-	http.HandleFunc("/confirm", confirm)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/apply", apply)
 	http.HandleFunc("/employeelogin", employeelogin)
 	http.HandleFunc("/process", process)
-	http.HandleFunc("/viewaccounts", viewAccounts)
 	http.HandleFunc("/deposit", deposit)
 	http.HandleFunc("/withdraw", withdraw)
 	http.HandleFunc("/transfer", transfer)
