@@ -20,10 +20,13 @@ func main() {
 	//db.Exec("INSERT INTO pokemon VALUES (4, 'Eevee')")
 	//db.Exec("INSERT INTO pokemon VALUES (8, 'tyrannitar')")
 	//	getAll(db)
-	//GetAll3(db)
+	GetAll3(db) //tickets
+
+	se(db, "firstacc")
+	//employee.Approvedeny()
 	//searchByName(db, "Eeesevee")
 	//employee.NewAcc()
-	//GetAll4(db)
+	//GetAll4(db) //admins
 	//employee.SearchUser("thirdacc")
 	//employee.Welcome()
 	//employee.ManagerLogin()
@@ -32,9 +35,10 @@ func main() {
 	//fmt.Println("die")
 	//SearchByName2(db, "password")
 	//employee.Welcome()
-	//GetAll2(db)
+	//GetAll2(db) //users
+	//employee.Welcome()
 	/*db.Exec("INSERT INTO pokemon VALUES (6, 'Eeeevee')")
-	employee.GetAll2(db)
+	employee.Welcome()
 	employee.SearchByName2(db, "adfh")
 	db.Exec("INSERT INTO customerLogin VALUES ('fffff', 'passwords', 'adsffff', 'miakhdddddalifa')")
 	employee.SearchByName2(db, "passwords")
@@ -67,6 +71,19 @@ func searchByName(db *sql.DB, searchvalue string) {
 	var name string
 	row.Scan(&id, &name)
 	fmt.Println(id, name)
+}
+
+func se(db *sql.DB, searchvalue string) {
+	row := db.QueryRow("SELECT * FROM tickets WHERE userName = $1", searchvalue)
+	var u1 int
+	var u2 string
+	var u3 string
+	var u4 string
+	var u5 float32
+	var u6 string
+	var u7 string
+	row.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
+	fmt.Println(u1, u2, u3, u4, u5, u6, u7)
 }
 
 //GetAll2 comment

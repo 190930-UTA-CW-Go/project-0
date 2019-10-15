@@ -203,6 +203,18 @@ func welcomeAdmin() {
 	fmt.Scanln(&choice)
 	switch choice {
 	case 1:
+		/*func GetAll2(db *sql.DB) {
+			rows, _ := db.Query("SELECT * FROM EMPLOYEELOGIN")
+			for rows.Next() {
+				var u1 int
+				var u2 string
+				var u3 string
+				var u4 string
+				var u5 string
+				rows.Scan(&u1, &u2, &u3, &u4, &u5)
+				fmt.Println(u1, u2, u3, u4, u5)
+			}
+		}*/
 		fmt.Println("HERE ARE THE PRISONERS WITH JOBS:")
 		datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 			"localhost", 5432, "postgres", "postgres", "postgres")
@@ -220,9 +232,9 @@ func welcomeAdmin() {
 			var u5 string
 			rows.Scan(&u1, &u2, &u3, &u4, &u5)
 			fmt.Println(u1, u2, u3, u4, u5)
-			fmt.Println("SUCCESS. RETURNING. . . . .")
-			welcomeAdmin()
 		}
+		fmt.Println("SUCCESS. RETURNING. . . . .")
+		welcomeAdmin()
 	case 2:
 		fmt.Println("HU WANTS FREE HANDOUTS:")
 		datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
@@ -244,8 +256,9 @@ func welcomeAdmin() {
 			rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
 			fmt.Println(u1, u2, u3, u4, u5, u6, u7)
 		}
+		Approvedeny()
 	case 3:
-		//Approve/Deny
+		Approvedeny()
 	case 4:
 		Welcome()
 	case 5:
@@ -356,4 +369,117 @@ func viewMyreimburses() {
 	fmt.Println()
 	welcomeEmployee()
 
+}
+
+//Approvedeny acc
+func Approvedeny() {
+	//var ticketnum int
+	fmt.Println("PICK")
+	fmt.Println("1: INPUT SERIAL PRIMARY KEY OF THE TICKET")
+	fmt.Println("OR")
+	fmt.Println("2: INPUT USERNAME OF THE TICKET")
+	fmt.Println("3: RETURN")
+	fmt.Println("4: EXIT")
+	fmt.Println()
+	var choice int
+	fmt.Scanln(&choice)
+	switch choice {
+	case 1:
+		fmt.Println("1: INPUT SERIAL PRIMARY KEY OF THE TICKET:")
+		var asdf int
+		fmt.Scanln(&asdf)
+		datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+			"localhost", 5432, "postgres", "postgres", "postgres")
+		db, err := sql.Open("postgres", datasource)
+		defer db.Close()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("id is ")
+		fmt.Println(asdf)
+		row := db.QueryRow("SELECT * FROM tickets WHERE id = $1", asdf)
+		var u1 int
+		var u2 string
+		var u3 string
+		var u4 string
+		var u5 float32
+		var u6 string
+		var u7 string
+		row.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
+		fmt.Println("right")
+
+		fmt.Println(u1, u2, u3, u4, u5, u6, u7)
+		fmt.Println("here")
+
+		/*func searchByName(db *sql.DB, searchvalue string) {
+			row := db.QueryRow("SELECT * FROM pokemon WHERE name = $1", searchvalue)
+			var id int
+			var name string
+			row.Scan(&id, &name)
+			fmt.Println(id, name)
+		}
+
+				func GetAll3(db *sql.DB) {
+			rows, _ := db.Query("SELECT * FROM TICKETS")
+			for rows.Next() {
+				var u1 int
+				var u2 string
+				var u3 string
+				var u4 string
+				var u5 float32
+				var u6 string
+				var u7 string
+				rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
+				fmt.Println(u1, u2, u3, u4, u5, u6, u7)*/
+
+		fmt.Println("WHAT WOULD YOU LIKE TO DO ABOUT THIS REIMBURSEMENT?")
+		fmt.Println("1: APPROVE")
+		fmt.Println("2: DENY")
+		fmt.Println("3. IGNORE")
+		var choice2 int
+		fmt.Scanln(&choice2)
+		switch choice2 {
+		case 1:
+			var yess = "APPROVED"
+			datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+				"localhost", 5432, "postgres", "postgres", "postgres")
+			db, err := sql.Open("postgres", datasource)
+			defer db.Close()
+			if err != nil {
+				panic(err)
+			}
+			db.Exec("UPDATE tickets SET reason = $1 WHERE id = $2", yess, u1)
+			fmt.Println("SUCCESSFULLY UPDATED DATABASE. RETURNING YOU. . .")
+			Approvedeny()
+		case 2:
+			var noo = "DENIED"
+			datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+				"localhost", 5432, "postgres", "postgres", "postgres")
+			db, err := sql.Open("postgres", datasource)
+			defer db.Close()
+			if err != nil {
+				panic(err)
+			}
+			db.Exec("UPDATE tickets SET reason = $1 WHERE id = $2", noo, u1)
+			fmt.Println("SUCCESSFULLY UPDATED DATABASE. RETURNING YOU. . .")
+			Approvedeny()
+		case 3:
+			fmt.Println("NO ACTION TAKEN. RETURNING YOU. . .")
+			Approvedeny()
+		}
+	case 2:
+	case 3:
+		Approvedeny()
+	case 4:
+		os.Exit(0)
+		/*
+				 table tickets
+				 ticketNum SERIAL primary key,
+			    userName varchar NOT NULL,
+			    fName varchar NOT NULL,
+			    lName varchar NOT NULL,
+			    reimburse float NOT NULL,
+			    reason varchar NOT NULL,
+			    what varchar NOT NULL*/
+	}
 }
