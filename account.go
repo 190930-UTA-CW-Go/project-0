@@ -6,13 +6,12 @@ import (
 	"os"
 	"strconv"
 
-	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 )
 
 const (
 	host     = "localhost"
-	port     = 5433
+	port     = 5432
 	user     = "postgres"
 	password = "postgres"
 	dbname   = "postgres"
@@ -34,13 +33,17 @@ var customerlist []account
 var registrationlist = make([]newcustomer, 5)
 
 type account struct {
-	//id                                      int64
 	Firstname, Lastname, Password, Username string
 	Balance                                 float64
 }
 
 type newcustomer struct {
 	username, password string
+}
+
+type employee struct {
+	Firstname, Lastname, Password, Username string
+	// something to access customer
 }
 
 func (a account) printCustomers() string {
@@ -156,7 +159,7 @@ func WriteToFile(c map[int]account) {
 }
 
 //NEED TO EDIT?
-func OpenDB() {
+func OpenDB() *sql.DB {
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 	db, err := sql.Open("postgres", datasource)
@@ -165,8 +168,16 @@ func OpenDB() {
 		panic(err)
 	}
 
-	db.Exec("INSERT INTO accounts VALUES ('Dio', 'Brando', 'DIO','ZAWARUDO',5000.75)")
+	//db.Exec("INSERT INTO accounts VALUES ('Dio', 'Brando', 'DIO','ZAWARUDO',5000.75)")
+	addAccounts(db, "Khang", "Tran", "Deathberry", "Pika", 75.87)
+	searchByName(db, "Khang")
+	//deposit(db, 50.25, 75.87, "Khang")
+	withdraw(db, 50.42, 75.87, "Khang")
+	//searchByUsrNm(db, "Deathberry")
+	searchByUsrNm(db, "Deathberry")
+	register(db, "Deathberry", "I eat birds")
 	getAll(db)
+	return db
 }
 
 //NEED TO EDIT
@@ -181,26 +192,69 @@ func ping(db *sql.DB) {
 
 //NEED TO EDIT
 func getAll(db *sql.DB) {
-	rows, _ := db.Query("SELECT * FROM ACCOUNTS")
+	rows, err := db.Query("SELECT * FROM accounts")
+	if err != nil {
+		fmt.Println(err)
+	}
 	for rows.Next() {
-		var Firstname string
-		var Lastname string
-		var Username string
-		var Password string
-		var Balance float64
-		rows.Scan(&Firstname, &Lastname, &Username, &Password, &Balance)
-		fmt.Println(Firstname, Lastname, Username, Password, Balance)
+		var firstname string
+		var lastname string
+		var username string
+		var password string
+		var balance float64
+		rows.Scan(&firstname, &lastname, &username, &password, &balance)
+		fmt.Println(firstname, lastname, username, password, balance)
 	}
 }
 
 //NEED TO EDIT
 func searchByName(db *sql.DB, searchvalue string) {
-	row := db.QueryRow("SELECT * FROM accounts WHERE Firstname = $1", searchvalue)
-	var Firstname string
-	var Lastname string
-	var Username string
-	var Password string
-	var Balance float64
-	row.Scan(&Firstname, &Lastname, &Username, &Password, &Balance)
-	fmt.Println(Firstname, Lastname, Username, Password, Balance)
+	row := db.QueryRow("SELECT * FROM accounts WHERE firstname = $1", searchvalue)
+	var firstname string
+	var lastname string
+	var username string
+	var password string
+	var balance float64
+	row.Scan(&firstname, &lastname, &username, &password, &balance)
+	fmt.Println(firstname, lastname, username, password, balance)
+}
+
+func searchByUsrNm(db *sql.DB, searchusr string) bool {
+	row := db.QueryRow("SELECT username FROM newcustomers WHERE username = $1", searchusr)
+	var username string
+	row.Scan(&username)
+	if searchusr == username {
+		fmt.Println("The username ", searchusr, " was found")
+		return true
+	} else {
+		fmt.Println("The username ", searchusr, "was not found")
+		return false
+	}
+}
+func addAccounts(db *sql.DB, firstname string, lastname string, username string, password string, balance float64) {
+	db.Exec("INSERT INTO accounts (firstname, lastname, username, password, balance)"+
+		"VALUES ($1, $2, $3, $4, $5)", firstname, lastname, username, password, balance)
+}
+
+func deposit(db *sql.DB, money float64, balance float64, fname string) {
+	db.Exec("UPDATE accounts SET balance = $1 WHERE firstname = $2", money+balance, fname)
+	fmt.Println("Updated new balance is", money+balance, fname)
+}
+
+func withdraw(db *sql.DB, money float64, balance float64, fname string) {
+	if balance-money < 0 {
+		fmt.Println("Sorry you can't withdraw that much!")
+	} else {
+		db.Exec("UPDATE accounts SET balance = $1 WHERE firstname = $2", balance-money, fname)
+		fmt.Println("Updated balance is now", balance-money, fname)
+	}
+}
+
+func register(db *sql.DB, usrname string, pw string) {
+	if searchByUsrNm(db, usrname) == true {
+		fmt.Println("Sorry this user is already in the list!")
+	} else {
+		db.Exec("INSERT INTO newcustomers username, password)"+"VALUES ($1, $2)", usrname, pw)
+		fmt.Println("User has now been added!")
+	}
 }

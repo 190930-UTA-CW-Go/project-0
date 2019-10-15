@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 )
 
@@ -18,17 +17,9 @@ func main() {
 	custArr = append(custArr, cust1, cust2, cust3, cust4, cust5, cust6)
 
 	// Testing Database
-	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-	db, err := sql.Open("postgres", datasource)
-	defer db.Close()
-	if err != nil {
-		panic(err)
-	}
+	OpenDB()
 
-	db.Exec("INSERT INTO account VALUES ('Dio', 'Brando', 'DIO','ZAWARUDO',5000.75)")
-	getAll(db)
-	// testing Writo to file
+	// testing Write to file
 	// var customArr map[int]account
 	// customArr = make(map[int]account)
 	// customArr[1] = cust1
