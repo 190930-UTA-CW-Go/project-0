@@ -12,7 +12,7 @@ create table drinklist (
     prob float
 );
 
-create table services (
+create table servicers (
     account varchar unique,
     pass varchar,
     company varchar,
@@ -20,9 +20,9 @@ create table services (
     lastname varchar
 );
 
-insert into services values ('superd', 'SEC1verbose', 'Duda-Cola', 'D', 'Admin');
-insert into services values ('supers', 'SEC2verbose', 'Salt-PhD',  'S', 'Admin');
-insert into services values ('supert', 'SEC3verbose', 'TipsyCo',   'T', 'Admin');
+insert into servicers values ('superd', 'SEC1verbose', 'Duda-Cola', 'D', 'Admin');
+insert into servicers values ('supers', 'SEC2verbose', 'Salt-PhD',  'S', 'Admin');
+insert into servicers values ('supert', 'SEC3verbose', 'TipsyCo',   'T', 'Admin');
 
 insert into drinklist values (01, 'Duda-Cola',    'Duda-Cola', 5);
 insert into drinklist values (02, 'Sprunk',       'Duda-Cola', 5);

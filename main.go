@@ -48,4 +48,6 @@ func main() {
 		fmt.Println("Failed to generate vending machine.")
 	}
 
+	app.ListMachine(data)
+
 }

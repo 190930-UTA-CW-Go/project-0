@@ -7,12 +7,11 @@ import (
 
 // ListMachine lists all items in the machine table
 func ListMachine(db *sql.DB) {
-	rows, _ := db.Query("SELECT * FROM machine")
-	var id int
-	var name, brand string
-	var prob float64
+	rows, _ := db.Query("SELECT * FROM machine;")
+	var ind, bev, bra string
+	var sto int
 	for rows.Next() {
-		rows.Scan(&id, &name, &brand, &prob)
-		fmt.Println(id, name, brand, prob)
+		rows.Scan(&ind, &bev, &sto, &bra)
+		fmt.Println(ind, bev, sto, bra)
 	}
 }
