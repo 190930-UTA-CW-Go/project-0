@@ -19,7 +19,6 @@ var userName string
 
 // NewAcc Opens prompt to create a new account.
 func NewAcc() {
-
 	var password string
 	var fname string
 	var lname string
@@ -78,8 +77,9 @@ func Welcome() {
 	fmt.Println("What would you like to do? Press number to choose: ")
 	fmt.Println("1: Log in as Employee")
 	fmt.Println("2: Log in as Manager")
-	fmt.Println("3: Create an account")
-	fmt.Println("4: Exit application")
+	fmt.Println("3: Create an Employee account")
+	fmt.Println("4: CREATE A MANAGER ACCOUNT")
+	fmt.Println("5: Exit application")
 	fmt.Println()
 
 	var choice int
@@ -90,7 +90,7 @@ func Welcome() {
 	case 1:
 		employeeLogin()
 	case 2:
-		managerLogin()
+		ManagerLogin()
 	case 3:
 		NewAcc()
 		fmt.Println()
@@ -99,6 +99,11 @@ func Welcome() {
 		fmt.Println()
 		Welcome()
 	case 4:
+		createManager()
+		fmt.Println("REDIRECTING. . . .")
+		Welcome()
+
+	case 5:
 		os.Exit(0)
 	}
 }
@@ -120,8 +125,8 @@ func employeeLogin() {
 	}
 	row := db.QueryRow("SELECT * FROM employeeLogin WHERE userName = $1", userName)
 	row.Scan(&serial, &userName, &actualPassword, &fname, &lname)
-	fmt.Println("actual password" + actualPassword)
-	fmt.Println("try password" + tryPassword)
+	//fmt.Println("actual password" + actualPassword)
+	//fmt.Println("try password" + tryPassword)		TESTERS
 	if tryPassword == actualPassword {
 		fmt.Println("Logged in as " + userName)
 		welcomeEmployee()
@@ -134,7 +139,7 @@ func employeeLogin() {
 
 func welcomeEmployee() {
 	fmt.Println()
-	fmt.Println("EMPLOYEE PORTAL")
+	fmt.Println("Employee Portal")
 	fmt.Println("What would you like to do? Press number to choose: ")
 	fmt.Println("1: Submit reimbursement ticket")
 	fmt.Println("2: View reimbursement status")
@@ -155,10 +160,140 @@ func welcomeEmployee() {
 	}
 }
 
-func managerLogin() {
-	//
+//ManagerLogin is a
+func ManagerLogin() {
+	var tryPassword, password, adminLogin string
+	fmt.Printf("Enter credentials:  ")
+	fmt.Scanln(&adminLogin)
+	fmt.Printf("Enter password:  ")
+	fmt.Scanln(&tryPassword)
+	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		"localhost", 5432, "postgres", "postgres", "postgres")
+	db, err := sql.Open("postgres", datasource)
+	defer db.Close()
+	if err != nil {
+		panic(err)
+	}
+	row := db.QueryRow("SELECT * FROM employeeAccounts WHERE adminLogin = $1", adminLogin)
+	row.Scan(&adminLogin, &password)
+	//fmt.Println(adminLogin)
+	//fmt.Println("actual password" + password)
+	//fmt.Println("try password" + tryPassword)
+	if tryPassword == password {
+		fmt.Println("Logged in as " + adminLogin)
+		welcomeAdmin()
+	} else {
+		fmt.Println("Failed")
+		fmt.Println("Program will now abort")
+		os.Exit(0)
+	}
 }
 
+func welcomeAdmin() {
+	fmt.Println()
+	fmt.Println("ADMIN PORTAL")
+	fmt.Println("WHAT YOU WANT")
+	fmt.Println("1: LIST ALL OF THE PRISONERS WITH JOBS")
+	fmt.Println("2: LIST PENDING PAYMENTS")
+	fmt.Println("3: APPROVE/DENY $$$")
+	fmt.Println("4: LOG OUT")
+	fmt.Println("5: EXIT")
+	fmt.Println()
+	var choice int
+	fmt.Scanln(&choice)
+	switch choice {
+	case 1:
+		fmt.Println("HERE ARE THE PRISONERS WITH JOBS:")
+		datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+			"localhost", 5432, "postgres", "postgres", "postgres")
+		db, err := sql.Open("postgres", datasource)
+		defer db.Close()
+		if err != nil {
+			panic(err)
+		}
+		rows, _ := db.Query("SELECT * FROM EMPLOYEELOGIN")
+		for rows.Next() {
+			var u1 int
+			var u2 string
+			var u3 string
+			var u4 string
+			var u5 string
+			rows.Scan(&u1, &u2, &u3, &u4, &u5)
+			fmt.Println(u1, u2, u3, u4, u5)
+			fmt.Println("SUCCESS. RETURNING. . . . .")
+			welcomeAdmin()
+		}
+	case 2:
+		fmt.Println("HU WANTS FREE HANDOUTS:")
+		datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+			"localhost", 5432, "postgres", "postgres", "postgres")
+		db, err := sql.Open("postgres", datasource)
+		defer db.Close()
+		if err != nil {
+			panic(err)
+		}
+		rows, _ := db.Query("SELECT * FROM TICKETS")
+		for rows.Next() {
+			var u1 int
+			var u2 string
+			var u3 string
+			var u4 string
+			var u5 float32
+			var u6 string
+			var u7 string
+			rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
+			fmt.Println(u1, u2, u3, u4, u5, u6, u7)
+		}
+	case 3:
+		//Approve/Deny
+	case 4:
+		Welcome()
+	case 5:
+		os.Exit(0)
+	}
+}
+
+func createManager() {
+	var adminLogin string
+	var askpassword string
+	var password string
+	var masterpassword = "master"
+
+	fmt.Println("CREATING AN ADMINISTRATOR ACCOUNT:")
+	fmt.Println("PLEASE ENTER THE MASTER PASSWORD TO PROCEED:")
+	fmt.Println("")
+	fmt.Scanln(&askpassword)
+	if askpassword == masterpassword {
+		fmt.Println("CORRECT")
+	} else {
+		fmt.Println("FAILURE")
+		fmt.Println("FAILURE")
+		fmt.Println("FAILURE")
+		fmt.Println("FAILURE")
+		fmt.Println("FAILURE")
+		fmt.Println("FAILURE")
+		fmt.Println("FAILURE")
+		fmt.Println("FAILURE")
+		fmt.Println("Program will now abort")
+		os.Exit(0)
+	}
+	fmt.Printf("Enter a username:  ")
+	fmt.Scanln(&adminLogin)
+	fmt.Printf("Enter a password:  ")
+	fmt.Scanln(&password)
+
+	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		"localhost", 5432, "postgres", "postgres", "postgres")
+	db, err := sql.Open("postgres", datasource)
+	defer db.Close()
+	if err != nil {
+		panic(err)
+	}
+	db.Exec("INSERT INTO employeeAccounts(adminLogin,password)"+
+		"VALUES($1,$2)", adminLogin, password)
+	fmt.Println("SUCCESS. RETURNING YOU. . .")
+	Welcome()
+}
 func reimburseReq() {
 	var reimburse float64
 	var reason, fname, lname string
@@ -188,10 +323,8 @@ func reimburseReq() {
 	"VALUES($1,$2,$3, $4)", userName, password, fname, lname)*/
 	db.Exec("INSERT INTO tickets(userName,fname, lname, reimburse, reason, what)"+
 		"VALUES($1,$2,$3, $4, $5, $6)", userName, fname, lname, reimburse, reason, what)
-	fmt.Println()
 	fmt.Println("Ticket successfully submitted")
-	fmt.Println("Redirecting you. . . . .")
-	fmt.Println()
+	fmt.Println("SUCCESS Redirecting you. . . . .")
 	welcomeEmployee()
 }
 
@@ -205,7 +338,6 @@ func viewMyreimburses() {
 	}
 	fmt.Println()
 	fmt.Println("Displaying reimbursement tickets:")
-	fmt.Println()
 	fmt.Println(userName)
 	//rows, _ := db.Query("SELECT ticketNum, userName, fName, lName, reimburse, reason FROM tickets WHERE userName = $1", userName)
 	rows, _ := db.Query("SELECT * FROM tickets WHERE userName = $1", userName)
@@ -220,21 +352,7 @@ func viewMyreimburses() {
 		rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
 		fmt.Println(u1, u2, u3, u4, u5, u6, u7)
 	}
-	/* func GetAll3(db *sql.DB) {
-		rows, _ := db.Query("SELECT * FROM TICKETS")
-		for rows.Next() {
-			var u1 int
-			var u2 string
-			var u3 string
-			var u4 string
-			var u5 float32
-			var u6 string
-			rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6)
-			fmt.Println(u1, u2, u3, u4, u5, u6)
-		}
-	}
-	*/
-	fmt.Println("Redirecting you. . . . .")
+	fmt.Println("SUCCESS. Redirecting you. . . . .")
 	fmt.Println()
 	welcomeEmployee()
 

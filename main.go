@@ -20,13 +20,13 @@ func main() {
 	//db.Exec("INSERT INTO pokemon VALUES (4, 'Eevee')")
 	//db.Exec("INSERT INTO pokemon VALUES (8, 'tyrannitar')")
 	//	getAll(db)
-	GetAll3(db)
+	//GetAll3(db)
 	//searchByName(db, "Eeesevee")
 	//employee.NewAcc()
-	GetAll2(db)
+	//GetAll4(db)
 	//employee.SearchUser("thirdacc")
 	//employee.Welcome()
-	//employee.NewAcc()
+	//employee.ManagerLogin()
 	////db.Exec("INSERT INTO employeeAccounts VALUES ('adf', 'Eeeevee')")
 	//GetAll3(db)
 	//fmt.Println("die")
@@ -96,5 +96,16 @@ func GetAll3(db *sql.DB) {
 		var u7 string
 		rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
 		fmt.Println(u1, u2, u3, u4, u5, u6, u7)
+	}
+}
+
+//GetAll4 comment
+func GetAll4(db *sql.DB) {
+	rows, _ := db.Query("SELECT * FROM EMPLOYEEACCOUNTS")
+	for rows.Next() {
+		var u2 string
+		var u3 string
+		rows.Scan(&u2, &u3)
+		fmt.Println(u2, u3)
 	}
 }
