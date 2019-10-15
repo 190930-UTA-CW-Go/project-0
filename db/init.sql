@@ -23,6 +23,7 @@ create table tickets(
     fName varchar NOT NULL,
     lName varchar NOT NULL,
     reimburse float NOT NULL,
-    reason varchar NOT NULL
+    reason varchar NOT NULL,
+    what varchar NOT NULL
 );
 

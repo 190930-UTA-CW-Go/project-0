@@ -162,6 +162,7 @@ func managerLogin() {
 func reimburseReq() {
 	var reimburse float64
 	var reason, fname, lname string
+	var what = "pending. . ."
 	fmt.Println("Enter reimbursement amount  ")
 	fmt.Scanln(&reimburse)
 	fmt.Println("Reason:  ")
@@ -185,8 +186,8 @@ func reimburseReq() {
 	row.Scan(&serial, &userName, &password, &fname, &lname)
 	/*db.Exec("INSERT INTO employeeLogin(userName,password,fname, lname)"+
 	"VALUES($1,$2,$3, $4)", userName, password, fname, lname)*/
-	db.Exec("INSERT INTO tickets(userName,fname, lname, reimburse, reason)"+
-		"VALUES($1,$2,$3, $4, $5)", userName, fname, lname, reimburse, reason)
+	db.Exec("INSERT INTO tickets(userName,fname, lname, reimburse, reason, what)"+
+		"VALUES($1,$2,$3, $4, $5, $6)", userName, fname, lname, reimburse, reason, what)
 	fmt.Println()
 	fmt.Println("Ticket successfully submitted")
 	fmt.Println("Redirecting you. . . . .")
@@ -215,8 +216,9 @@ func viewMyreimburses() {
 		var u4 string
 		var u5 float64
 		var u6 string
-		rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6)
-		fmt.Println(u1, u2, u3, u4, u5, u6)
+		var u7 string
+		rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
+		fmt.Println(u1, u2, u3, u4, u5, u6, u7)
 	}
 	/* func GetAll3(db *sql.DB) {
 		rows, _ := db.Query("SELECT * FROM TICKETS")
