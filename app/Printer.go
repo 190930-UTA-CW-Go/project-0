@@ -4,5 +4,6 @@ package app
 Printer documentation
 */
 type Printer interface {
-	print()
+	print(string)
+	result(int, string)
 }

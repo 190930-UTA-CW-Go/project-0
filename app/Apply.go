@@ -2,28 +2,40 @@ package app
 
 import (
 	"fmt"
+	"os"
 )
 
 /*
 Apply documentation
 */
 func Apply(app string) {
-	var comp string
+	var acc, pass, comp, first, last string
 	switch app {
 	case "d":
-		fmt.Println("Thank you for applying to Duda-Cola.")
 		comp = "Duda-Cola"
 	case "s":
-		fmt.Println("Thank you for applying to Salt-PhD.")
 		comp = "Salt-PhD"
 	case "t":
-		fmt.Println("Thank you for applying to TipsyCo.")
 		comp = "TipsyCo"
 	}
 
-	fmt.Println("Please fill out this form to apply.")
-	acc, pass, first, last := Form()
+	fmt.Println("Welcome to the", comp, "application page.")
+
+	if len(os.Args) >= 6 {
+		fmt.Println("Thank you for choosing the quick apply option.")
+		fmt.Println(" ")
+		acc, pass, first, last = QuickApply()
+	} else if (len(os.Args) > 2) && (len(os.Args) < 6) {
+		fmt.Println("It appears that your quick apply was partially complete.")
+		fmt.Println("Please use the application form below.")
+		fmt.Println(" ")
+		acc, pass, first, last = Form()
+	} else {
+		fmt.Println("Please fill out this form to apply.")
+		fmt.Println(" ")
+		acc, pass, first, last = Form()
+	}
 	application := NewTech(acc, pass, comp, first, last)
-	application.print()
+	application.print(comp)
 
 }

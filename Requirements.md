@@ -7,8 +7,8 @@ A Go CLI program. Update `Readme.md` with a name, a list of implemented and plan
 - [] Go Standard Library Packages
     - [x] `fmt`
     - [] `io`
-    - [] `os`
-    - [] `flag`
+    - [x] `os`
+    - [x] `flag`
     - [x] `log`
     - [] `http`
     - [x] `testing`
@@ -17,15 +17,15 @@ A Go CLI program. Update `Readme.md` with a name, a list of implemented and plan
 - [x] primitive data types
 - [x] arrays/slices
 - [] maps
-- [] struct
-- [] interface
+- [x] struct
+- [x] interface
 - [x] functions/methods
 - [x] unit tests/benchmarks
 
 ### Functionality
 - [x] CRUD - Create, Read, Update, Delete data
-- [] CLI - command-line args and/or event-driven text menus
-- [] Execute OS commands
+- [x] CLI - command-line args and/or event-driven text menus
+- [x] Execute OS commands
 - [] Login - Authentication & Authorization
 - [x] Persisting State - Save/Load to file or DB
 - [] HTTP - API endpoints accessible through browser endpoints, HTML/JS, and/or `curl` commands

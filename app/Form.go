@@ -10,17 +10,14 @@ Form documentation
 func Form() (string, string, string, string) {
 	var acc, pas, fir, las string
 
-	fmt.Println("account:")
-	fmt.Scanln(&acc)
-
-	fmt.Println("password:")
-	fmt.Scanln(&pas)
-
-	fmt.Println("first name:")
+	fmt.Printf("First Name: ")
 	fmt.Scanln(&fir)
-
-	fmt.Println("last name:")
+	fmt.Printf("Last Name: ")
 	fmt.Scanln(&las)
+	fmt.Printf("User Name: ")
+	fmt.Scanln(&acc)
+	fmt.Printf("Desired Password: ")
+	fmt.Scanln(&pas)
 
 	return acc, pas, fir, las
 }
