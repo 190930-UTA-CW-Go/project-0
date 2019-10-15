@@ -7,11 +7,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gittingdavid/project-0/database"
+	"github.com/gittingdavid/project-0/print"
 	_ "github.com/lib/pq"
 )
-
-// Global variable for database
-var db *sql.DB
 
 // Global constant for length of account id
 const idLength = 3
@@ -30,8 +29,8 @@ func main() {
 	var err error
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
-	db, err = sql.Open("postgres", datasource)
-	defer db.Close()
+	(database.DBCon), err = sql.Open("postgres", datasource)
+	defer (database.DBCon).Close()
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +44,7 @@ func main() {
 
 func selectQuery(target string, table string, condition string, value string) (hold string) {
 	sqlStatement := `select $1 from $2 where $3 = $4`
-	result := db.QueryRow(sqlStatement, target, table, condition, value)
+	result := (database.DBCon).QueryRow(sqlStatement, target, table, condition, value)
 	result.Scan(&hold)
 	fmt.Println(hold)
 	return
@@ -128,59 +127,10 @@ func addRecord(who string) {
 		values ($1, $2, $3, $4)`
 	}
 
-	_, err := db.Exec(sqlStatement, email, pass, first, last)
+	_, err := (database.DBCon).Exec(sqlStatement, email, pass, first, last)
 	if err != nil {
 		panic(err)
 	}
-}
-
-// Prints table
-// param1 = identify which table "customer" or "employee"
-func printTable(who string) {
-	var count int
-	var email string
-	var pass string
-	var first string
-	var last string
-	fmt.Printf("%-30v", "Login ID:")
-	fmt.Printf("%-20v", "Password:")
-	fmt.Printf("%-20v", "First Name:")
-	fmt.Printf("%-20v", "Last Name:")
-	fmt.Println()
-	fmt.Print("================================================")
-	fmt.Println("==============================================")
-
-	sqlStatement := ``
-	if who == "customer" {
-		sqlStatement = `select * from customer`
-	} else {
-		sqlStatement = `select * from employee`
-	}
-	rows, _ := db.Query(sqlStatement)
-
-	/*
-		sqlStatement := `select * from $1`
-		rows, _ := db.Query(sqlStatement, who)
-	*/
-
-	for rows.Next() {
-		// count variable used as empty table error checker
-		count++
-		rows.Scan(&email, &pass, &first, &last)
-		fmt.Printf("%-30v", email)
-		fmt.Printf("%-20v", pass)
-		fmt.Printf("%-20v", first)
-		fmt.Printf("%-20v", last)
-		fmt.Println()
-	}
-
-	if count == 0 {
-		fmt.Println("No Data in Table")
-	}
-
-	fmt.Print("================================================")
-	fmt.Println("==============================================")
-	fmt.Println()
 }
 
 // Authenticate login and password input
@@ -201,7 +151,7 @@ func authenticate(who string) {
 	} else {
 		sqlStatement = `select pass from employee where email=$1`
 	}
-	row := db.QueryRow(sqlStatement, email)
+	row := (database.DBCon).QueryRow(sqlStatement, email)
 	row.Scan(&hold)
 
 	//hold := selectQuery("pass", who, "email", email)
@@ -235,7 +185,7 @@ func customerMenu(login string) {
 
 	switch input {
 	case "1":
-		printAccounts(login)
+		print.Accounts(login)
 	case "2":
 		openAccount(login)
 	case "3":
@@ -245,7 +195,7 @@ func customerMenu(login string) {
 		fmt.Println()
 		goto End
 	default:
-		invalidPrint()
+		print.Invalid()
 	}
 	customerMenu(login)
 End:
@@ -270,11 +220,11 @@ func employeeMenu(login string) {
 
 	switch input {
 	case "1":
-		printTable("customer")
+		print.Table("customer")
 	case "2":
-		printTable("employee")
+		print.Table("employee")
 	case "3":
-		printAccounts("")
+		print.Accounts("")
 	case "4":
 		deleteRecord("customer")
 	case "5":
@@ -288,7 +238,7 @@ func employeeMenu(login string) {
 		fmt.Println()
 		goto Exit
 	default:
-		invalidPrint()
+		print.Invalid()
 	}
 	employeeMenu(login)
 Exit:
@@ -308,12 +258,12 @@ func deleteRecord(who string) {
 		sqlStatement = `delete from employee where email = $1`
 	}
 
-	res, err := db.Exec(sqlStatement, email)
+	res, err := (database.DBCon).Exec(sqlStatement, email)
 	if err == nil {
 		count, err := res.RowsAffected()
 		if err == nil {
 			if count == 0 {
-				invalidPrint()
+				print.Invalid()
 			} else {
 				fmt.Println("> Successfully Deleted")
 				fmt.Println()
@@ -337,64 +287,10 @@ func openAccount(login string) {
 	insert into account (email, acc_type, acc_balance, acc_id)
 	values ($1, $2, $3, $4)`
 
-	_, err := db.Exec(sqlStatement, login, name, balance, generateID())
+	_, err := (database.DBCon).Exec(sqlStatement, login, name, balance, generateID())
 	if err != nil {
 		panic(err)
 	}
-}
-
-// Print accounts associated with login id
-// param1 = customer login id
-func printAccounts(login string) {
-	var count int
-	var email string
-	var name string
-	var balance float32
-	var number int
-	fmt.Printf("%-30v", "Login ID:")
-	fmt.Printf("%-20v", "Account Type:")
-	fmt.Printf("%-20v", "Account Balance:")
-	fmt.Printf("%-20v", "Account Number:")
-	fmt.Println()
-	fmt.Print("================================================")
-	fmt.Println("==============================================")
-
-	sqlStatement := ""
-	if login == "" {
-		sqlStatement = `select * from account order by email`
-		rows, _ := db.Query(sqlStatement)
-		for rows.Next() {
-			// count variable used as empty table error checker
-			count++
-			rows.Scan(&email, &name, &balance, &number)
-			fmt.Printf("%-30v", email)
-			fmt.Printf("%-20v$", name)
-			fmt.Printf("%-20v", balance)
-			fmt.Printf("%-20v", number)
-			fmt.Println()
-		}
-	} else {
-		sqlStatement = `select * from account where email = $1`
-		rows, _ := db.Query(sqlStatement, login)
-		for rows.Next() {
-			// count variable used as empty table error checker
-			count++
-			rows.Scan(&email, &name, &balance, &number)
-			fmt.Printf("%-30v", email)
-			fmt.Printf("%-20v$", name)
-			fmt.Printf("%-20v", balance)
-			fmt.Printf("%-20v", number)
-			fmt.Println()
-		}
-	}
-
-	if count == 0 {
-		fmt.Println("No Data in Table")
-	}
-
-	fmt.Print("================================================")
-	fmt.Println("==============================================")
-	fmt.Println()
 }
 
 func applyJoint(login string) {
@@ -407,7 +303,7 @@ func applyJoint(login string) {
 	fmt.Println()
 
 	if oneNumber == twoNumber {
-		invalidPrint()
+		print.Invalid()
 	} else {
 		var hold1 string
 		var hold2 string
@@ -416,25 +312,25 @@ func applyJoint(login string) {
 
 		// Get email values
 		sqlStatement := `select email from account where acc_id = $1`
-		result1 := db.QueryRow(sqlStatement, oneNumber)
+		result1 := (database.DBCon).QueryRow(sqlStatement, oneNumber)
 		result1.Scan(&hold1)
 
 		//hold1 = selectQuery("email", "account", "acc_id", oneNumber)
 
-		result2 := db.QueryRow(sqlStatement, twoNumber)
+		result2 := (database.DBCon).QueryRow(sqlStatement, twoNumber)
 		result2.Scan(&hold2)
 
 		// Get account names
 		sqlStatement2 := `select acc_type from account where acc_id = $1`
-		result3 := db.QueryRow(sqlStatement2, oneNumber)
+		result3 := (database.DBCon).QueryRow(sqlStatement2, oneNumber)
 		result3.Scan(&hold3)
 
-		result4 := db.QueryRow(sqlStatement2, hold4)
+		result4 := (database.DBCon).QueryRow(sqlStatement2, hold4)
 		result4.Scan(&hold4)
 
 		if hold1 == "" || hold2 == "" || hold1 != login || hold1 == hold2 ||
 			hold3 == "JOINT" || hold4 == "JOINT" {
-			invalidPrint()
+			print.Invalid()
 		} else {
 			fmt.Println("Submitted Joint Account Request")
 			fmt.Println()
@@ -442,7 +338,7 @@ func applyJoint(login string) {
 			insert into joint (email1, email2, num1, num2)
 			values ($1, $2, $3, $4)`
 
-			_, err := db.Exec(sqlStatement, hold1, hold2, oneNumber, twoNumber)
+			_, err := (database.DBCon).Exec(sqlStatement, hold1, hold2, oneNumber, twoNumber)
 			if err != nil {
 				panic(err)
 			}
@@ -452,7 +348,7 @@ func applyJoint(login string) {
 
 // Approve/Deny Customer Applications
 func verifyJoint() {
-	count, slice := printJoints()
+	count, slice := print.Joints()
 	var input string
 	var hold string
 
@@ -463,11 +359,11 @@ func verifyJoint() {
 		newInput := slice[convInput-1]
 
 		sqlStatement := `select index from joint where index = $1`
-		result := db.QueryRow(sqlStatement, newInput)
+		result := (database.DBCon).QueryRow(sqlStatement, newInput)
 		result.Scan(&hold)
 
 		if hold == "" {
-			invalidPrint()
+			print.Invalid()
 		} else {
 			var choice string
 			fmt.Println()
@@ -482,17 +378,17 @@ func verifyJoint() {
 				var idOne, idTwo string
 				sqlOne := `select num1 from joint where index = $1`
 				sqlTwo := `select num2 from joint where index = $1`
-				resOne := db.QueryRow(sqlOne, input)
+				resOne := (database.DBCon).QueryRow(sqlOne, input)
 				resOne.Scan(&idOne)
-				resTwo := db.QueryRow(sqlTwo, input)
+				resTwo := (database.DBCon).QueryRow(sqlTwo, input)
 				resTwo.Scan(&idTwo)
 
 				// Use acc_id values to get acc_balance
 				var balOne, balTwo float32
 				sqlThree := `select acc_balance from account where acc_id = $1`
-				resThree := db.QueryRow(sqlThree, idOne)
+				resThree := (database.DBCon).QueryRow(sqlThree, idOne)
 				resThree.Scan(&balOne)
-				resFour := db.QueryRow(sqlThree, idTwo)
+				resFour := (database.DBCon).QueryRow(sqlThree, idTwo)
 				resFour.Scan(&balTwo)
 
 				// Update the affected records
@@ -501,12 +397,12 @@ func verifyJoint() {
 				update account
 				set acc_type = $1, acc_balance = $2, acc_id = $3
 				where acc_id = $4`
-				_, err := db.Exec(sqlUpdate, "JOINT", balOne+balTwo, newID, idOne)
+				_, err := (database.DBCon).Exec(sqlUpdate, "JOINT", balOne+balTwo, newID, idOne)
 				if err != nil {
 					panic(err)
 				}
 
-				_, err = db.Exec(sqlUpdate, "JOINT", balOne+balTwo, newID, idTwo)
+				_, err = (database.DBCon).Exec(sqlUpdate, "JOINT", balOne+balTwo, newID, idTwo)
 				if err != nil {
 					panic(err)
 				}
@@ -524,69 +420,25 @@ func verifyJoint() {
 	}
 }
 
-// Deletes a record from the joint table
+// DeleteJoint = Deletes a record from the joint table
 // param1 = index primary key to delete record
 // param2 = string message to output
 func deleteJoint(input string, print string) {
 	sqlStatement := `delete from joint where index = $1`
-	res, err := db.Exec(sqlStatement, input)
+	res, err := (database.DBCon).Exec(sqlStatement, input)
 	if err == nil {
 		count, err := res.RowsAffected()
 		if err == nil {
 			if count == 0 {
-				invalidPrint()
+				////////////////////////////////////////////////////////////////////////////
+				//print.Invalid()
+				fmt.Println("> Invalid Input")
+				fmt.Println()
+				////////////////////////////////////////////////////////////////////////////
 			} else {
 				fmt.Println(print)
 				fmt.Println()
 			}
 		}
 	}
-}
-
-// Prints joint table
-func printJoints() (count int, slice []string) {
-	count = 0
-	var index string
-	var email1 string
-	var email2 string
-	var num1 int
-	var num2 int
-
-	fmt.Print("   ")
-	fmt.Printf("%-25v", "#1 Login:")
-	fmt.Printf("%-25v", "#2 Login:")
-	fmt.Printf("%-20v", "#1 Account ID:")
-	fmt.Printf("%-20v", "#2 Account ID:")
-	fmt.Println()
-	fmt.Print("================================================")
-	fmt.Println("==============================================")
-
-	sqlStatement := "select * from joint"
-	rows, _ := db.Query(sqlStatement)
-	for rows.Next() {
-		count++
-
-		rows.Scan(&index, &email1, &email2, &num1, &num2)
-		slice = append(slice, index)
-		fmt.Print(strconv.Itoa(count) + ") ")
-		fmt.Printf("%-25v", email1)
-		fmt.Printf("%-25v", email2)
-		fmt.Printf("%-20v", num1)
-		fmt.Printf("%-20v", num2)
-		fmt.Println()
-	}
-
-	if count == 0 {
-		fmt.Println("No Data in Table")
-	}
-
-	fmt.Print("================================================")
-	fmt.Println("==============================================")
-	fmt.Println()
-	return
-}
-
-func invalidPrint() {
-	fmt.Println("> Invalid Input")
-	fmt.Println()
 }
