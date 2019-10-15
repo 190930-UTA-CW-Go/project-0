@@ -18,9 +18,15 @@ create table employees (
 );
 create table accountholders (
 	username text primary key,
+	accountnumber serial,
+	firstname text not null,
+	lastname text not null,
+	address text not null,
+	phone text not null,
 	checking integer,
 	savings integer
 );
+alter sequence accountholders_accountnumber_seq increment 1 restart with 1000000;
 insert into employees (username, password) values ('employee1','password');
 insert into employees (username, password) values ('employee2','password');
 insert into employees (username, password) values ('employee3','password');

@@ -10,13 +10,21 @@
     <br><br>
     <table border="1">
    <tr>
-        <th>User name</th>
+	<th>Account number</th>
+	<th>First name</th>
+	<th>Last name</th>
+	<th>Address</th>
+	<th>Phone</th>
         <th>Checking</th>
         <th>Savings</th>
    </tr>
    {{ range .Ac }}
    <tr>
-        <td>{{ .Username }}</td>
+	<td>{{ .Accountnumber }} </td>
+        <td>{{ .Firstname }}</td>
+	<td>{{ .Lastname }}</td>
+	<td>{{ .Address }}</td>
+	<td>{{ .Phone }}</td>
         <td>${{ .Checking }}</td>
         <td>${{ .Savings }}</td>
    </tr>

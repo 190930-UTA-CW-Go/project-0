@@ -35,6 +35,11 @@ type Applications struct {
 }
 type Accountholders struct {
 	Username string
+	Firstname string
+	Lastname string
+	Address string
+	Phone string
+	Accountnumber int
 	Checking int
 	Savings  int
 }
@@ -371,18 +376,22 @@ func employeelogin(response http.ResponseWriter, request *http.Request) {
 func process(response http.ResponseWriter, request *http.Request) {
 	db := connect()
 	temp, _ := template.ParseFiles("templates/employeelogin.html")
-	var statement, choice, action string
+	var statement,query,choice, action, fn, ln, add, ph string
 	choice = request.FormValue("choice")
 	action = request.FormValue("action")
+	query =  "SELECT firstname,lastname,address,phone FROM applications WHERE username = $1;"
+	row := db.QueryRow(query, choice)
+        row.Scan(&fn,&ln,&add,&ph)
 	statement = "DELETE FROM applications WHERE username = $1;"
 	_, err := db.Exec(statement, choice)
 	if err != nil {
 		panic(err)
 	}
 	if action == "approve" {
-		statement = "INSERT INTO accountholders (username, checking, savings)"
-		statement += " VALUES ($1, $2, $3);"
-		_, err = db.Exec(statement, choice, 0, 0)
+		statement = "INSERT INTO accountholders (username,firstname,lastname,address,phone,"
+		statement += "checking,savings)"
+		statement += " VALUES ($1, $2, $3, $4, $5, $6, $7);"
+		_, err = db.Exec(statement, choice,fn,ln,add,ph,0, 0)
 		if err != nil {
 			panic(err)
 		}
@@ -399,7 +408,7 @@ func process(response http.ResponseWriter, request *http.Request) {
 		}
 	}
 	view := ViewInfo{}
-	rows, _ := db.Query("select * from applications")
+	rows, _ := db.Query("SELECT * FROM applications")
 	for rows.Next() {
 		var username, firstname, lastname, address, phone string
 		var ap = Applications{}
@@ -424,13 +433,18 @@ func viewAccounts(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	view := ViewInfo{}
-	rows, _ := db.Query("select * from accountholders")
+	rows, _ := db.Query("SELECT * FROM accountholders")
 	for rows.Next() {
-		var username string
-		var checking, savings int
+		var username,fn,ln,ph,add string
+		var accountnumber, checking, savings int
 		var ac = Accountholders{}
-		rows.Scan(&username, &checking, &savings)
+		rows.Scan(&username, &accountnumber, &fn, &ln, &add, &ph, &checking, &savings)
 		ac.Username = username
+		ac.Firstname = fn
+		ac.Lastname = ln
+		ac.Address = add
+		ac.Phone = ph
+		ac.Accountnumber = accountnumber
 		ac.Checking = checking
 		ac.Savings = savings
 		view.Ac = append(view.Ac, ac)
@@ -469,7 +483,7 @@ func logout(response http.ResponseWriter, request *http.Request) {
 	temp.Execute(response, Signin)
 }
 func uniqueName(db *sql.DB, name string) bool {
-	rows, _ := db.Query("select username from users")
+	rows, _ := db.Query("SELECT username FROM users")
 	for rows.Next() {
 		var username string
 		rows.Scan(&username)
@@ -481,7 +495,7 @@ func uniqueName(db *sql.DB, name string) bool {
 }
 func passwordMatches(db *sql.DB, name string, password string) bool {
 	var pw string
-	row := db.QueryRow("select password from users where username = $1", name)
+	row := db.QueryRow("SELECT password FROM users WHERE username = $1", name)
 	row.Scan(&pw)
 	if password == pw {
 		return true
@@ -489,7 +503,7 @@ func passwordMatches(db *sql.DB, name string, password string) bool {
 	return false
 }
 func uniqueEmployeeName(db *sql.DB, name string) bool {
-	rows, _ := db.Query("select username from employees")
+	rows, _ := db.Query("SELECT username FROM employees")
 	for rows.Next() {
 		var username string
 		rows.Scan(&username)
@@ -501,7 +515,7 @@ func uniqueEmployeeName(db *sql.DB, name string) bool {
 }
 func employeePasswordMatches(db *sql.DB, name string, password string) bool {
 	var pw string
-	row := db.QueryRow("select password from employees where username = $1", name)
+	row := db.QueryRow("SELECT password FROM employees WHERE username = $1", name)
 	row.Scan(&pw)
 	if password == pw {
 		return true
@@ -511,15 +525,15 @@ func employeePasswordMatches(db *sql.DB, name string, password string) bool {
 
 func getStatus(db *sql.DB, name string) string {
 	var status string
-	row := db.QueryRow("select status from users where username = $1", name)
+	row := db.QueryRow("SELECT status FROM users WHERE username = $1", name)
 	row.Scan(&status)
 	return status
 }
 func getBalance(db *sql.DB, name string) (int, int) {
 	var checking, savings int
-	row := db.QueryRow("select checking from accountholders where username = $1", name)
+	row := db.QueryRow("SELECT checking FROM accountholders where username = $1", name)
 	row.Scan(&checking)
-	row = db.QueryRow("select savings from accountholders where username = $1", name)
+	row = db.QueryRow("SELECT savings FROM accountholders where username = $1", name)
 	row.Scan(&savings)
 	return checking, savings
 }
