@@ -11,10 +11,7 @@ import (
 // param1 = identify which table "customer" or "employee"
 func Table(who string) {
 	var count int
-	var email string
-	var pass string
-	var first string
-	var last string
+	var email, pass, first, last string
 	fmt.Printf("%-30v", "Login ID:")
 	fmt.Printf("%-20v", "Password:")
 	fmt.Printf("%-20v", "First Name:")
@@ -30,11 +27,6 @@ func Table(who string) {
 		sqlStatement = `select * from employee`
 	}
 	rows, _ := (database.DBCon).Query(sqlStatement)
-
-	/*
-		sqlStatement := `select * from $1`
-		rows, _ := database.DBCon.Query(sqlStatement, who)
-	*/
 
 	for rows.Next() {
 		// count variable used as empty table error checker
@@ -59,11 +51,9 @@ func Table(who string) {
 // Accounts = Print accounts associated with login id
 // param1 = customer login id
 func Accounts(login string) {
-	var count int
-	var email string
-	var name string
+	var count, number int
+	var email, name string
 	var balance float32
-	var number int
 	fmt.Printf("%-30v", "Login ID:")
 	fmt.Printf("%-20v", "Account Type:")
 	fmt.Printf("%-20v", "Account Balance:")
@@ -82,7 +72,8 @@ func Accounts(login string) {
 			rows.Scan(&email, &name, &balance, &number)
 			fmt.Printf("%-30v", email)
 			fmt.Printf("%-20v$", name)
-			fmt.Printf("%-20v", balance)
+			s := fmt.Sprintf("%.2f", balance)
+			fmt.Printf("%-20v", s)
 			fmt.Printf("%-20v", number)
 			fmt.Println()
 		}
@@ -95,7 +86,8 @@ func Accounts(login string) {
 			rows.Scan(&email, &name, &balance, &number)
 			fmt.Printf("%-30v", email)
 			fmt.Printf("%-20v$", name)
-			fmt.Printf("%-20v", balance)
+			s := fmt.Sprintf("%.2f", balance)
+			fmt.Printf("%-20v", s)
 			fmt.Printf("%-20v", number)
 			fmt.Println()
 		}
@@ -113,11 +105,8 @@ func Accounts(login string) {
 // Joints = Prints joint table
 func Joints() (count int, slice []string) {
 	count = 0
-	var index string
-	var email1 string
-	var email2 string
-	var num1 int
-	var num2 int
+	var index, email1, email2 string
+	var num1, num2 int
 
 	fmt.Print("   ")
 	fmt.Printf("%-25v", "#1 Login:")

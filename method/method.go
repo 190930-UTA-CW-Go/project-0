@@ -2,6 +2,7 @@ package method
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 
@@ -268,7 +269,7 @@ func DeleteJoint(input string, print string) {
 // param1 = customer login id
 // param2 = identify either withdraw or deposit
 func Money(login string, who string) {
-	var id, amount, balance string
+	var id, amount, balance, check string
 	fmt.Print("Insert Account ID: ")
 	fmt.Scan(&id)
 	fmt.Print("Insert Amount: $")
@@ -276,15 +277,18 @@ func Money(login string, who string) {
 	fmt.Println()
 
 	// Check account id number is valid
-	sql := `select acc_balance from account where acc_id = $1`
+	sql := `select email, acc_balance from account where acc_id = $1`
 	row := (database.DBCon).QueryRow(sql, id)
-	row.Scan(&balance)
+	row.Scan(&check, &balance)
 
-	amountInt, _ := strconv.Atoi(amount)
-	balanceInt, _ := strconv.Atoi(balance)
+	amountInt, flag := Atof(amount)
+	balanceInt, _ := Atof(balance)
 
-	if balance == "" || (who == "withdraw" && amountInt > balanceInt) {
+	if balance == "" || flag == false || login != check {
 		print.Invalid()
+	} else if who == "withdraw" && amountInt > balanceInt {
+		fmt.Println("> Insufficient Funds")
+		fmt.Println()
 	} else if who == "withdraw" {
 		Withdraw(balanceInt-amountInt, id)
 		fmt.Println()
@@ -295,25 +299,27 @@ func Money(login string, who string) {
 }
 
 // Withdraw =
-func Withdraw(amount int, id string) {
+func Withdraw(amount float32, id string) {
 	sqlUpdate := `update account set acc_balance = $1 where acc_id = $2`
 	_, err := (database.DBCon).Exec(sqlUpdate, amount, id)
 	if err != nil {
 		panic(err)
 	}
+	s := fmt.Sprintf("%.2f", amount)
 	fmt.Print("> New balance $")
-	fmt.Println(amount, "in account", id)
+	fmt.Println(s, "in account", id)
 }
 
 // Deposit =
-func Deposit(amount int, id string) {
+func Deposit(amount float32, id string) {
 	sqlUpdate := `update account set acc_balance = $1 where acc_id = $2`
 	_, err := (database.DBCon).Exec(sqlUpdate, amount, id)
 	if err != nil {
 		panic(err)
 	}
+	s := fmt.Sprintf("%.2f", amount)
 	fmt.Print("> New balance $")
-	fmt.Println(amount, "in account", id)
+	fmt.Println(s, "in account", id)
 }
 
 // Transfer =
@@ -331,26 +337,42 @@ func Transfer(login string) {
 	if acc1 == acc2 {
 		print.Invalid()
 	} else {
+		var email1, email2 string
 		var balance1, balance2 string
 
 		// Check account id number is valid and return acc_balance
-		sql := `select acc_balance from account where acc_id = $1`
+		sql := `select email, acc_balance from account where acc_id = $1`
 		row1 := (database.DBCon).QueryRow(sql, acc1)
-		row1.Scan(&balance1)
+		row1.Scan(&email1, &balance1)
 
 		row2 := (database.DBCon).QueryRow(sql, acc2)
-		row2.Scan(&balance2)
+		row2.Scan(&email2, &balance2)
 
-		transferInt, _ := strconv.Atoi(transfer)
-		balance1Int, _ := strconv.Atoi(balance1)
-		balance2Int, _ := strconv.Atoi(balance2)
+		transferInt, flag := Atof(transfer)
+		balance1Int, _ := Atof(balance1)
+		balance2Int, _ := Atof(balance2)
 
-		if balance1 == "" || balance2 == "" || transferInt > balance1Int {
+		if balance1 == "" || balance2 == "" || flag == false || login != email1 {
 			print.Invalid()
+		} else if transferInt > balance1Int {
+			fmt.Println("> Insufficient Funds")
+			fmt.Println()
 		} else {
 			Withdraw(balance1Int-transferInt, acc1)
 			Deposit(balance2Int+transferInt, acc2)
 			fmt.Println()
 		}
 	}
+}
+
+// Atof =
+func Atof(s string) (money float32, flag bool) {
+	value, err := strconv.ParseFloat(s, 32)
+	if err != nil {
+		flag = false
+	} else {
+		flag = true
+		money = float32(math.Floor(value*100) / 100)
+	}
+	return
 }
