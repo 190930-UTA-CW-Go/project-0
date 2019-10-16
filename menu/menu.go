@@ -1,18 +1,20 @@
 package menu
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/gittingdavid/project-0/database"
 	"github.com/gittingdavid/project-0/method"
 	"github.com/gittingdavid/project-0/print"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // Global constant for length of account id
 const idLength = 3
 
 // Menu = Main Menu
-func Menu() {
+func Menu(flag bool) {
 	var input string
 	fmt.Println("Welcome!")
 	fmt.Println("1) Login Returning Customer")
@@ -25,11 +27,11 @@ func Menu() {
 
 	switch input {
 	case "1":
-		Authenticate("customer")
+		Authenticate("customer", flag)
 	case "2":
 		method.AddRecord("customer")
 	case "3":
-		Authenticate("employee")
+		Authenticate("employee", flag)
 	case "4":
 		fmt.Println("> Goodbye")
 		fmt.Println()
@@ -37,7 +39,7 @@ func Menu() {
 	default:
 		print.Invalid()
 	}
-	Menu()
+	Menu(flag)
 Exit:
 }
 
@@ -126,12 +128,17 @@ Exit:
 
 // Authenticate = login and password input
 // param1 = identify which table "customer" or "employee"
-func Authenticate(who string) {
+func Authenticate(who string, flag bool) {
 	var email, pass, hold string
 	fmt.Print("Login: ")
 	fmt.Scan(&email)
 	fmt.Print("Password: ")
-	fmt.Scan(&pass)
+	if flag == true {
+		result, _ := terminal.ReadPassword(0)
+		pass = string(result)
+	} else {
+		fmt.Scan(&pass)
+	}
 	fmt.Println()
 
 	sqlStatement := ``
@@ -155,4 +162,11 @@ func Authenticate(who string) {
 		fmt.Println("> Login ID or Password do not match.")
 		fmt.Println()
 	}
+}
+
+// ReadFlag =
+func ReadFlag() bool {
+	result := flag.Bool("hide", false, "hide password or not")
+	flag.Parse()
+	return *result
 }

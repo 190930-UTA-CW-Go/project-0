@@ -34,6 +34,9 @@ func main() {
 	//Set RNG Seed
 	rand.Seed(time.Now().UTC().UnixNano())
 
+	//
+	flag := menu.ReadFlag()
+
 	//Main Menu
-	menu.Menu()
+	menu.Menu(flag)
 }

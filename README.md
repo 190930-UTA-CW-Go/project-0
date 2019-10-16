@@ -68,4 +68,5 @@ docker images -a
 To start program:
 ```bash
 go run *.go
+go run *.go -hide
 ```
