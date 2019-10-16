@@ -9,7 +9,7 @@ import (
 Login documentation
 */
 func Login(db *sql.DB, brand string, capacity int) int {
-	i, r, loginErr := 0, 0, 0
+	i, r, n, c, loginErr := 0, 0, 0, 0, 0
 	var userIn, passIn string
 	account := make([]string, 3)
 	pass := make([]string, 3)
@@ -23,35 +23,36 @@ func Login(db *sql.DB, brand string, capacity int) int {
 		i++
 	}
 
-	for c := 0; c >= 1; c = c + 0 {
+	for n = 1; n == 1; n = n + 0 {
 		fmt.Printf("Please enter your username: ")
 		fmt.Scanln(&userIn)
 		fmt.Printf("Please enter your password: ")
 		fmt.Scanln(&passIn)
 
 		for a := range account {
-			fmt.Println(userIn)     //Debugging
-			fmt.Println(account[a]) //Debugging
-			if (userIn == account[a]) && (passIn == pass[a]) {
-				fmt.Println("Welcome, " + firstname[a] + " " + lastname[a] + ".")
-				if company[a] == brand {
-					fmt.Println("Thank you for restocking the vending machine.")
-					Refill(db, capacity)
-					c++
-				} else {
-					fmt.Println("Unfortunately, as a servicer of " + company[a] +
-						", you are unable to service a " + brand + "vending machine.")
-					c++
-				}
-			} else {
-				fmt.Println("Your username and/or password was incorrect.")
-				fmt.Printf("Type 1 to retry login, type 0 to exit login: ")
-				fmt.Scanln(&loginErr)
-				if loginErr == 0 {
-					c++
-				}
+			if userIn == account[a] {
+				c = a
 			}
+		}
 
+		if passIn == pass[c] {
+			fmt.Println("Welcome, " + firstname[c] + " " + lastname[c] + ".")
+			if company[c] == brand {
+				fmt.Println("Thank you for restocking the vending machine.")
+				Refill(db, capacity)
+				n--
+			} else {
+				fmt.Println("Unfortunately, as a servicer of " + company[c] +
+					", you are unable to service a " + brand + " vending machine.")
+				n--
+			}
+		} else {
+			fmt.Println("Your username and/or password was incorrect.")
+			fmt.Printf("Type 1 to retry login, type 0 to exit login: ")
+			fmt.Scanln(&loginErr)
+			if loginErr == 0 {
+				n--
+			}
 		}
 	}
 	r = 1
