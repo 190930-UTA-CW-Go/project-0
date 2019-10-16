@@ -43,7 +43,7 @@ func main() {
 
 	r := gen.Generate(data, *row, *col, *cap)
 	if r == true {
-		vend.Navigate(data)
+		vend.Navigate(data, *cap)
 	} else {
 		fmt.Println("Failed to generate vending machine.")
 	}

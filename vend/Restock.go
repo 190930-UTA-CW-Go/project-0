@@ -1,17 +1,22 @@
 package vend
 
 import (
+	"database/sql"
 	"fmt"
 )
 
 /*
 Restock documentation
 */
-func Restock() int {
+func Restock(db *sql.DB, capacity int) int {
 	r, nav := 0, 0
 
 	for n := 0; n < 1; n = n + 0 {
-		fmt.Println("You resocked the machine!")
+		_, _, _, brand := GetDrinks(db)
+
+		fmt.Println("Please login to restock the machine.")
+		Login(db, brand, capacity)
+
 		fmt.Println("What would you like to do next?")
 		fmt.Println("[1] Buy a drink")
 		fmt.Println("[2] Leave")

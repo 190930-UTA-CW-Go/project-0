@@ -8,7 +8,7 @@ import (
 /*
 Navigate documentation
 */
-func Navigate(db *sql.DB) {
+func Navigate(db *sql.DB, capacity int) {
 	//var app string
 	var nav1 int
 	nav1 = Encounter()
@@ -19,7 +19,7 @@ func Navigate(db *sql.DB) {
 		case 1:
 			nav1 = Vending(db)
 		case 2:
-			nav1 = Restock()
+			nav1 = Restock(db, capacity)
 		case 3:
 			fmt.Println("Goodbye!")
 			n++
