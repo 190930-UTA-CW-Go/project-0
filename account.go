@@ -10,9 +10,9 @@ import (
 )
 
 type account struct {
-	accountNum int
-	custName   string
-
+	accountNum   int
+	custName     string
+	age          int
 	accountType  string //checking or saving
 	availableBal float64
 }
@@ -25,26 +25,6 @@ type NewCustomer struct {
 	password    string
 	userAccList []account
 }
-
-//method to add an account to a list of customer account
-
-func (n *NewCustomer) addNewAccount(a account) {
-	n.userAccList = append(n.userAccList, a)
-
-}
-
-//method to display the account af a customer
-func (n *NewCustomer) displayCustAccountInfos() {
-	for _, account := range n.userAccList {
-		fmt.Println("the list of account :", account.accountNum, account.custName, account.accountType, account.availableBal)
-	}
-}
-
-var accountList []account
-
-var customerList []NewCustomer
-
-//var customerList = make([]newCustomer, 2)
 
 func (c *NewCustomer) Register() {
 	fmt.Println("enter a userName to register")
@@ -61,8 +41,8 @@ func (c *NewCustomer) Register() {
 
 	if index1 == psswrd {
 		fmt.Println(" the password you enter already exist")
-		fmt.Println("Please login to selection and action")
-		c.login()
+
+		Menu()
 	} else {
 		db := dbconnection.DbConnection()
 		defer db.Close()
@@ -71,18 +51,18 @@ func (c *NewCustomer) Register() {
 
 		fmt.Println(" successfully register")
 		fmt.Println("  Now login to select an action")
-		c.login()
+		Menu()
 	}
 }
 
 func (c *NewCustomer) login() {
 	//fmt.Println("the customerlist has:", customerList)
-	fmt.Println("please enter login information ")
-	fmt.Println("please enter your user name ")
+	fmt.Println("Enter login information ")
+	fmt.Println("Enter your user name ")
 	var usName string
 	fmt.Scanln(&usName)
 	c.userName = usName
-	fmt.Println("enter your password")
+	fmt.Println("Enter your password")
 	var pass string
 	fmt.Scanln(&pass)
 	c.password = pass
@@ -90,20 +70,29 @@ func (c *NewCustomer) login() {
 	index := searchCustomerPass(pass)
 
 	if index == pass {
-		fmt.Println(" login successfully")
+		fmt.Println(" Login successfully")
 
 		c.managebank()
 	} else {
-		fmt.Println("register first and try again")
+		fmt.Println("User not found")
+		fmt.Println("Register first and try again")
+		Menu()
 	}
 }
 
 //customer mager the bank
 func (c *NewCustomer) managebank() {
-	fmt.Println("select an option:  c to create a account, d to deposit,w to withdraw ")
-	fmt.Println("j to open a joined account")
-	fmt.Println("e to exit")
+	fmt.Print("================================================")
+	fmt.Println("==============================================")
+	fmt.Println("select an option:")
+	fmt.Println("c: To create a account")
+	fmt.Println("d: To deposit")
+	fmt.Println("j: To open a joined account")
+	fmt.Println("w: To withdraw ")
 	fmt.Println("")
+
+	fmt.Println("e: To exit")
+
 	var choice string
 	fmt.Scanln(&choice)
 	switch choice {
@@ -179,6 +168,11 @@ func (c *NewCustomer) CreateNewAccount() {
 	fmt.Scanln(&name)
 	a.custName = name
 
+	fmt.Println("enter a customer age")
+	var age int
+	fmt.Scanln(&age)
+	a.age = age
+
 	fmt.Println("enter a account type ")
 	var accType string
 	fmt.Scanln(&accType)
@@ -191,27 +185,30 @@ func (c *NewCustomer) CreateNewAccount() {
 	a.availableBal = availbal
 
 	var accNum int
-	accNum = rand.Intn(ssn)
+	accNum = ssn
 
-	//check if a customer alredy have an account
+	//check if a customer already have an account
 	//we search if the account number is alredy in our db
 	index := searchCustomeaccNum(accNum)
 	if index == accNum {
 		fmt.Println("already have an account")
+		//Menu()
 
 	} else {
 		db := dbconnection.DbConnection()
 		defer db.Close()
 		//c.addNewCustomer()
-		db.Exec("INSERT INTO account (accountNum, custName,accountType,availableBal) VALUES ($1,$2,$3,$4)", name, accType, accNum, availbal)
+		db.Exec("INSERT INTO account (accountNum,custName,age,accountType,availableBal) VALUES ($1,$2,$3,$4,$5)", accNum, name, age, accType, availbal)
 		//a.addAccount()
-		c.addNewAccount(a)
-		fmt.Println("account create succeffully")
-		//fmt.Println("the available balance is", a.availableBal)
+		//c.addNewAccount(a)
+		fmt.Println("accountinfo succeffully submitted")
+
+		fmt.Println("you account number is", accNum)
 
 	}
+	Menu()
 
-	fmt.Println("the account list has:", c.userAccList)
+	//fmt.Println("the account list has:", c.userAccList)
 }
 
 func (c *NewCustomer) Applyforjoint() {
@@ -251,13 +248,14 @@ func (c *NewCustomer) Applyforjoint() {
 		//c.addNewCustomer()
 		db.Exec("INSERT INTO jointAccount (id, name1,name2,accType,availableBal) VALUES ($1,$2,$3,$4,$5)", id, name1, name2, accType, availbal)
 		//a.addAccount()
-		c.addNewAccount(a)
+		//c.addNewAccount(a)
 		fmt.Println("account create succeffully")
 		fmt.Println("your account number  is", id)
 
 	}
 
-	fmt.Println("the account list has:", c.userAccList)
+	//fmt.Println("the account list has:", c.userAccList)
+	Menu()
 }
 
 //method to add new customer to a customer list
@@ -308,6 +306,7 @@ func (c *NewCustomer) Withdraw() {
 		fmt.Println("invalid account number")
 
 	}
+	Menu()
 }
 
 //method to deposit into an  account
@@ -332,5 +331,6 @@ func (c *NewCustomer) Deposit() {
 		fmt.Println("Deposit successfull")
 		fmt.Println("the totalbalance is:", availBalance+amount)
 	}
+	Menu()
 
 }
