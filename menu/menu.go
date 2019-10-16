@@ -47,9 +47,12 @@ func CustomerMenu(login string) {
 	var input string
 	fmt.Println("Customer:", login)
 	fmt.Println("1) View Accounts")
-	fmt.Println("2) Open New Account")
-	fmt.Println("3) Apply for Joint Account")
-	fmt.Println("4) Exit")
+	fmt.Println("2) Withdraw")
+	fmt.Println("3) Deposit")
+	fmt.Println("4) Transfer")
+	fmt.Println("5) Open New Account")
+	fmt.Println("6) Apply for Joint Account")
+	fmt.Println("7) Exit")
 	fmt.Print(": ")
 	fmt.Scan(&input)
 	fmt.Println()
@@ -58,10 +61,16 @@ func CustomerMenu(login string) {
 	case "1":
 		print.Accounts(login)
 	case "2":
-		method.OpenAccount(login)
+		method.Money(login, "withdraw")
 	case "3":
-		method.ApplyJoint(login)
+		method.Money(login, "deposit")
 	case "4":
+		method.Transfer(login)
+	case "5":
+		method.OpenAccount(login)
+	case "6":
+		method.ApplyJoint(login)
+	case "7":
 		fmt.Println("> Goodbye")
 		fmt.Println()
 		goto End
