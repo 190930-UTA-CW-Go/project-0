@@ -21,15 +21,15 @@ func main() {
 	//db.Exec("INSERT INTO pokemon VALUES (4, 'Eevee')")
 	//db.Exec("INSERT INTO pokemon VALUES (8, 'tyrannitar')")
 	//	getAll(db)
-	GetAll3(db) //tickets
+	//GetAll3(db) //tickets
 
 	//se(db, 2)
-	employee.Approvedeny()
+	//employee.Approvedeny()
 	//searchByName(db, "Eeesevee")
 	//employee.NewAcc()
 	//GetAll4(db) //admins
 	//employee.SearchUser("thirdacc")
-	//employee.Welcome()
+	employee.Welcome()
 	//employee.ManagerLogin()
 	////db.Exec("INSERT INTO employeeAccounts VALUES ('adf', 'Eeeevee')")
 	//GetAll3(db)
@@ -38,13 +38,7 @@ func main() {
 	//employee.Welcome()
 	//GetAll2(db) //users
 	//employee.Welcome()
-	/*db.Exec("INSERT INTO pokemon VALUES (6, 'Eeeevee')")
-	employee.Welcome()
-	employee.SearchByName2(db, "adfh")
-	db.Exec("INSERT INTO customerLogin VALUES ('fffff', 'passwords', 'adsffff', 'miakhdddddalifa')")
-	employee.SearchByName2(db, "passwords")
-	employee.NewAcc()
-	employee.GetAll2(db)*/
+
 }
 
 func ping(db *sql.DB) {
