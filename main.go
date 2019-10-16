@@ -81,6 +81,7 @@ func register(response http.ResponseWriter, request *http.Request) {
 	user := Users{}
 	user.Username = request.FormValue("name")
 	user.Password = request.FormValue("pw")
+	// check if username is too short or is already taken or if password is too short
 	if len(user.Username) < 3 {
 		user.Nametooshort = true
 
@@ -88,6 +89,7 @@ func register(response http.ResponseWriter, request *http.Request) {
 		user.Namenotunique = true
 	} else if len(user.Password) < 3 {
 		user.Pwtooshort = true
+		// insert username and password into database if acceptable
 	} else {
 		statement := "INSERT INTO users (username, password, status)"
 		statement += " VALUES ($1, $2, $3);"
@@ -111,6 +113,7 @@ func login(response http.ResponseWriter, request *http.Request) {
 	user.Denied = false
 	user.Pending = false
 	user.Notapplied = false
+	// if not logged in then check if username and password are in database
 	if !Signin.Loggedin {
 		user.Username = request.FormValue("name")
 		user.Password = request.FormValue("pw")
@@ -127,6 +130,7 @@ func login(response http.ResponseWriter, request *http.Request) {
 
 		user.Username = Signin.CurrentUser
 	}
+	// check if user has filled out an application for an account
 	status = getStatus(db, user.Username)
 	if status == "notapplied" {
 		user.Notapplied = true
@@ -147,18 +151,17 @@ func login(response http.ResponseWriter, request *http.Request) {
 func deposit(response http.ResponseWriter, request *http.Request) {
 	db := connect()
 	var current int
-	var query, statement, status string
+	var query, statement string
 	ac := Accountholders{}
 	user := Users{}
 	view := ViewInfo{}
 	user.Username = Signin.CurrentUser
-	user.Approved = false
-	user.Denied = false
-	user.Pending = false
-	user.Notapplied = false
 	temp, _ := template.ParseFiles("templates/login.html")
+	// get amount user wants to deposit from form
+	// get account (checking or savings)
 	amount, _ := strconv.Atoi(request.FormValue("amount"))
 	choice := request.FormValue("account")
+	// get current amount in account
 	if choice == "checking" {
 		query = "SELECT checking FROM accountholders WHERE username=$1;"
 	} else {
@@ -166,6 +169,8 @@ func deposit(response http.ResponseWriter, request *http.Request) {
 	}
 	row := db.QueryRow(query, Signin.CurrentUser)
 	row.Scan(&current)
+	// add current balance to amount user wants to deposit
+	// update account balance
 	amount += current
 	if choice == "checking" {
 		statement = "UPDATE accountholders SET checking=$1 WHERE username=$2;"
@@ -176,16 +181,7 @@ func deposit(response http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	status = getStatus(db, user.Username)
-	if status == "notapplied" {
-		user.Notapplied = true
-	} else if status == "approved" {
-		user.Approved = true
-	} else if status == "denied" {
-		user.Denied = true
-	} else {
-		user.Pending = true
-	}
+	user.Approved = true
 	defer db.Close()
 	view.Singleuser = user
 	ac.Checking, ac.Savings = getBalance(db, user.Username)
@@ -195,18 +191,17 @@ func deposit(response http.ResponseWriter, request *http.Request) {
 func withdraw(response http.ResponseWriter, request *http.Request) {
 	db := connect()
 	var current int
-	var query, statement, status string
+	var query, statement string
 	ac := Accountholders{}
 	user := Users{}
 	view := ViewInfo{}
 	user.Username = Signin.CurrentUser
-	user.Approved = false
-	user.Denied = false
-	user.Pending = false
-	user.Notapplied = false
 	temp, _ := template.ParseFiles("templates/login.html")
+	// get amount user wants to withdraw from form
+	// get account user wants to withdraw from
 	amount, _ := strconv.Atoi(request.FormValue("amount"))
 	choice := request.FormValue("account")
+	// get current amount in account
 	if choice == "checking" {
 		query = "SELECT checking FROM accountholders WHERE username=$1;"
 	} else {
@@ -214,6 +209,8 @@ func withdraw(response http.ResponseWriter, request *http.Request) {
 	}
 	row := db.QueryRow(query, Signin.CurrentUser)
 	row.Scan(&current)
+	// subtract amount from current balance wants to deposit
+	// update account balance if won't be negative
 	current -= amount
 	if choice == "checking" {
 		statement = "UPDATE accountholders SET checking=$1 WHERE username=$2;"
@@ -226,16 +223,7 @@ func withdraw(response http.ResponseWriter, request *http.Request) {
 			panic(err)
 		}
 	}
-	status = getStatus(db, user.Username)
-	if status == "notapplied" {
-		user.Notapplied = true
-	} else if status == "approved" {
-		user.Approved = true
-	} else if status == "denied" {
-		user.Denied = true
-	} else {
-		user.Pending = true
-	}
+	user.Approved = true
 	defer db.Close()
 	view.Singleuser = user
 	view.Insufficient = false
@@ -250,16 +238,15 @@ func transfer(response http.ResponseWriter, request *http.Request) {
 	db := connect()
 	var fromAmount, toAmount int
 	var sameAccount bool = false
-	var query, statement1, statement2, status string
+	var query, statement1, statement2 string
 	ac := Accountholders{}
 	user := Users{}
 	view := ViewInfo{}
 	user.Username = Signin.CurrentUser
-	user.Approved = false
-	user.Denied = false
-	user.Pending = false
-	user.Notapplied = false
 	temp, _ := template.ParseFiles("templates/login.html")
+	// get amount user wants to transfer from form
+	// get account user wants to transfer from
+	// get account user wants to transfer to
 	transferAmount, _ := strconv.Atoi(request.FormValue("amount"))
 	fromAccount := request.FormValue("fromaccount")
 	toAccount := request.FormValue("toaccount")
@@ -289,10 +276,12 @@ func transfer(response http.ResponseWriter, request *http.Request) {
 	}
 	fromAmount -= transferAmount
 	toAmount += transferAmount
-	// perform transaction if sufficient funds
+	// check if transferring to the same account
 	if fromAccount == toAccount {
 		sameAccount = true
 	}
+	// only update database if sufficient funds
+	// only update database if from account and to account are different
 	if fromAmount >= 0 && !sameAccount {
 		_, err := db.Exec(statement1, fromAmount, Signin.CurrentUser)
 		if err != nil {
@@ -303,16 +292,7 @@ func transfer(response http.ResponseWriter, request *http.Request) {
 			panic(err)
 		}
 	}
-	status = getStatus(db, user.Username)
-	if status == "notapplied" {
-		user.Notapplied = true
-	} else if status == "approved" {
-		user.Approved = true
-	} else if status == "denied" {
-		user.Denied = true
-	} else {
-		user.Pending = true
-	}
+	user.Approved = true
 	defer db.Close()
 	view.Singleuser = user
 	view.Insufficient = false
@@ -329,6 +309,7 @@ func employeelogin(response http.ResponseWriter, request *http.Request) {
 	user := Users{}
 	login := LoginInfo{}
 	view := ViewInfo{}
+	// if not logged in then check if employee username and password are in database
 	if !Signin.Employee {
 		user.Username = request.FormValue("name")
 		user.Password = request.FormValue("pw")
@@ -338,12 +319,14 @@ func employeelogin(response http.ResponseWriter, request *http.Request) {
 			login.Invalidname = true
 		} else if employeePasswordMatches(db, user.Username, user.Password) == false {
 			login.Invalidpw = true
+			// login employee username and password in database
 		} else {
 			Signin.CurrentUser = user.Username
 			Signin.Employee = true
 		}
 	}
 	view.Login = login
+	// if logged in as employee query database to display applicants and accounts tables
 	if Signin.Employee {
 		rows, _ := db.Query("SELECT * FROM applications;")
 		for rows.Next() {
@@ -377,20 +360,25 @@ func employeelogin(response http.ResponseWriter, request *http.Request) {
 	defer db.Close()
 	temp.Execute(response, view)
 }
+
+// employee processes applications
 func process(response http.ResponseWriter, request *http.Request) {
 	db := connect()
 	temp, _ := template.ParseFiles("templates/employeelogin.html")
 	var statement, query, choice, action, fn, ln, add, ph string
+	// get information form about whether to approve or deny application
 	choice = request.FormValue("choice")
 	action = request.FormValue("action")
 	query = "SELECT firstname,lastname,address,phone FROM applications WHERE username = $1;"
 	row := db.QueryRow(query, choice)
 	row.Scan(&fn, &ln, &add, &ph)
+	// delete application from database
 	statement = "DELETE FROM applications WHERE username = $1;"
 	_, err := db.Exec(statement, choice)
 	if err != nil {
 		panic(err)
 	}
+	// if application approved then insert into accountholders table
 	if action == "approve" {
 		statement = "INSERT INTO accountholders (username,firstname,lastname,address,phone,"
 		statement += "checking,savings)"
@@ -412,6 +400,7 @@ func process(response http.ResponseWriter, request *http.Request) {
 		}
 	}
 	view := ViewInfo{}
+	// query database to display applicants and accounts tables
 	rows, _ := db.Query("SELECT * FROM applications")
 	for rows.Next() {
 		var username, firstname, lastname, address, phone string
@@ -453,10 +442,12 @@ func apply(response http.ResponseWriter, request *http.Request) {
 		panic(err)
 	}
 	ap := Applications{}
+	// get information from form
 	ap.Firstname = request.FormValue("first")
 	ap.Lastname = request.FormValue("last")
 	ap.Address = request.FormValue("address")
 	ap.Phone = request.FormValue("phone")
+	// insert application into database
 	statement = "INSERT INTO applications (username, firstname, lastname, address, phone)"
 	statement += " VALUES ($1, $2, $3, $4, $5);"
 	_, err = db.Exec(statement, Signin.CurrentUser, ap.Firstname, ap.Lastname, ap.Address, ap.Phone)
@@ -472,6 +463,8 @@ func logout(response http.ResponseWriter, request *http.Request) {
 	Signin.Employee = false
 	temp.Execute(response, Signin)
 }
+
+// check that username does not already exist in database
 func uniqueName(db *sql.DB, name string) bool {
 	rows, _ := db.Query("SELECT username FROM users")
 	for rows.Next() {
@@ -483,6 +476,8 @@ func uniqueName(db *sql.DB, name string) bool {
 	}
 	return true
 }
+
+// check that password matches username
 func passwordMatches(db *sql.DB, name string, password string) bool {
 	var pw string
 	row := db.QueryRow("SELECT password FROM users WHERE username = $1", name)
@@ -492,6 +487,8 @@ func passwordMatches(db *sql.DB, name string, password string) bool {
 	}
 	return false
 }
+
+// check that employee username does not already exist in database
 func uniqueEmployeeName(db *sql.DB, name string) bool {
 	rows, _ := db.Query("SELECT username FROM employees")
 	for rows.Next() {
@@ -503,6 +500,8 @@ func uniqueEmployeeName(db *sql.DB, name string) bool {
 	}
 	return true
 }
+
+// check that password matches employee username
 func employeePasswordMatches(db *sql.DB, name string, password string) bool {
 	var pw string
 	row := db.QueryRow("SELECT password FROM employees WHERE username = $1", name)
@@ -513,12 +512,15 @@ func employeePasswordMatches(db *sql.DB, name string, password string) bool {
 	return false
 }
 
+// get status of user (notapplied, pending, denied, approved)
 func getStatus(db *sql.DB, name string) string {
 	var status string
 	row := db.QueryRow("SELECT status FROM users WHERE username = $1", name)
 	row.Scan(&status)
 	return status
 }
+
+// get account balance
 func getBalance(db *sql.DB, name string) (int, int) {
 	var checking, savings int
 	row := db.QueryRow("SELECT checking FROM accountholders where username = $1", name)
@@ -527,6 +529,8 @@ func getBalance(db *sql.DB, name string) (int, int) {
 	row.Scan(&savings)
 	return checking, savings
 }
+
+// connect to database
 func connect() *sql.DB {
 	var conn string
 	conn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",

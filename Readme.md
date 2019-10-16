@@ -1,5 +1,5 @@
-# Insert Project Name Here
-## Insert Name Here
+Convenient Banking
+Seth Grandy
 This is a banking app.
 
 # User Stories
