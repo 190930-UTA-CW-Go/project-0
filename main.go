@@ -3,10 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"os"
 	_ "os"
-	"project-0/employee"
 	_ "project-0/employee"
+	"strconv"
 	"text/tabwriter"
 
 	_ "github.com/lib/pq"
@@ -20,34 +21,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	//db.Exec("INSERT INTO pokemon VALUES (4, 'Eevee')")
-	//db.Exec("INSERT INTO pokemon VALUES (8, 'tyrannitar')")
-	//	getAll(db)
-	//GetAll3(db) //tickets
-
-	//se(db, 2)
-	//employee.Approvedeny()
-	//searchByName(db, "Eeesevee")
-	//employee.NewAcc()
-	//GetAll4(db) //admins
-	//employee.SearchUser("thirdacc")
-	employee.Welcome()
+	fmt.Println("Welcome to Employee reimbursement app")
+	//employee.Welcome()
 	//GetAll2(db)
 	//GetAll22(db)
-	//GetAll3(db)
+	GetAll3(db)
 	//GetAll4(db)
+	//GetAll44()
 	//getAll(db)
-	//employee.ManagerLogin()
-	////db.Exec("INSERT INTO employeeAccounts VALUES ('adf', 'Eeeevee')")
-	//GetAll3(db)
-	//fmt.Println("die")
-	//SearchByName2(db, "password")
-	//employee.Welcome()
-	//GetAll2(db) //users
-	//GetAll22(db)
-	//employee.Welcome()
-
+	//employee.Approvedeny()
 }
 
 func ping(db *sql.DB) {
@@ -128,6 +110,43 @@ func GetAll4(db *sql.DB) {
 		rows.Scan(&u2, &u3)
 		fmt.Println(u2, u3)
 	}
+}
+
+//GetAll44 huh
+func GetAll44() {
+	fmt.Println("HU WANTS FREE HANDOUTS:")
+	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		"localhost", 5432, "postgres", "postgres", "postgres")
+	db, err := sql.Open("postgres", datasource)
+	defer db.Close()
+	if err != nil {
+		panic(err)
+	}
+	rows, _ := db.Query("SELECT * FROM TICKETS")
+	w := new(tabwriter.Writer)
+	var fullstring string
+
+	//w.Init(os.Stdout, 0, 8, 2, '*', tabwriter.Debug|tabwriter.AlignRight)
+	w.Init(os.Stdout, 12, 0, 0, ' ', tabwriter.Debug|tabwriter.AlignRight)
+	fmt.Fprintln(w, "TICKET#\tUSERNAME\tAMOUNT\tSTATUS\tREASON")
+	for rows.Next() {
+		var u1 int     //ticketnum
+		var u2 string  //userName
+		var u3 string  //fname first name
+		var u4 string  //lname last name
+		var u5 float64 //req amount
+		var u6 string  //reason
+		var u7 string  //status of req
+		rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
+		str1 := strconv.Itoa(u1)
+		fmt.Println("str1 is " + str1)
+		u5 = math.Floor(u5*100) / 100
+		str5 := fmt.Sprintf("%.2f", u5)
+		fullstring = (str1 + "\t" + u2 + "\t$" + str5 + "\t" + u7 + "\t" + u6 + "\t")
+		fmt.Fprintln(w, fullstring)
+	}
+	fmt.Fprintln(w)
+	w.Flush()
 }
 
 //GetAll22 comment
