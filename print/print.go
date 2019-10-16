@@ -12,7 +12,7 @@ import (
 func Table(who string) {
 	var count int
 	var email, pass, first, last string
-	fmt.Printf("%-30v", "Login ID:")
+	fmt.Printf("%-30v", "Login:")
 	fmt.Printf("%-20v", "Password:")
 	fmt.Printf("%-20v", "First Name:")
 	fmt.Printf("%-20v", "Last Name:")
@@ -22,9 +22,9 @@ func Table(who string) {
 
 	sqlStatement := ``
 	if who == "customer" {
-		sqlStatement = `select * from customer`
+		sqlStatement = `select * from customer order by email`
 	} else {
-		sqlStatement = `select * from employee`
+		sqlStatement = `select * from employee order by email`
 	}
 	rows, _ := (database.DBCon).Query(sqlStatement)
 
@@ -54,17 +54,17 @@ func Accounts(login string) {
 	var count, number int
 	var email, name string
 	var balance float32
-	fmt.Printf("%-30v", "Login ID:")
+	fmt.Printf("%-30v", "Login:")
 	fmt.Printf("%-20v", "Account Type:")
-	fmt.Printf("%-20v", "Account Balance:")
-	fmt.Printf("%-20v", "Account Number:")
+	fmt.Printf("%-20v", "Balance:")
+	fmt.Printf("%-20v", " ID:")
 	fmt.Println()
 	fmt.Print("================================================")
 	fmt.Println("==============================================")
 
 	sqlStatement := ""
 	if login == "" {
-		sqlStatement = `select * from account order by email`
+		sqlStatement = `select * from account order by email asc, acc_id asc`
 		rows, _ := (database.DBCon).Query(sqlStatement)
 		for rows.Next() {
 			// count variable used as empty table error checker

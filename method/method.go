@@ -21,6 +21,9 @@ Top:
 	var hold string
 	for i := 0; i < idLength; i++ {
 		x = rand.Intn(9)
+		for i == 0 && x == 0 {
+			x = rand.Intn(9)
+		}
 		s += strconv.Itoa(x)
 	}
 
@@ -224,9 +227,9 @@ func VerifyJoint() {
 					// Update the affected records
 					var newID string = GenerateID()
 					sqlUpdate := `
-				update account
-				set acc_type = $1, acc_balance = $2, acc_id = $3
-				where acc_id = $4`
+					update account
+					set acc_type = $1, acc_balance = $2, acc_id = $3
+					where acc_id = $4`
 					_, err := (database.DBCon).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc1)
 					if err != nil {
 						panic(err)
@@ -316,6 +319,7 @@ func Withdraw(amount float32, id string) {
 	s := fmt.Sprintf("%.2f", amount)
 	fmt.Print("> New balance $")
 	fmt.Println(s, "in account", id)
+
 }
 
 // Deposit = execute deposit sql statement
@@ -362,7 +366,7 @@ func Transfer(login string) {
 		balance1Int, _ := Atof(balance1)
 		balance2Int, _ := Atof(balance2)
 
-		if balance1 == "" || balance2 == "" || flag == false || login != email1 {
+		if email1 == "" || email2 == "" || flag == false || login != email1 {
 			print.Invalid()
 		} else if transferInt > balance1Int {
 			fmt.Println("> Insufficient Funds")

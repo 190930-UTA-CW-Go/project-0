@@ -52,7 +52,7 @@ func CustomerMenu(login string) {
 	fmt.Println("4) Transfer")
 	fmt.Println("5) Open New Account")
 	fmt.Println("6) Apply for Joint Account")
-	fmt.Println("7) Exit")
+	fmt.Println("7) Logout")
 	fmt.Print(": ")
 	fmt.Scan(&input)
 	fmt.Println()
@@ -93,7 +93,7 @@ func EmployeeMenu(login string) {
 	fmt.Println("5) Delete Employee Record")
 	fmt.Println("6) Verify Joint Accounts")
 	fmt.Println("7) Add New Employee")
-	fmt.Println("8) Exit")
+	fmt.Println("8) Logout")
 	fmt.Print(": ")
 	fmt.Scan(&input)
 	fmt.Println()
@@ -132,6 +132,7 @@ func Authenticate(who string) {
 	fmt.Scan(&email)
 	fmt.Print("Password: ")
 	fmt.Scan(&pass)
+	fmt.Println()
 
 	sqlStatement := ``
 	if who == "customer" {
