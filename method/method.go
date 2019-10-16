@@ -70,31 +70,33 @@ func AddRecord(who string) {
 // DeleteRecord = delete record based on login id
 // param1 = identify either "customer" or "employee"
 func DeleteRecord(who string) {
-	var email string
+	var email, hold string
 	fmt.Print("Login ID: ")
 	fmt.Scan(&email)
 
 	if email == "user" && who == "employee" {
 		print.Invalid()
 	} else {
-		sqlStatement := ``
+		sql1 := ``
+		sql2 := ``
 		if who == "customer" {
-			sqlStatement = `delete from customer where email = $1`
+			sql1 = `select email from customer where email = $1`
+			sql2 = `delete from customer where email = $1`
 		} else {
-			sqlStatement = `delete from employee where email = $1`
+			sql1 = `select email from employee where email = $1`
+			sql2 = `delete from employee where email = $1`
 		}
 
-		res, err := (database.DBCon).Exec(sqlStatement, email)
-		if err == nil {
-			count, err := res.RowsAffected()
-			if err == nil {
-				if count == 0 {
-					print.Invalid()
-				} else {
-					fmt.Println("> Successfully Deleted")
-					fmt.Println()
-				}
-			}
+		result := (database.DBCon).QueryRow(sql1, email)
+		result.Scan(&hold)
+
+		if hold == "" {
+			print.Invalid()
+		} else {
+
+			(database.DBCon).Exec(sql2, email)
+			fmt.Println("> Successfully Deleted")
+			fmt.Println()
 		}
 	}
 }
@@ -194,6 +196,7 @@ func VerifyJoint() {
 			fmt.Println("2) Deny")
 			fmt.Print(": ")
 			fmt.Scan(&choice)
+			fmt.Println()
 
 			switch choice {
 			case "1":
@@ -201,9 +204,9 @@ func VerifyJoint() {
 				var acc1, acc2 string
 				sql1 := `select num1 from joint where index = $1`
 				sql2 := `select num2 from joint where index = $1`
-				result1 := (database.DBCon).QueryRow(sql1, input)
+				result1 := (database.DBCon).QueryRow(sql1, newInput)
 				result1.Scan(&acc1)
-				result2 := (database.DBCon).QueryRow(sql2, input)
+				result2 := (database.DBCon).QueryRow(sql2, newInput)
 				result2.Scan(&acc2)
 
 				// Use acc_id values to get acc_balance
@@ -246,23 +249,19 @@ func VerifyJoint() {
 // DeleteJoint = deletes record from "joint"
 // param1 = index primary key to delete record
 // param2 = string message to output
-func DeleteJoint(input string, print string) {
-	sqlStatement := `delete from joint where index = $1`
-	res, err := (database.DBCon).Exec(sqlStatement, input)
-	if err == nil {
-		count, err := res.RowsAffected()
-		if err == nil {
-			if count == 0 {
-				////////////////////////////////////////////////////////////////////////////
-				//print.Invalid()
-				fmt.Println("> Invalid Input")
-				fmt.Println()
-				////////////////////////////////////////////////////////////////////////////
-			} else {
-				fmt.Println(print)
-				fmt.Println()
-			}
-		}
+func DeleteJoint(input string, message string) {
+	var hold string
+	sql1 := `select index from joint where index = $1`
+	result1 := (database.DBCon).QueryRow(sql1, input)
+	result1.Scan(&hold)
+
+	if hold == "" {
+		print.Invalid()
+	} else {
+		sql2 := `delete from joint where index = $1`
+		(database.DBCon).Exec(sql2, input)
+		fmt.Println(message)
+		fmt.Println()
 	}
 }
 
