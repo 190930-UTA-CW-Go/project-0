@@ -9,11 +9,11 @@ import (
 Vending documentation
 */
 func Vending(db *sql.DB) int {
-	r, nav := 0, 0
+	r, nav, counter := 0, 0, 0
 
 	for n := 0; n < 1; n = n + 0 {
-		ListDrinks(db)
-		BuyDrink(db)
+		ListDrinks(db, counter)
+		counter = BuyDrink(db, counter)
 
 		fmt.Println("What would you like to do next?")
 		fmt.Println("[1] Buy another drink")
@@ -23,6 +23,7 @@ func Vending(db *sql.DB) int {
 
 		switch nav {
 		case 1:
+			fmt.Println(" ")
 			fmt.Println("Which drink would you like to purchase?")
 		case 2:
 			r = 2

@@ -21,6 +21,7 @@ func Navigate(db *sql.DB, capacity int) {
 		case 2:
 			nav1 = Restock(db, capacity)
 		case 3:
+			fmt.Println(" ")
 			fmt.Println("Goodbye!")
 			n++
 		// case 4:
