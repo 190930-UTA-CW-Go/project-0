@@ -6,7 +6,19 @@ import (
 )
 
 /*
-Restock documentation
+Restock is called when the users requests to restock the vending machine. Restock
+retrieves the company associated with the vending machine through the GetDrinks
+function. Then Restock calls Login to verify that the user can restock the vending
+machine. Login will return a one when the user quits or restocks the machine. After
+this, Restock will prompt the user if they want to buy a drink, returning them to
+the Vending function then to BuyDrink, or leave, sending them back to main.go in the
+main package. If Login returns a zero, Restock will restart Login.
+
+Restock recieves the database information and the maxium capacity of the rows in
+the vending machine. Restock returns an integer telling Naviage which function to
+navigate to. Restock sends the database information to GetDrinks and Login. In
+addition, Login also recieves from Restock the maxium capacity and company associated
+with the vending machine.
 */
 func Restock(db *sql.DB, capacity int) int {
 	loginErr, r, nav := 0, 0, 0

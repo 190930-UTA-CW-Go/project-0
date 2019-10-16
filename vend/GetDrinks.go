@@ -3,7 +3,8 @@ package vend
 import "database/sql"
 
 /*
-GetDrinks documentation
+GetDrinks reads all data from the **machine** table and saves the data into slices.
+Then, GetDrinks returns taht data.
 */
 func GetDrinks(db *sql.DB) ([]string, []string, []int, string) {
 	var index, name, brand string

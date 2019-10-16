@@ -5,7 +5,8 @@ import (
 )
 
 /*
-Encounter Documentation
+Encounter simply propmts the user the first time they find the vending machine. Then,
+it records and returns the users choice.
 */
 func Encounter() int {
 	n := 0
