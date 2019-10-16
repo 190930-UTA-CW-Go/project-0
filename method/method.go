@@ -158,7 +158,7 @@ func ApplyJoint(login string) {
 			type1 == "JOINT" || type2 == "JOINT" {
 			print.Invalid()
 		} else {
-			fmt.Println("Submitted Joint Account Request")
+			fmt.Println("> Submitted Joint Account Request")
 			fmt.Println()
 			sql := `
 			insert into joint (email1, email2, num1, num2)
@@ -180,69 +180,75 @@ func VerifyJoint() {
 	if count != 0 {
 		fmt.Print("Input: ")
 		fmt.Scan(&input)
-		convInput, _ := strconv.Atoi(input)
-		newInput := slice[convInput-1]
-
-		sql := `select index from joint where index = $1`
-		result := (database.DBCon).QueryRow(sql, newInput)
-		result.Scan(&hold)
-
-		if hold == "" {
+		convInput, err := strconv.Atoi(input)
+		if err != nil || convInput < 1 || convInput > count {
+			fmt.Println()
 			print.Invalid()
 		} else {
-			var choice string
-			fmt.Println()
-			fmt.Println("1) Approve")
-			fmt.Println("2) Deny")
-			fmt.Print(": ")
-			fmt.Scan(&choice)
-			fmt.Println()
+			newInput := slice[convInput-1]
 
-			switch choice {
-			case "1":
-				// Get acc_id values
-				var acc1, acc2 string
-				sql1 := `select num1 from joint where index = $1`
-				sql2 := `select num2 from joint where index = $1`
-				result1 := (database.DBCon).QueryRow(sql1, newInput)
-				result1.Scan(&acc1)
-				result2 := (database.DBCon).QueryRow(sql2, newInput)
-				result2.Scan(&acc2)
+			sql := `select index from joint where index = $1`
+			result := (database.DBCon).QueryRow(sql, newInput)
+			result.Scan(&hold)
 
-				// Use acc_id values to get acc_balance
-				var bal1, bal2 float32
-				sql3 := `select acc_balance from account where acc_id = $1`
-				result3 := (database.DBCon).QueryRow(sql3, acc1)
-				result3.Scan(&bal1)
-				result4 := (database.DBCon).QueryRow(sql3, acc2)
-				result4.Scan(&bal2)
+			if hold == "" {
+				print.Invalid()
+			} else {
+				var choice string
+				fmt.Println()
+				fmt.Println("1) Approve")
+				fmt.Println("2) Deny")
+				fmt.Print(": ")
+				fmt.Scan(&choice)
+				fmt.Println()
 
-				// Update the affected records
-				var newID string = GenerateID()
-				sqlUpdate := `
+				switch choice {
+				case "1":
+					// Get acc_id values
+					var acc1, acc2 string
+					sql1 := `select num1 from joint where index = $1`
+					sql2 := `select num2 from joint where index = $1`
+					result1 := (database.DBCon).QueryRow(sql1, newInput)
+					result1.Scan(&acc1)
+					result2 := (database.DBCon).QueryRow(sql2, newInput)
+					result2.Scan(&acc2)
+
+					// Use acc_id values to get acc_balance
+					var bal1, bal2 float32
+					sql3 := `select acc_balance from account where acc_id = $1`
+					result3 := (database.DBCon).QueryRow(sql3, acc1)
+					result3.Scan(&bal1)
+					result4 := (database.DBCon).QueryRow(sql3, acc2)
+					result4.Scan(&bal2)
+
+					// Update the affected records
+					var newID string = GenerateID()
+					sqlUpdate := `
 				update account
 				set acc_type = $1, acc_balance = $2, acc_id = $3
 				where acc_id = $4`
-				_, err := (database.DBCon).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc1)
-				if err != nil {
-					panic(err)
+					_, err := (database.DBCon).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc1)
+					if err != nil {
+						panic(err)
+					}
+
+					_, err = (database.DBCon).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc2)
+					if err != nil {
+						panic(err)
+					}
+
+					// Delete the joint record now that it's been approved
+					print := "> Joint Application Approved\n> Joint Account Number is " + newID
+					DeleteJoint(newInput, print)
+
+				case "2":
+					DeleteJoint(newInput, "> Joint Application Denied")
+				default:
+					print.Invalid()
 				}
-
-				_, err = (database.DBCon).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc2)
-				if err != nil {
-					panic(err)
-				}
-
-				// Delete the joint record now that it's been approved
-				print := "> Joint Application Approved\n> Joint Account Number is " + newID
-				DeleteJoint(newInput, print)
-
-			case "2":
-				DeleteJoint(newInput, "> Joint Application Denied")
-			default:
 			}
+			fmt.Println()
 		}
-		fmt.Println()
 	}
 }
 

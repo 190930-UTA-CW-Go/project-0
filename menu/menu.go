@@ -35,7 +35,7 @@ func Menu() {
 		fmt.Println()
 		goto Exit
 	default:
-		Menu()
+		print.Invalid()
 	}
 	Menu()
 Exit:
