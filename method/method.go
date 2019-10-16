@@ -62,7 +62,8 @@ func AddRecord(who string) {
 
 	_, err := (database.DBCon).Exec(sqlStatement, email, pass, first, last)
 	if err != nil {
-		panic(err)
+		print.Invalid()
+		//panic(err)
 	}
 }
 
