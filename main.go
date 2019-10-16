@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+	employee.Clear()
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		"localhost", 5432, "postgres", "postgres", "postgres")
 	db, err := sql.Open("postgres", datasource)
@@ -22,7 +23,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Welcome to Employee reimbursement app")
+	fmt.Println("")
+	fmt.Println()
+	fmt.Println()
+	fmt.Println("(~˘▾˘)~  Welcome to Employee reimbursement app!!  ~(˘▾˘~)")
+	fmt.Println()
+	fmt.Println()
+	employee.Prompt()
 	employee.Welcome()
 	//GetAll2(db)
 	//GetAll22(db)
