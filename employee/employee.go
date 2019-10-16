@@ -6,9 +6,13 @@ import (
 	_ "flag" //no
 	"fmt"
 	_ "log" //no
+	"math"
 	"os"
 	_ "os/exec" //no
-	_ "strconv"
+	"strconv"
+	_ "strconv" //no
+	"text/tabwriter"
+	_ "text/tabwriter" //no
 
 	_ "github.com/lib/pq" // no
 )
@@ -18,6 +22,7 @@ var userName string //global variable that is overwritten everytime a new user l
 // NewAcc Opens prompt to create a new account.
 func NewAcc() {
 	var password, fname, lname string
+	fmt.Println("================================================================================")
 	fmt.Printf("Creating a new account:")
 	fmt.Println()
 	fmt.Printf("Enter a username:  ")
@@ -52,6 +57,7 @@ func SearchUser(searchvalue string) {
 
 //Welcome starts dis
 func Welcome() {
+	fmt.Println("================================================================================")
 	fmt.Println("Welcome to Employee reimbursement app")
 	fmt.Println("What would you like to do? Press number to choose: ")
 	fmt.Println("1: Log in as Employee")
@@ -83,6 +89,7 @@ func Welcome() {
 		Welcome()
 
 	case 5:
+		fmt.Println("EXITING. . . .")
 		os.Exit(0)
 	}
 }
@@ -91,6 +98,7 @@ func employeeLogin() {
 	var tryPassword, actualPassword string
 	var fname, lname string
 	var serial int
+	fmt.Println("================================================================================")
 	fmt.Printf("Enter credentials:  ")
 	fmt.Scanln(&userName)
 	fmt.Printf("Enter password:  ")
@@ -110,7 +118,7 @@ func employeeLogin() {
 }
 
 func welcomeEmployee() {
-	fmt.Println()
+	fmt.Println("================================================================================")
 	fmt.Println("Employee Portal")
 	fmt.Println("What would you like to do? Press number to choose: ")
 	fmt.Println("1: Submit reimbursement ticket")
@@ -135,6 +143,7 @@ func welcomeEmployee() {
 //ManagerLogin d
 func ManagerLogin() {
 	var tryPassword, password, adminLogin string
+	fmt.Println("================================================================================")
 	fmt.Printf("Enter credentials:  ")
 	fmt.Scanln(&adminLogin)
 	fmt.Printf("Enter password:  ")
@@ -154,7 +163,7 @@ func ManagerLogin() {
 }
 
 func welcomeAdmin() {
-	fmt.Println()
+	fmt.Println("================================================================================")
 	fmt.Println("ADMIN PORTAL")
 	fmt.Println("WHAT YOU WANT")
 	fmt.Println("1: LIST ALL OF THE PRISONERS WITH JOBS")
@@ -167,6 +176,7 @@ func welcomeAdmin() {
 	fmt.Scanln(&choice)
 	switch choice {
 	case 1:
+		fmt.Println("================================================================================")
 		fmt.Println("HERE ARE THE PRISONERS WITH JOBS:")
 		db := OPEN()
 		defer db.Close()
@@ -183,6 +193,7 @@ func welcomeAdmin() {
 		fmt.Println("SUCCESS. RETURNING. . . . .")
 		welcomeAdmin()
 	case 2:
+		fmt.Println("================================================================================")
 		fmt.Println("HU WANTS FREE HANDOUTS:")
 		db := OPEN()
 		defer db.Close()
@@ -198,12 +209,13 @@ func welcomeAdmin() {
 			rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
 			fmt.Println(u1, u2, u3, u4, u5, u6, u7)
 		}
-		Approvedeny()
+		welcomeAdmin()
 	case 3:
 		Approvedeny()
 	case 4:
 		Welcome()
 	case 5:
+		fmt.Println("EXITING. . . . .")
 		os.Exit(0)
 	}
 }
@@ -213,6 +225,7 @@ func createManager() {
 	var askpassword string
 	var password string
 	var masterpassword = "master"
+	fmt.Println("================================================================================")
 	fmt.Println("CREATING AN ADMINISTRATOR ACCOUNT:")
 	fmt.Println("PLEASE ENTER THE MASTER PASSWORD TO PROCEED:")
 	fmt.Println("")
@@ -228,9 +241,10 @@ func createManager() {
 		fmt.Println("FAILURE")
 		fmt.Println("FAILURE")
 		fmt.Println("FAILURE")
-		fmt.Println("Program will now abort")
+		fmt.Println("PROGRAM WILL NOW ABORT")
 		os.Exit(0)
 	}
+	fmt.Println("================================================================================")
 	fmt.Printf("Enter a username:  ")
 	fmt.Scanln(&adminLogin)
 	fmt.Printf("Enter a password:  ")
@@ -247,8 +261,10 @@ func reimburseReq() {
 	var reimburse float64
 	var reason, fname, lname string
 	var what = "pending. . ."
+	fmt.Println("================================================================================")
 	fmt.Println("Enter reimbursement amount  ")
 	fmt.Scanln(&reimburse)
+	reimburse = math.Floor(reimburse*100) / 100
 	fmt.Println("Reason:  ")
 	fmt.Println(" ")
 	inputReader := bufio.NewReader(os.Stdin)
@@ -270,33 +286,43 @@ func reimburseReq() {
 func viewMyreimburses() {
 	db := OPEN()
 	defer db.Close()
-	fmt.Println()
-	fmt.Println("Displaying reimbursement tickets:")
-	fmt.Println(userName)
+	fmt.Println("================================================================================")
+	fmt.Println("Displaying reimbursement tickets for " + userName)
+	//fmt.Println(userName)
 	rows, _ := db.Query("SELECT * FROM tickets WHERE userName = $1", userName)
+	w := new(tabwriter.Writer)
+	var fullstring string
+	w.Init(os.Stdout, 0, 8, 6, '\t', 0)
+	fmt.Fprintln(w, "TICKET#\tAMOUNT\tSTATUS\tREASON.")
 	for rows.Next() {
-		var u1 int
-		var u2 string
-		var u3 string
-		var u4 string
-		var u5 float64
-		var u6 string
-		var u7 string
+		var u1 int     //ticketnum
+		var u2 string  //userName
+		var u3 string  //fname first name
+		var u4 string  //lname last name
+		var u5 float64 //req amount
+		var u6 string  //reason
+		var u7 string  //status of req
 		rows.Scan(&u1, &u2, &u3, &u4, &u5, &u6, &u7)
-		fmt.Println(u1, u2, u3, u4, u5, u6, u7)
+		str1 := strconv.Itoa(u1)
+		u5 = math.Floor(u5*100) / 100
+		str5 := fmt.Sprintf("%.2f", u5)
+		fullstring = (str1 + "\t$" + str5 + "\t" + u7 + "\t" + u6 + "\t.")
+		fmt.Fprintln(w, fullstring)
+		//fmt.Println(u1, u2, u5, u6, u7)
 	}
+	fmt.Fprintln(w)
+	w.Flush()
 	fmt.Println("SUCCESS. Redirecting you. . . . .")
-	fmt.Println()
 	welcomeEmployee()
-
 }
 
 //Approvedeny d
 func Approvedeny() {
-	fmt.Println("PICK")
+	fmt.Println("================================================================================")
+	fmt.Println("APPROVE // DENY REQUESTS. SELECT:")
 	fmt.Println("1: INPUT SERIAL PRIMARY KEY OF THE TICKET")
-	fmt.Println("OR")
 	fmt.Println("2: INPUT USERNAME OF THE TICKET")
+	//view pending tickets
 	fmt.Println("3: RETURN")
 	fmt.Println("4: EXIT")
 	fmt.Println()
@@ -304,6 +330,7 @@ func Approvedeny() {
 	fmt.Scanln(&choice)
 	switch choice {
 	case 1:
+		fmt.Println("================================================================================")
 		fmt.Println("1: INPUT SERIAL PRIMARY KEY OF THE TICKET:")
 		var asdf int
 		fmt.Scanln(&asdf)
@@ -333,14 +360,14 @@ func Approvedeny() {
 			db := OPEN()
 			defer db.Close()
 			db.Exec("UPDATE tickets SET what = $1 WHERE ticketNum = $2", yess, u1)
-			fmt.Println("SUCCESSFULLY UPDATED DATABASE. RETURNING YOU. . .")
+			fmt.Println("SUCCESSFULLY APPROVED TICKET. RETURNING YOU. . .")
 			Approvedeny()
 		case 2:
 			var noo = "DENIED"
 			db := OPEN()
 			defer db.Close()
 			db.Exec("UPDATE tickets SET what = $1 WHERE ticketNum = $2", noo, u1)
-			fmt.Println("SUCCESSFULLY UPDATED DATABASE. RETURNING YOU. . .")
+			fmt.Println("SUCCESSFULLY DENIED TICKET. RETURNING YOU. . .")
 			Approvedeny()
 		case 3:
 			fmt.Println("NO ACTION TAKEN. RETURNING YOU. . .")
@@ -348,8 +375,9 @@ func Approvedeny() {
 		}
 	case 2:
 	case 3:
-		Approvedeny()
+		welcomeAdmin()
 	case 4:
+		fmt.Println("EXITING. . . . .")
 		os.Exit(0)
 
 	}

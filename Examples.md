@@ -21,9 +21,9 @@ Use one of the following project ideas and their base requirements for your own.
     - [x] Authenticate (login) with that usename and password
     - [x] Submit reimbursement ticket
     - [x] View pending, approved, and denied reimbursements
-- [] Managers should be able to:
+- [x] Managers should be able to:
     - [x] View employee reimbursements
-    - [] Approve/deny open reimbursement requests
+    - [x] Approve/deny open reimbursement requests
 - [x] All accounts and reimbursements should persist to files or a database
 - [x] Usable from command line args, interactive text menus, or through HTTP
 - [] Basic validation and testing
