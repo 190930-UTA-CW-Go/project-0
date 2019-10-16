@@ -1,6 +1,14 @@
-# Project 0 Banking App
+# Project 0 Employee Reimbursement App
 ## Garner Deng
-Insert project description here.
+This is a basic Employee Reimbursement App.
+
+You can make employee accounts with a username, password, first name and last name. Employees can submit and view their reimbursement tickets. In their ticket, they will
+indicate an amount they are requesting as well as the reason.
+
+You can also log in as a manager account to view all tickets, view only pending tickets, view all employees, and approve/deny reimbursement tickets. Manager accounts
+require a 'master' password to create, because this function should not be accessible to everyone. 
+
+All data will persist to a database. Requires docker and postgres. 
 
 ## Example: Employee Reimbursement App
 - [x] Employees should be able to:
@@ -13,112 +21,58 @@ Insert project description here.
     - [x] Approve/deny open reimbursement requests
 - [x] All accounts and reimbursements should persist to files or a database
 - [x] Usable from command line args, interactive text menus, or through HTTP
-- [] Basic validation and testing
+- [x] Basic validation and testing
 
 # User Stories
 - [x] List
 - [x] Each
 - [x] User
 - [x] Story
+    1. Started project as a Banking app. Initially wanted to use structs to contain information, but ran into issues of linking structs to databases. Implementing functions for the structs would have been easy, but having all information persist to a database made the idea impractical.
+    2. Changed project to Employee Reimbursement app. Same basic idea that requires the same core concepts to create, but seemed like a bit less coding.
+    3. Scrapped structs idea. Decided to have ALL information stored as rows in database tables. The pokemon demo code really helped.
+    4. Ran into serious issues pulling rows from the database tables. Eventually discovered that it may have been caused by having multiple tables and multiple insert row statements in the same init.sql file. Once I removed all insert row statements from the original init.sql file, I could pull rows from the database again. This problem was only discovered once I started adding tables to the database, so early on when there was only one database, everything worked fine.
+    5. Changed fields in te init.sql file. Everything stopped working. No information could be found online because it was also difficult to identify the problem in the first place. Was getting 'nil pointer' errors. By sheer luck, realized that whenever changes were made to the init.sql file, the entire docker container had to be reinitialized. Ran lines like 
+        
+        To stop an old obsolete database:
+                docker container ls     
+                docker stop (container name)
+        
+        To create the database:
+                cd db
+                docker build -t (newContainername) .
+                docker run --name (newContainername) -d -p 5432:5432 (newContainername)
+                docker start (newContainername)
+        Then to run the program:       
+                cd ..
+                go run main.go
+
+    Had to create a new container every time I changed something in the init.sql file. This was probably the most difficult issue to solve.
+    6. Needed to assign every row in every table a unique id number. Discovered the use of serial numbers that auto incremented themselves. Made implementing some functions much easier. 
+    7. I had to run these lines of code every time I wanted to interact with the database tables:
+        
+        datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		    "localhost", 5432, "postgres", "postgres", "postgres")
+	    db, err := sql.Open("postgres", datasource)
+	    defer db.Close()
+	    if err != nil {
+		    panic(err)
+	    }
+
+        So I tried to clean up my code by turning this into a function that I could call, OPEN(). This broke the database. I eventually found out that it was because I included "defer db.Close()" inside of the function when I should have kept it outside; having it within the function meant the database opened and closed immediately. 
+    8. Basically finished all the basic necessities of the program. Just needed to clean it up and make it look nice. Adding in extra lines of code that format the text in the terminal to make it look nicer and read easier. 
 
 # Instructions
 ## Insert environment, build, and execution documentation here:
-PROJECT 0 ALGORITHIM
-    Idea: use interface to implement 1-2-3-4 methods for view-deposit-withdraw-transfer methods?
-    Idea: does second user of a joint acc need to approve ? 
-    Idea: limit username/password lengths?
-
-    Issue: how to link regular user acc to joint acc
-
-	Print into terminal: 
-    (print)
-		1: Log on:
-			1: Guest(check if account has been approved, and if password is correct):
-                1: View balance
-                    (print) Balance:
-                    1: return
-				2: Deposit money
-                    (print) Indicate amount to deposit:___
-                    1: return
-				3: Withdraw money
-                    (print) Indicate amount to withdraw:___
-                    1: return
-				4: Transfer money
-                    (print) Indicate username of receipient:___
-                    (print) Indicate amount to transfer:
-                    1: return
-				5: Apply for a joint account
-                    (check if user already has joint account, only allowed one)
-                    (print) Indicate username of joint user:___
-                    (print) Awaiting employee improval...
-                    1: return
-                6: View joint account
-                    1: View balance
-                        (print) Balance:
-                        1: return
-				    2: Deposit money
-                        (print) Indicate amount to deposit:___
-                        1: return
-				    3: Withdraw money
-                        (print) Indicate amount to withdraw:___
-                        1: return
-				    4: Transfer money
-                        (print) Indicate username of receipient:___
-                        (print) Indicate amount to transfer:___
-                        1: return
-                    5: Return (To guest options)
-                7: Log out (To login promt)
-
-			2: Admin(check if password is correct): 
-				1: View guests
-                    (print) list of keys/values of map (usernames, passwords,  names, balance, has a joint acc)
-                    1: return
-				2: View pending applications
-					(print) Approve/Deny
-                        1: (user 1) (user 2)
-                            1: Approve
-                            2: Deny
-                            3: Return
-                        2: (user 1) (user 2)
-                            1: Approve
-                            2: Deny
-                            3: Return
-                        3: etc. . . .
-                        4: Return
-                3: Log out (To login promt)
-		2: Create account
-			1: Create guest account
-                (print) Full name:___
-                (print) Username:___
-                    (check if username is available)
-                (print) Password:___
-                (print) Awaiting employee improval...
-                1: return
-			2: return 
-		3: exit
-		
-		guest structure
-            fullName -string ? or first + last
-            userName -string
-            password -password
-            balance -float64
-            isApproved -boolean
-            hasJointAcc -boolean
-            --
-            Functions:
-                viewBalance
-                Deposit
-                Withdraw
-                Transfer
-                Apply for joint account
-		
-        employee structure
-            username -string
-            password -password
-            --
-            Functions:
-                View customers
-                Approve/Deny pending applications
-### d
-**bold testtt**
-*itali*
+        To stop an old obsolete database:
+                docker container ls     
+                docker stop (container name)
+        
+        To create the database:
+                cd db
+                docker build -t (newContainername) .
+                docker run --name (newContainername) -d -p 5432:5432 (newContainername)
+                docker start (newContainername)
+        Then to run the program:       
+                cd ..
+                go run main.go

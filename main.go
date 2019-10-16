@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	_ "os"
+	"project-0/employee"
 	_ "project-0/employee"
 	"strconv"
 	"text/tabwriter"
@@ -22,10 +23,10 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("Welcome to Employee reimbursement app")
-	//employee.Welcome()
+	employee.Welcome()
 	//GetAll2(db)
 	//GetAll22(db)
-	GetAll3(db)
+	//GetAll3(db)
 	//GetAll4(db)
 	//GetAll44()
 	//getAll(db)
