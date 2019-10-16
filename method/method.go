@@ -12,30 +12,21 @@ import (
 // Length of account id number
 const idLength = 3
 
-// SelectQuery = shortcut function for QueryRow
-func SelectQuery(target string, table string, condition string, value string) (hold string) {
-	sqlStatement := `select $1 from $2 where $3 = $4`
-	result := (database.DBCon).QueryRow(sqlStatement, target, table, condition, value)
-	result.Scan(&hold)
-	fmt.Println(hold)
-	return
-}
-
-// GenerateID = randomly generate id that doesn't start with 0
-// Check it doesn't already exist in "account" table
+// GenerateID = randomly generate id and check it doesn't already exist
 // return = the generated id
 func GenerateID() (s string) {
 Top:
 	var x int
+	var hold string
 	for i := 0; i < idLength; i++ {
 		x = rand.Intn(9)
-		for i == 0 && x == 0 {
-			x = rand.Intn(9)
-		}
 		s += strconv.Itoa(x)
 	}
 
-	hold := SelectQuery("acc_id", "account", "acc_id", s)
+	sqlStatement := `select acc_id from account where acc_id = $1`
+	row := (database.DBCon).QueryRow(sqlStatement, s)
+	row.Scan(&hold)
+
 	if hold == "" {
 		return
 	}
@@ -81,22 +72,26 @@ func DeleteRecord(who string) {
 	fmt.Print("Login ID: ")
 	fmt.Scan(&email)
 
-	sqlStatement := ``
-	if who == "customer" {
-		sqlStatement = `delete from customer where email = $1`
+	if email == "user" && who == "employee" {
+		print.Invalid()
 	} else {
-		sqlStatement = `delete from employee where email = $1`
-	}
+		sqlStatement := ``
+		if who == "customer" {
+			sqlStatement = `delete from customer where email = $1`
+		} else {
+			sqlStatement = `delete from employee where email = $1`
+		}
 
-	res, err := (database.DBCon).Exec(sqlStatement, email)
-	if err == nil {
-		count, err := res.RowsAffected()
+		res, err := (database.DBCon).Exec(sqlStatement, email)
 		if err == nil {
-			if count == 0 {
-				print.Invalid()
-			} else {
-				fmt.Println("> Successfully Deleted")
-				fmt.Println()
+			count, err := res.RowsAffected()
+			if err == nil {
+				if count == 0 {
+					print.Invalid()
+				} else {
+					fmt.Println("> Successfully Deleted")
+					fmt.Println()
+				}
 			}
 		}
 	}
@@ -117,7 +112,10 @@ func OpenAccount(login string) {
 	insert into account (email, acc_type, acc_balance, acc_id)
 	values ($1, $2, $3, $4)`
 
-	_, err := (database.DBCon).Exec(sqlStatement, login, name, balance, GenerateID())
+	id := GenerateID()
+	fmt.Println(">", name, "account", id, "opened")
+	fmt.Println()
+	_, err := (database.DBCon).Exec(sqlStatement, login, name, balance, id)
 	if err != nil {
 		panic(err)
 	}
@@ -126,49 +124,43 @@ func OpenAccount(login string) {
 // ApplyJoint = submit a joint account request
 // param1 = login id of customer requesting it
 func ApplyJoint(login string) {
-	var oneNumber string
-	var twoNumber string
+	var acc1, acc2 string
 	fmt.Print("Input Your Account Number: ")
-	fmt.Scan(&oneNumber)
+	fmt.Scan(&acc1)
 	fmt.Print("Input Joint Account Number: ")
-	fmt.Scan(&twoNumber)
+	fmt.Scan(&acc2)
 	fmt.Println()
 
-	if oneNumber == twoNumber {
+	if acc1 == acc2 {
 		print.Invalid()
 	} else {
-		var hold1 string
-		var hold2 string
-		var hold3 string
-		var hold4 string
+		var email1, email2, type1, type2 string
 
-		// Get email values
-		sqlStatement := `select email from account where acc_id = $1`
-		result1 := (database.DBCon).QueryRow(sqlStatement, oneNumber)
-		result1.Scan(&hold1)
+		// Get emails
+		sql1 := `select email from account where acc_id = $1`
+		result1 := (database.DBCon).QueryRow(sql1, acc1)
+		result1.Scan(&email1)
+		result2 := (database.DBCon).QueryRow(sql1, acc2)
+		result2.Scan(&email2)
 
-		result2 := (database.DBCon).QueryRow(sqlStatement, twoNumber)
-		result2.Scan(&hold2)
+		// Get account types
+		sql2 := `select acc_type from account where acc_id = $1`
+		result3 := (database.DBCon).QueryRow(sql2, acc1)
+		result3.Scan(&type1)
+		result4 := (database.DBCon).QueryRow(sql2, type2)
+		result4.Scan(&type2)
 
-		// Get account names
-		sqlStatement2 := `select acc_type from account where acc_id = $1`
-		result3 := (database.DBCon).QueryRow(sqlStatement2, oneNumber)
-		result3.Scan(&hold3)
-
-		result4 := (database.DBCon).QueryRow(sqlStatement2, hold4)
-		result4.Scan(&hold4)
-
-		if hold1 == "" || hold2 == "" || hold1 != login || hold1 == hold2 ||
-			hold3 == "JOINT" || hold4 == "JOINT" {
+		if email1 == "" || email2 == "" || email1 != login || email1 == email2 ||
+			type1 == "JOINT" || type2 == "JOINT" {
 			print.Invalid()
 		} else {
 			fmt.Println("Submitted Joint Account Request")
 			fmt.Println()
-			sqlStatement = `
+			sql := `
 			insert into joint (email1, email2, num1, num2)
 			values ($1, $2, $3, $4)`
 
-			_, err := (database.DBCon).Exec(sqlStatement, hold1, hold2, oneNumber, twoNumber)
+			_, err := (database.DBCon).Exec(sql, email1, email2, acc1, acc2)
 			if err != nil {
 				panic(err)
 			}
@@ -179,8 +171,7 @@ func ApplyJoint(login string) {
 // VerifyJoint = approve/deny customer joint requests
 func VerifyJoint() {
 	count, slice := print.Joints()
-	var input string
-	var hold string
+	var input, hold string
 
 	if count != 0 {
 		fmt.Print("Input: ")
@@ -188,8 +179,8 @@ func VerifyJoint() {
 		convInput, _ := strconv.Atoi(input)
 		newInput := slice[convInput-1]
 
-		sqlStatement := `select index from joint where index = $1`
-		result := (database.DBCon).QueryRow(sqlStatement, newInput)
+		sql := `select index from joint where index = $1`
+		result := (database.DBCon).QueryRow(sql, newInput)
 		result.Scan(&hold)
 
 		if hold == "" {
@@ -205,21 +196,21 @@ func VerifyJoint() {
 			switch choice {
 			case "1":
 				// Get acc_id values
-				var idOne, idTwo string
-				sqlOne := `select num1 from joint where index = $1`
-				sqlTwo := `select num2 from joint where index = $1`
-				resOne := (database.DBCon).QueryRow(sqlOne, input)
-				resOne.Scan(&idOne)
-				resTwo := (database.DBCon).QueryRow(sqlTwo, input)
-				resTwo.Scan(&idTwo)
+				var acc1, acc2 string
+				sql1 := `select num1 from joint where index = $1`
+				sql2 := `select num2 from joint where index = $1`
+				result1 := (database.DBCon).QueryRow(sql1, input)
+				result1.Scan(&acc1)
+				result2 := (database.DBCon).QueryRow(sql2, input)
+				result2.Scan(&acc2)
 
 				// Use acc_id values to get acc_balance
-				var balOne, balTwo float32
-				sqlThree := `select acc_balance from account where acc_id = $1`
-				resThree := (database.DBCon).QueryRow(sqlThree, idOne)
-				resThree.Scan(&balOne)
-				resFour := (database.DBCon).QueryRow(sqlThree, idTwo)
-				resFour.Scan(&balTwo)
+				var bal1, bal2 float32
+				sql3 := `select acc_balance from account where acc_id = $1`
+				result3 := (database.DBCon).QueryRow(sql3, acc1)
+				result3.Scan(&bal1)
+				result4 := (database.DBCon).QueryRow(sql3, acc2)
+				result4.Scan(&bal2)
 
 				// Update the affected records
 				var newID string = GenerateID()
@@ -227,12 +218,12 @@ func VerifyJoint() {
 				update account
 				set acc_type = $1, acc_balance = $2, acc_id = $3
 				where acc_id = $4`
-				_, err := (database.DBCon).Exec(sqlUpdate, "JOINT", balOne+balTwo, newID, idOne)
+				_, err := (database.DBCon).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc1)
 				if err != nil {
 					panic(err)
 				}
 
-				_, err = (database.DBCon).Exec(sqlUpdate, "JOINT", balOne+balTwo, newID, idTwo)
+				_, err = (database.DBCon).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc2)
 				if err != nil {
 					panic(err)
 				}

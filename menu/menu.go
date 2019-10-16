@@ -118,15 +118,12 @@ Exit:
 // Authenticate = login and password input
 // param1 = identify which table "customer" or "employee"
 func Authenticate(who string) {
-	var email string
-	var pass string
-
+	var email, pass, hold string
 	fmt.Print("Login: ")
 	fmt.Scan(&email)
 	fmt.Print("Password: ")
 	fmt.Scan(&pass)
 
-	var hold string
 	sqlStatement := ``
 	if who == "customer" {
 		sqlStatement = `select pass from customer where email=$1`
@@ -135,8 +132,6 @@ func Authenticate(who string) {
 	}
 	row := (database.DBCon).QueryRow(sqlStatement, email)
 	row.Scan(&hold)
-
-	//hold := selectQuery("pass", who, "email", email)
 
 	if pass == hold {
 		fmt.Println("> Login Successful")
