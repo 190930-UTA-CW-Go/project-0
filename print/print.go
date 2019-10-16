@@ -26,7 +26,7 @@ func Table(who string) {
 	} else {
 		sqlStatement = `select * from employee order by email`
 	}
-	rows, _ := (database.DBCon).Query(sqlStatement)
+	rows, _ := (database.DB).Query(sqlStatement)
 
 	for rows.Next() {
 		// count variable used as empty table error checker
@@ -65,7 +65,7 @@ func Accounts(login string) {
 	sqlStatement := ""
 	if login == "" {
 		sqlStatement = `select * from account order by email asc, acc_id asc`
-		rows, _ := (database.DBCon).Query(sqlStatement)
+		rows, _ := (database.DB).Query(sqlStatement)
 		for rows.Next() {
 			// count variable used as empty table error checker
 			count++
@@ -79,7 +79,7 @@ func Accounts(login string) {
 		}
 	} else {
 		sqlStatement = `select * from account where email = $1`
-		rows, _ := (database.DBCon).Query(sqlStatement, login)
+		rows, _ := (database.DB).Query(sqlStatement, login)
 		for rows.Next() {
 			// count variable used as empty table error checker
 			count++
@@ -118,7 +118,7 @@ func Joints() (count int, slice []string) {
 	fmt.Println("==============================================")
 
 	sqlStatement := "select * from joint"
-	rows, _ := (database.DBCon).Query(sqlStatement)
+	rows, _ := (database.DB).Query(sqlStatement)
 	for rows.Next() {
 		count++
 

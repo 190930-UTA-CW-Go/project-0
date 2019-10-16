@@ -22,7 +22,7 @@ A terminal interactive text menu banking app with the features:
     - [x] `fmt`
     - [] `io`
     - [] `os`
-    - [] `flag`
+    - [x] `flag`
     - [] `log`
     - [] `http`
     - [] `testing`

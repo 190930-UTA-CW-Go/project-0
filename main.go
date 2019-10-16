@@ -25,8 +25,8 @@ func main() {
 	var err error
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
-	(database.DBCon), err = sql.Open("postgres", datasource)
-	defer (database.DBCon).Close()
+	(database.DB), err = sql.Open("postgres", datasource)
+	defer (database.DB).Close()
 	if err != nil {
 		panic(err)
 	}

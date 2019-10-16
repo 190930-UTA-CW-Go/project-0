@@ -147,7 +147,7 @@ func Authenticate(who string, flag bool) {
 	} else {
 		sqlStatement = `select pass from employee where email=$1`
 	}
-	row := (database.DBCon).QueryRow(sqlStatement, email)
+	row := (database.DB).QueryRow(sqlStatement, email)
 	row.Scan(&hold)
 
 	if pass == hold {

@@ -28,7 +28,7 @@ Top:
 	}
 
 	sqlStatement := `select acc_id from account where acc_id = $1`
-	row := (database.DBCon).QueryRow(sqlStatement, s)
+	row := (database.DB).QueryRow(sqlStatement, s)
 	row.Scan(&hold)
 
 	if hold == "" {
@@ -63,7 +63,7 @@ func AddRecord(who string) {
 		values ($1, $2, $3, $4)`
 	}
 
-	_, err := (database.DBCon).Exec(sqlStatement, email, pass, first, last)
+	_, err := (database.DB).Exec(sqlStatement, email, pass, first, last)
 	if err != nil {
 		print.Invalid()
 		//panic(err)
@@ -76,6 +76,7 @@ func DeleteRecord(who string) {
 	var email, hold string
 	fmt.Print("Login ID: ")
 	fmt.Scan(&email)
+	fmt.Println()
 
 	if email == "user" && who == "employee" {
 		print.Invalid()
@@ -90,14 +91,14 @@ func DeleteRecord(who string) {
 			sql2 = `delete from employee where email = $1`
 		}
 
-		result := (database.DBCon).QueryRow(sql1, email)
+		result := (database.DB).QueryRow(sql1, email)
 		result.Scan(&hold)
 
 		if hold == "" {
 			print.Invalid()
 		} else {
 
-			(database.DBCon).Exec(sql2, email)
+			(database.DB).Exec(sql2, email)
 			fmt.Println("> Successfully Deleted")
 			fmt.Println()
 		}
@@ -122,7 +123,7 @@ func OpenAccount(login string) {
 	id := GenerateID()
 	fmt.Println(">", name, "account", id, "opened")
 	fmt.Println()
-	_, err := (database.DBCon).Exec(sqlStatement, login, name, balance, id)
+	_, err := (database.DB).Exec(sqlStatement, login, name, balance, id)
 	if err != nil {
 		panic(err)
 	}
@@ -145,16 +146,16 @@ func ApplyJoint(login string) {
 
 		// Get emails
 		sql1 := `select email from account where acc_id = $1`
-		result1 := (database.DBCon).QueryRow(sql1, acc1)
+		result1 := (database.DB).QueryRow(sql1, acc1)
 		result1.Scan(&email1)
-		result2 := (database.DBCon).QueryRow(sql1, acc2)
+		result2 := (database.DB).QueryRow(sql1, acc2)
 		result2.Scan(&email2)
 
 		// Get account types
 		sql2 := `select acc_type from account where acc_id = $1`
-		result3 := (database.DBCon).QueryRow(sql2, acc1)
+		result3 := (database.DB).QueryRow(sql2, acc1)
 		result3.Scan(&type1)
-		result4 := (database.DBCon).QueryRow(sql2, type2)
+		result4 := (database.DB).QueryRow(sql2, type2)
 		result4.Scan(&type2)
 
 		if email1 == "" || email2 == "" || email1 != login || email1 == email2 ||
@@ -167,7 +168,7 @@ func ApplyJoint(login string) {
 			insert into joint (email1, email2, num1, num2)
 			values ($1, $2, $3, $4)`
 
-			_, err := (database.DBCon).Exec(sql, email1, email2, acc1, acc2)
+			_, err := (database.DB).Exec(sql, email1, email2, acc1, acc2)
 			if err != nil {
 				panic(err)
 			}
@@ -191,7 +192,7 @@ func VerifyJoint() {
 			newInput := slice[convInput-1]
 
 			sql := `select index from joint where index = $1`
-			result := (database.DBCon).QueryRow(sql, newInput)
+			result := (database.DB).QueryRow(sql, newInput)
 			result.Scan(&hold)
 
 			if hold == "" {
@@ -211,17 +212,17 @@ func VerifyJoint() {
 					var acc1, acc2 string
 					sql1 := `select num1 from joint where index = $1`
 					sql2 := `select num2 from joint where index = $1`
-					result1 := (database.DBCon).QueryRow(sql1, newInput)
+					result1 := (database.DB).QueryRow(sql1, newInput)
 					result1.Scan(&acc1)
-					result2 := (database.DBCon).QueryRow(sql2, newInput)
+					result2 := (database.DB).QueryRow(sql2, newInput)
 					result2.Scan(&acc2)
 
 					// Use acc_id values to get acc_balance
 					var bal1, bal2 float32
 					sql3 := `select acc_balance from account where acc_id = $1`
-					result3 := (database.DBCon).QueryRow(sql3, acc1)
+					result3 := (database.DB).QueryRow(sql3, acc1)
 					result3.Scan(&bal1)
-					result4 := (database.DBCon).QueryRow(sql3, acc2)
+					result4 := (database.DB).QueryRow(sql3, acc2)
 					result4.Scan(&bal2)
 
 					// Update the affected records
@@ -230,12 +231,12 @@ func VerifyJoint() {
 					update account
 					set acc_type = $1, acc_balance = $2, acc_id = $3
 					where acc_id = $4`
-					_, err := (database.DBCon).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc1)
+					_, err := (database.DB).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc1)
 					if err != nil {
 						panic(err)
 					}
 
-					_, err = (database.DBCon).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc2)
+					_, err = (database.DB).Exec(sqlUpdate, "JOINT", bal1+bal2, newID, acc2)
 					if err != nil {
 						panic(err)
 					}
@@ -261,14 +262,14 @@ func VerifyJoint() {
 func DeleteJoint(input string, message string) {
 	var hold string
 	sql1 := `select index from joint where index = $1`
-	result1 := (database.DBCon).QueryRow(sql1, input)
+	result1 := (database.DB).QueryRow(sql1, input)
 	result1.Scan(&hold)
 
 	if hold == "" {
 		print.Invalid()
 	} else {
 		sql2 := `delete from joint where index = $1`
-		(database.DBCon).Exec(sql2, input)
+		(database.DB).Exec(sql2, input)
 		fmt.Println(message)
 		fmt.Println()
 	}
@@ -287,7 +288,7 @@ func Money(login string, who string) {
 
 	// Check account id number is valid
 	sql := `select email, acc_balance from account where acc_id = $1`
-	row := (database.DBCon).QueryRow(sql, id)
+	row := (database.DB).QueryRow(sql, id)
 	row.Scan(&check, &balance)
 
 	amountInt, flag := Atof(amount)
@@ -312,7 +313,7 @@ func Money(login string, who string) {
 // param2 = id to withdraw from
 func Withdraw(amount float32, id string) {
 	sqlUpdate := `update account set acc_balance = $1 where acc_id = $2`
-	_, err := (database.DBCon).Exec(sqlUpdate, amount, id)
+	_, err := (database.DB).Exec(sqlUpdate, amount, id)
 	if err != nil {
 		panic(err)
 	}
@@ -327,7 +328,7 @@ func Withdraw(amount float32, id string) {
 // param2 = id to deposit to
 func Deposit(amount float32, id string) {
 	sqlUpdate := `update account set acc_balance = $1 where acc_id = $2`
-	_, err := (database.DBCon).Exec(sqlUpdate, amount, id)
+	_, err := (database.DB).Exec(sqlUpdate, amount, id)
 	if err != nil {
 		panic(err)
 	}
@@ -356,10 +357,10 @@ func Transfer(login string) {
 
 		// Check account id number is valid and return acc_balance
 		sql := `select email, acc_balance from account where acc_id = $1`
-		row1 := (database.DBCon).QueryRow(sql, acc1)
+		row1 := (database.DB).QueryRow(sql, acc1)
 		row1.Scan(&email1, &balance1)
 
-		row2 := (database.DBCon).QueryRow(sql, acc2)
+		row2 := (database.DB).QueryRow(sql, acc2)
 		row2.Scan(&email2, &balance2)
 
 		transferInt, flag := Atof(transfer)

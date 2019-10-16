@@ -2,5 +2,5 @@ package database
 
 import "database/sql"
 
-// DBCon = global database variable
-var DBCon *sql.DB
+// DB = global database variable
+var DB *sql.DB
