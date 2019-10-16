@@ -22,9 +22,11 @@ func Apply(db *sql.DB, app string) {
 		comp = "Salt-PhD"
 	case "t":
 		comp = "TipsyCo"
+	default:
+		comp = "Duda-Cola"
 	}
 
-	fmt.Println("Welcome to the", comp, "application page.")
+	fmt.Println("Welcome to the " + comp + "application page.")
 
 	if len(os.Args) >= 6 {
 		fmt.Println("Thank you for choosing the quick apply option.")

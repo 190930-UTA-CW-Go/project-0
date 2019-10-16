@@ -1,15 +1,20 @@
 package vend
 
-import "fmt"
+import (
+	"database/sql"
+	"fmt"
+)
 
 /*
 Vending documentation
 */
-func Vending() int {
+func Vending(db *sql.DB) int {
 	r, nav := 0, 0
 
 	for n := 0; n < 1; n = n + 0 {
-		fmt.Println("You bought a drink!")
+		ListDrinks(db)
+		BuyDrink(db)
+
 		fmt.Println("What would you like to do next?")
 		fmt.Println("[1] Buy another drink")
 		fmt.Println("[2] Restock the machine")
@@ -18,7 +23,7 @@ func Vending() int {
 
 		switch nav {
 		case 1:
-			fmt.Println("Feeling dehydrated?")
+			fmt.Println("Which drink would you like to purchase?")
 		case 2:
 			r = 2
 			n++
