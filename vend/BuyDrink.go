@@ -23,8 +23,6 @@ func BuyDrink(db *sql.DB) {
 			Dispense(db, index[i], stock[i])
 			fmt.Println(" ")
 			fmt.Println("Enjoy!")
-		} else {
-			fmt.Println("Uh-Oh. Something went wrong.")
 		}
 	}
 }

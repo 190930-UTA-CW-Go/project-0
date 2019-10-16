@@ -26,14 +26,14 @@ func Apply(db *sql.DB, app string) {
 		comp = "Duda-Cola"
 	}
 
-	fmt.Println("Welcome to the " + comp + "application page.")
+	fmt.Println("Welcome to the " + comp + " application page.")
 
 	if len(os.Args) >= 6 {
 		fmt.Println("Thank you for choosing the quick apply option.")
 		fmt.Println(" ")
 		acc, pass, first, last = QuickApply()
 	} else if (len(os.Args) > 2) && (len(os.Args) < 6) {
-		fmt.Println("It appears that your quick apply was partially complete.")
+		fmt.Println("It appears that your quick apply was partially or fully incomplete.")
 		fmt.Println("Please use the application form below.")
 		fmt.Println(" ")
 		acc, pass, first, last = Form()
@@ -45,7 +45,7 @@ func Apply(db *sql.DB, app string) {
 	application := NewTech(acc, pass, comp, first, last)
 	application.print(comp)
 
-	for stat = 0; stat > 0; stat = stat + 0 {
+	for stat = 0; stat >= 1; stat = stat + 0 {
 		check = Check(db, application)
 		if check == 1 {
 			stat = gen.UseSeed(1, 2)
