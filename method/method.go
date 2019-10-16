@@ -265,7 +265,7 @@ func DeleteJoint(input string, print string) {
 	}
 }
 
-// Money =
+// Money = set up withdraw/deposit money process
 // param1 = customer login id
 // param2 = identify either withdraw or deposit
 func Money(login string, who string) {
@@ -298,7 +298,9 @@ func Money(login string, who string) {
 	}
 }
 
-// Withdraw =
+// Withdraw = execute withdraw sql statement
+// param1 = amount to withdraw
+// param2 = id to withdraw from
 func Withdraw(amount float32, id string) {
 	sqlUpdate := `update account set acc_balance = $1 where acc_id = $2`
 	_, err := (database.DBCon).Exec(sqlUpdate, amount, id)
@@ -310,7 +312,9 @@ func Withdraw(amount float32, id string) {
 	fmt.Println(s, "in account", id)
 }
 
-// Deposit =
+// Deposit = execute deposit sql statement
+// param1 = amount to deposit
+// param2 = id to deposit to
 func Deposit(amount float32, id string) {
 	sqlUpdate := `update account set acc_balance = $1 where acc_id = $2`
 	_, err := (database.DBCon).Exec(sqlUpdate, amount, id)
@@ -322,7 +326,7 @@ func Deposit(amount float32, id string) {
 	fmt.Println(s, "in account", id)
 }
 
-// Transfer =
+// Transfer = set up transfer money process
 // param1 = customer login id
 func Transfer(login string) {
 	var acc1, acc2, transfer string
@@ -365,7 +369,10 @@ func Transfer(login string) {
 	}
 }
 
-// Atof =
+// Atof = convert string to float32
+// param1 = string to convert to float32
+// return1 = converted amount as float32
+// return2 = flag whether there's an error or not
 func Atof(s string) (money float32, flag bool) {
 	value, err := strconv.ParseFloat(s, 32)
 	if err != nil {
