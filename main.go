@@ -28,7 +28,7 @@ func main() {
 	fmt.Println()
 	fmt.Println("(~˘▾˘)~  Welcome to Employee reimbursement app!!  ~(˘▾˘~)")
 	fmt.Println()
-	fmt.Println()
+	fmt.Println("-by Garner Deng")
 	employee.Prompt()
 	employee.Welcome()
 	//GetAll2(db)

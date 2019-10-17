@@ -141,11 +141,12 @@ func employeeLogin() {
 	} else {
 		Clear()
 		color.Red.Println("Failure, incorrect credentials")
-		color.Red.Println("Program abortion")
+		color.Red.Println("Redirecting you. . .")
 		fmt.Println()
 		fmt.Println("		(ノಥ﹏ಥ)ノ彡┻━┻")
 		fmt.Println()
-		os.Exit(0)
+		Prompt()
+		employeeLogin()
 	}
 }
 
@@ -209,9 +210,13 @@ func ManagerLogin() {
 		welcomeAdmin()
 	} else {
 		Clear()
-		color.Red.Println("FAILURE, INCORRECT CREDENTIALS")
-		color.Red.Println("PROGRAM ABORTION")
-		os.Exit(0)
+		color.Red.Println("Failure, incorrect credentials")
+		color.Red.Println("Try harder")
+		fmt.Println()
+		fmt.Println("		(ノಥ﹏ಥ)ノ彡┻━┻")
+		fmt.Println()
+		Prompt()
+		ManagerLogin()
 	}
 }
 
@@ -359,20 +364,12 @@ func createManager() {
 		fmt.Println("CORRECT")
 	} else {
 		Clear()
-		color.Red.Println("FAILURE")
-		color.Red.Println("FAILURE")
-		color.Red.Println("FAILURE")
-		color.Red.Println("FAILURE")
-		color.Red.Println("FAILURE")
-		color.Red.Println("FAILURE")
-		color.Red.Println("FAILURE")
-		color.Red.Println("FAILURE")
-		color.Red.Println("FAILURE")
-		color.Red.Println("FAILURE")
-		color.Red.Println("FAILURE")
-		color.Red.Println("PROGRAM WILL NOW ABORT")
-
-		os.Exit(0)
+		color.Red.Println("Failure, incorrect credentials")
+		color.Red.Println("nuuuuu")
+		fmt.Println()
+		fmt.Println("		(ノಥ﹏ಥ)ノ彡┻━┻")
+		fmt.Println()
+		Prompt()
 	}
 	Clear()
 	fmt.Println()
