@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<head>
+<title>
+</title>
+</head>
+<body>
+{{ if .Login.Invalidname }}
+<a href="/register">Register</a>
+<br>
+<br>
+Invalid user name<br>
+Please re-enter your username and password:
+<br>
+   <form method="POST" action="/login">
+        <label>Username:</label><br />
+        <input type="text" name="name"><br>
+        <label>Password:</label><br />
+        <input type="password" name="pw"><br>
+        <br>
+        <input type="submit" value="Login">
+    </form>
+{{ else if .Login.Invalidpw }} 
+<a href="/register">Register</a>
+<br>
+<br>
+Invalid password<br>
+Please re-enter your username and password:
+<br>
+   <form method="POST" action="/login">
+        <label>Username:</label><br />
+        <input type="text" name="name"><br>
+        <label>Password:</label><br />
+        <input type="password" name="pw"><br>
+        <br>
+        <input type="submit" value="Login">
+    </form>
+{{ else if .Singleuser.Notapplied }}
+<a href="/logout"><button>Logout</button></a>
+<br><br>
+Thank you for logging in {{.Singleuser.Username}}. Please apply for a checking account and a savings account below:
+<br>
+<br>
+   <form method="POST" action="/apply">
+        <label>First Name:</label><br />
+        <input type="text" name="first"><br>
+        <label>Last Name:</label><br />
+        <input type="text" name="last"><br>
+	<label>Address:</label><br />
+        <input type="text" name="address"><br>
+        <label>Phone Number:</label><br />
+        <input type="text" name="phone"><br>
+        <br>
+        <input type="submit" value="apply">
+    </form>
+{{ else if .Insufficient }}
+<a href="/logout"><button>Logout</button></a>
+<br><br>
+    You don't have sufficient funds to complete this transaction.<br><br>
+    Checking: ${{ .Singleaccount.Checking }}<br>
+    Savings: ${{ .Singleaccount.Savings }}
+    <br>
+        <br>
+        <form action="/deposit" method="POST">
+            <input type="radio" name="account" value="checking" checked>
+            <label>Checking</label><br>
+            <input type="radio" name="account" value="savings">
+            <label>Savings</label><br><br>
+        <label>Deposit amount: $</label>
+        <input type="text" name="amount"><br>
+            <input type="submit" value="Deposit">
+        </form>
+    <br><br>
+    <form action="/withdraw" method="POST">
+        <input type="radio" name="account" value="checking" checked>
+        <label>Checking</label><br>
+        <input type="radio" name="account" value="savings">
+        <label>Savings</label><br><br>
+        <label>Withdrawal amount: $</label>
+        <input type="text" name="amount"><br>
+        <input type="submit" value="Withdraw">
+    </form>
+    <br><br>
+    <form action="/transfer" method="POST">
+    	Transfer from:<br>
+    	<input type="radio" name="fromaccount" value="checking" checked>
+    	<label>Checking</label><br>
+    	<input type="radio" name="fromaccount" value="savings">
+    	<label>Savings</label><br><br>
+    	Transfer to:<br>
+    	<input type="radio" name="toaccount" value="checking" checked>
+    	<label>Checking</label><br>
+    	<input type="radio" name="toaccount" value="savings">
+    	<label>Savings</label><br><br>
+    	<label>Transfer amount: $</label>
+    	<input type="text" name="amount"><br>
+    	<input type="submit" value="Transfer">
+    	</form>	
+	<br><br><br>
+
+{{ else if .Singleuser.Approved}}
+<a href="/logout"><button>Logout</button></a>
+<br><br>
+Checking: ${{ .Singleaccount.Checking }}<br>
+Savings: ${{ .Singleaccount.Savings }}
+<br>
+    <br>
+    <form action="/deposit" method="POST">
+        <input type="radio" name="account" value="checking" checked>
+        <label>Checking</label><br>
+        <input type="radio" name="account" value="savings">
+        <label>Savings</label><br><br>
+	<label>Deposit amount: $</label>
+	<input type="text" name="amount"><br>
+        <input type="submit" value="Deposit">
+     </form>
+<br><br>
+<form action="/withdraw" method="POST">
+    <input type="radio" name="account" value="checking" checked>
+    <label>Checking</label><br>
+    <input type="radio" name="account" value="savings">
+    <label>Savings</label><br><br>
+    <label>Withdrawal amount: $</label>
+    <input type="text" name="amount"><br>
+    <input type="submit" value="Withdraw">
+</form>
+<br><br>
+<form action="/transfer" method="POST">
+    Transfer from:<br>
+    <input type="radio" name="fromaccount" value="checking" checked>
+    <label>Checking</label><br>
+    <input type="radio" name="fromaccount" value="savings">
+    <label>Savings</label><br><br>
+    Transfer to:<br>
+    <input type="radio" name="toaccount" value="checking" checked>
+    <label>Checking</label><br>
+    <input type="radio" name="toaccount" value="savings">
+    <label>Savings</label><br><br>
+    <label>Transfer amount: $</label>
+    <input type="text" name="amount"><br>
+    <input type="submit" value="Transfer">
+</form>
+<br><br><br>
+{{ else if .Singleuser.Denied}}
+<a href="/logout"><button>Logout</button></a>
+<br><br>
+Your application was denied.
+{{ else }}
+<a href="/logout"><button>Logout</button></a>
+<br><br>
+Your application is pending.
+{{ end }}
+</body>
+</html>
+
