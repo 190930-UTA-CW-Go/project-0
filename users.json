@@ -1,0 +1,20 @@
+{
+    "users": [
+      {
+        "username": "tg",
+        "password": "pass",
+  "Account": {
+          "Balance": 10.50
+        }    
+      },
+     
+      {
+        "username": "user2",
+        "password": "pass",
+  "Account": {
+          "Balance": 20.01
+        }
+       
+      }
+    ]
+  }
