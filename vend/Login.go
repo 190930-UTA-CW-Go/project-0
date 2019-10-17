@@ -34,11 +34,18 @@ Login sends the databse information and the maximum capacity to Refill.
 func Login(db *sql.DB, brand string, capacity int) int {
 	i, r, n, c, loginErr := 0, 0, 0, 0, 0
 	var userIn, passIn string
-	account := make([]string, 3)
-	pass := make([]string, 3)
-	company := make([]string, 3)
-	firstname := make([]string, 3)
-	lastname := make([]string, 3)
+	var count int
+
+	rows0, _ := db.Query("SELECT COUNT(*) as count FROM machine;")
+	for rows0.Next() {
+		rows0.Scan(&count)
+	}
+
+	account := make([]string, count)
+	pass := make([]string, count)
+	company := make([]string, count)
+	firstname := make([]string, count)
+	lastname := make([]string, count)
 
 	rows, _ := db.Query("SELECT * FROM servicers;")
 	for rows.Next() {

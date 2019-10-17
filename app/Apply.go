@@ -45,12 +45,19 @@ func Apply(db *sql.DB, app string) {
 	application := NewTech(acc, pass, comp, first, last)
 	application.print(comp)
 
-	for stat = 0; stat >= 1; stat = stat + 0 {
+	for i := 0; i == 0; i = i + 0 {
+		stat = 0
 		check = Check(db, application)
 		if check == 1 {
 			stat = gen.UseSeed(1, 2)
+			i++
 		}
 		application.result(stat, comp)
+
+		if stat == 0 {
+			fmt.Scanln(&acc)
+			application.account = acc
+		}
 	}
 
 	if stat == 2 {
