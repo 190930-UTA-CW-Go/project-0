@@ -26,10 +26,10 @@ A Go CLI program. Update `Readme.md` with a name, a list of implemented and plan
 - [x] CRUD - Create, Read, Update, Delete data
 - [x] CLI - command-line args and/or event-driven text menus
 - [x] Execute OS commands
-- [] Login - Authentication & Authorization
+- [x] Login - Authentication & Authorization
 - [x] Persisting State - Save/Load to file or DB
 - [] HTTP - API endpoints accessible through browser endpoints, HTML/JS, and/or `curl` commands
 
 ### Presentation
-- [] Prepare a demonstration of functionality, no more than 5-10 minutes
-- [] Present using standalone app through terminal execution
+- [x] Prepare a demonstration of functionality, no more than 5-10 minutes
+- [x] Present using standalone app through terminal execution
