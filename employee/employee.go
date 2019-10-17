@@ -146,7 +146,7 @@ func employeeLogin() {
 		fmt.Println("		(ノಥ﹏ಥ)ノ彡┻━┻")
 		fmt.Println()
 		Prompt()
-		employeeLogin()
+		Welcome()
 	}
 }
 
@@ -216,7 +216,7 @@ func ManagerLogin() {
 		fmt.Println("		(ノಥ﹏ಥ)ノ彡┻━┻")
 		fmt.Println()
 		Prompt()
-		ManagerLogin()
+		Welcome()
 	}
 }
 
@@ -370,6 +370,7 @@ func createManager() {
 		fmt.Println("		(ノಥ﹏ಥ)ノ彡┻━┻")
 		fmt.Println()
 		Prompt()
+		Welcome()
 	}
 	Clear()
 	fmt.Println()
