@@ -28,20 +28,6 @@ const (
 // 	Lang  string
 // }
 
-// type account struct {
-// 	Firstname, Lastname, Password, Username string
-// 	Balance                                 float64
-// }
-
-// type newcustomer struct {
-// 	username, password string
-// }
-
-// type employee struct {
-// 	Firstname, Lastname, Password, Username string
-// 	// something to access customer
-// }
-
 //might not be needed
 // func WriteToFile(c map[int]account) {
 // 	file, err := os.Create("customers.txt")
@@ -68,6 +54,7 @@ func OpenDB() *sql.DB {
 
 	//db.Exec("INSERT INTO accounts VALUES ('Dio', 'Brando', 'DIO','ZAWARUDO',5000.75)")
 	options(db)
+	//Transfer(db, "DIO", "JOJO", 5000.75, 500.75)
 	//addAccounts(db, "Khang", "Tran", "Deathberry", "Pika", 75.87)
 	//searchByName(db, "Khang")
 	//deposit(db, 50.25, 75.87, "Khang")
@@ -95,6 +82,7 @@ func getAllCusts(db *sql.DB) {
 	if err != nil {
 		fmt.Println(err)
 	}
+	fmt.Println("The customers are: \n")
 	for rows.Next() {
 		var firstname string
 		var lastname string
@@ -214,6 +202,31 @@ func deleteCust(db *sql.DB, username string) {
 	db.Exec("DELETE FROM customers where username = $1", username)
 	fmt.Println("Deleted ", username)
 }
+func VerifyCustomer(db *sql.DB, username string) (float64, string) {
+	var balance float64
+	var acntname string
+
+	row := db.QueryRow("SELECT balance, username FROM customers WHERE username = $1", username)
+	row.Scan(&balance, &acntname)
+	if acntname == "" {
+		fmt.Println("That account does not exist.")
+		options(db)
+	}
+	return balance, username
+}
+
+func Transfer(db *sql.DB, user1 string, user2 string, balanceinput float64, fundsinput float64) {
+	var funds float64 = fundsinput
+
+	for funds > balanceinput {
+		fmt.Printf("Not enough money in balance please enter another amount: ")
+		fmt.Scanln(&funds)
+	}
+	db.Exec("UPDATE customers SET balance = $1 WHERE username = $2", balanceinput-funds, user1)
+	balancedeposit, _ := VerifyCustomer(db, user2)
+	db.Exec("UPDATE customers SET balance = $1 WHERE username = $2", balancedeposit+funds, user2)
+	fmt.Println("Transfer Successful!")
+}
 
 func login(db *sql.DB, username string, password string) bool {
 	row := db.QueryRow("SELECT username, password FROM customers WHERE username = $1 AND password = $2", username, password)
@@ -223,7 +236,23 @@ func login(db *sql.DB, username string, password string) bool {
 	fmt.Println(usrname, pword)
 	if (username == usrname) && (password == pword) {
 		fmt.Println("The username ", username, " was found")
-		fmt.Println("The password was found")
+		fmt.Println("The password was found\n")
+		return true
+	} else {
+		fmt.Println("The username ", username, "was not found")
+		fmt.Println("The password was not found")
+		return false
+	}
+}
+func loginEmployee(db *sql.DB, username string, password string) bool {
+	row := db.QueryRow("SELECT username, password FROM employees WHERE username = $1 AND password = $2", username, password)
+	var usrname string
+	var pword string
+	row.Scan(&usrname, &pword)
+	fmt.Println(usrname, pword)
+	if (username == usrname) && (password == pword) {
+		fmt.Println("The username ", username, " was found")
+		fmt.Println("The password was found\n")
 		return true
 	} else {
 		fmt.Println("The username ", username, "was not found")
@@ -232,7 +261,7 @@ func login(db *sql.DB, username string, password string) bool {
 	}
 }
 func options(db *sql.DB) {
-	fmt.Println("Are you a customer or employee? ")
+	fmt.Println("\nAre you a customer or employee? ")
 	var role string
 	fmt.Scanln(&role)
 	if role == "customer" {
@@ -243,7 +272,7 @@ func options(db *sql.DB) {
 		fmt.Print("Please enter in your password: ")
 		fmt.Scanln(&pword)
 		if login(db, uname, pword) == true {
-			fmt.Println("Please select an option \n1. Add customer \n2. Delete customer \n3. Register customer  \n4. Deposit \n5. Withdraw \n6. Exit")
+			fmt.Println("Please select an option \n1. Add customer \n2. Delete customer \n3. Register customer  \n4. Deposit \n5. Withdraw \n6. Transfer \n7. Exit")
 			var input int
 			fmt.Scanln(&input)
 			switch input {
@@ -264,11 +293,10 @@ func options(db *sql.DB) {
 				fmt.Print("Enter your initial balance: ")
 				fmt.Scanln(&balance)
 				addCustomers(db, firstname, lastname, username, password, balance)
-				//break
 				options(db)
 			case 2:
 				var username string
-				fmt.Print("Enter in the username that you wish to delete")
+				fmt.Print("Enter in the username that you wish to delete: ")
 				fmt.Scanln(&username)
 				deleteCust(db, username)
 				options(db)
@@ -307,6 +335,21 @@ func options(db *sql.DB) {
 				withdraw(db, money, balance, username)
 				options(db)
 			case 6:
+				var user1 string
+				var user2 string
+				var balance float64
+				var funds float64
+				fmt.Print("Please enter the username of the person who's sending money: ")
+				fmt.Scanln(&user1)
+				fmt.Print("Please enter the username of the person recieving the money: ")
+				fmt.Scanln(&user2)
+				fmt.Print("Enter in the balance of the user sending money: ")
+				fmt.Scanln(&balance)
+				fmt.Print("Enter in the amount of money you'd like to send: ")
+				fmt.Scanln(&funds)
+				Transfer(db, user1, user2, balance, funds)
+				options(db)
+			case 7:
 				os.Exit(0)
 			default:
 				fmt.Println("Sorry that option isn't on the list")
@@ -314,22 +357,29 @@ func options(db *sql.DB) {
 
 		}
 	} else {
-		fmt.Println("Please select an option \n1. View Customer information \n2. Approve Customer  \n3. Deny Customer")
-		var input int
-		fmt.Scanln(&input)
-		switch input {
-		case 1:
-			fmt.Println("Option 1 in employee")
-			getAllCusts(db)
-			options(db)
-		case 2:
-			fmt.Println("Option 2 in employee")
-			options(db)
-		case 3:
-			fmt.Println("Option 3 in employee")
-			options(db)
-		default:
-			fmt.Println("Sorry there's no option like that!")
+		var uname string
+		var pword string
+		fmt.Print("Please enter in your username: ")
+		fmt.Scanln(&uname)
+		fmt.Print("Please enter in your password: ")
+		fmt.Scanln(&pword)
+		if loginEmployee(db, uname, pword) {
+			fmt.Println("Please select an option \n1. View Customer information \n2. Approve Customer  \n3. Deny Customer")
+			var input int
+			fmt.Scanln(&input)
+			switch input {
+			case 1:
+				getAllCusts(db)
+				options(db)
+			case 2:
+				fmt.Println("Option 2 in employee")
+				options(db)
+			case 3:
+				fmt.Println("Option 3 in employee")
+				options(db)
+			default:
+				fmt.Println("Sorry there's no option like that!")
+			}
 		}
 	}
 }
