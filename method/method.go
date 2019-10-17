@@ -271,7 +271,6 @@ func DeleteJoint(input string, message string) {
 		sql2 := `delete from joint where index = $1`
 		(database.DB).Exec(sql2, input)
 		fmt.Println(message)
-		fmt.Println()
 	}
 }
 

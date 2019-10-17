@@ -64,7 +64,7 @@ func Accounts(login string) {
 
 	sqlStatement := ""
 	if login == "" {
-		sqlStatement = `select * from account order by email asc, acc_id asc`
+		sqlStatement = `select * from account order by acc_id asc`
 		rows, _ := (database.DB).Query(sqlStatement)
 		for rows.Next() {
 			// count variable used as empty table error checker
