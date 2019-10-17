@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"strconv"
 
 	_ "github.com/lib/pq"
 )
@@ -28,137 +27,36 @@ const (
 // 	Cc    string
 // 	Lang  string
 // }
-var customerlist []account
 
-var registrationlist = make([]newcustomer, 5)
+// type account struct {
+// 	Firstname, Lastname, Password, Username string
+// 	Balance                                 float64
+// }
 
-type account struct {
-	Firstname, Lastname, Password, Username string
-	Balance                                 float64
-}
+// type newcustomer struct {
+// 	username, password string
+// }
 
-type newcustomer struct {
-	username, password string
-}
-
-type employee struct {
-	Firstname, Lastname, Password, Username string
-	// something to access customer
-}
-
-func (a account) printCustomers() string {
-	return ("Firstname " + a.Firstname +
-		"Lastname " + a.Lastname +
-		"Password " + a.Password +
-		"Username " + a.Username +
-		"Balance " + strconv.FormatFloat(a.Balance, 'f', 6, 64)) + "\n"
-
-}
-func (nc newcustomer) Register() {
-	var usrname string
-	var password string
-	fmt.Println("Please enter a username")
-	fmt.Scanln(&usrname)
-	nc.username = usrname
-	fmt.Println("Please enter a password")
-	fmt.Scanln(&password)
-	nc.password = password
-
-	fl := searchForUsername(usrname)
-	if fl == true {
-		fmt.Println("This customer is already in the list")
-	} else {
-		registrationlist = append(registrationlist, nc)
-		fmt.Println("This customer was succesfully added")
-	}
-	fmt.Println("The people who are registare are ", registrationlist)
-}
-
-func (a account) addCustomer() {
-	var frname string
-	var lsname string
-	var pswd string
-	var usrnm string
-	var bal float64
-	fmt.Println("Please enter your first name: ")
-	fmt.Scanln(&frname)
-	a.Firstname = frname
-	fmt.Println("Please enter your last name: ")
-	fmt.Scanln(&lsname)
-	a.Lastname = lsname
-	fmt.Println("Please enter your password: ")
-	fmt.Scanln(&pswd)
-	a.Password = pswd
-	fmt.Println("Please enter your username: ")
-	fmt.Scanln(&usrnm)
-	a.Username = usrnm
-	fmt.Println("Please Deposit an initial payment to set up your balance")
-	fmt.Scanln(&bal)
-	a.Balance = bal
-
-	fl := searchForUsername(usrnm)
-
-	if fl == true {
-		fmt.Println("This username has aleady signed up ")
-	} else {
-		customerlist = append(customerlist, a)
-		fmt.Println("Customer was successfully added")
-	}
-	fmt.Println("The customers who've signed up are", customerlist)
-}
-func searchForUsername(usrname string) bool {
-	for i := 0; i < len(customerlist); i++ {
-		if customerlist[i].Username == usrname {
-			return true
-		}
-	}
-	return false
-}
-
-func (a *account) add(acc account) {
-	customerlist = append(customerlist, acc)
-	fmt.Println("Added", acc.Firstname, " ", acc.Lastname)
-}
-
-func createCustomer(fname string, lname string, pw string, usrnm string, balance float64) account {
-	a := account{fname, lname, pw, usrnm, balance}
-	return a
-}
-
-func (a *account) getAmount() float64 {
-	return a.Balance
-}
-
-func (a *account) Withdraw(money float64) {
-	fmt.Println("Your current balance is: ", a.Balance)
-	if a.Balance < money {
-		fmt.Println("Sorry you're out of cash!")
-	} else {
-		a.Balance -= money
-	}
-}
-
-func (a *account) Deposit(money float64) {
-	a.Balance += money
-	fmt.Println("Your new balance is", a.Balance)
-}
+// type employee struct {
+// 	Firstname, Lastname, Password, Username string
+// 	// something to access customer
+// }
 
 //might not be needed
-func WriteToFile(c map[int]account) {
-	file, err := os.Create("customers.txt")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for i := 1; i < len(c)+1; i++ {
-		file.WriteString((c[i]).printCustomers())
-	}
-	fmt.Println("write file was successful")
-	err = file.Close()
+// func WriteToFile(c map[int]account) {
+// 	file, err := os.Create("customers.txt")
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		return
+// 	}
+// 	for i := 1; i < len(c)+1; i++ {
+// 		file.WriteString((c[i]).printCustomers())
+// 	}
+// 	fmt.Println("write file was successful")
+// 	err = file.Close()
 
-}
+// }
 
-//NEED TO EDIT?
 func OpenDB() *sql.DB {
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
@@ -169,18 +67,20 @@ func OpenDB() *sql.DB {
 	}
 
 	//db.Exec("INSERT INTO accounts VALUES ('Dio', 'Brando', 'DIO','ZAWARUDO',5000.75)")
-	addAccounts(db, "Khang", "Tran", "Deathberry", "Pika", 75.87)
+	options(db)
+	//addAccounts(db, "Khang", "Tran", "Deathberry", "Pika", 75.87)
 	//searchByName(db, "Khang")
 	//deposit(db, 50.25, 75.87, "Khang")
-	withdraw(db, 50.42, 75.87, "Khang")
+	//withdraw(db, 50.42, 75.87, "Khang")
 	//searchByUsrNm(db, "Deathberry")
-	register(db, "C9Sneaky", "cosplayfnc")
+	//deleteCust(db, "Deathberry")
+	//register(db, "C9Sneaky", "cosplayfnc")
 	//getAll(db)
-	getAllCusts(db)
+	//getAllCusts(db)
+	//getAll(db)
 	return db
 }
 
-//NEED TO EDIT
 func ping(db *sql.DB) {
 	err := db.Ping()
 	if err != nil {
@@ -190,9 +90,8 @@ func ping(db *sql.DB) {
 	fmt.Println("Successfully connected!")
 }
 
-//NEED TO EDIT
-func getAll(db *sql.DB) {
-	rows, err := db.Query("SELECT * FROM accounts")
+func getAllCusts(db *sql.DB) {
+	rows, err := db.Query("SELECT * FROM customers")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -207,22 +106,23 @@ func getAll(db *sql.DB) {
 	}
 }
 
-func getAllCusts(db *sql.DB) {
-	rows, err := db.Query("SELECT * FROM newcustomers")
+func getAllAccounts(db *sql.DB) {
+	rows, err := db.Query("SELECT * FROM accounts")
 	if err != nil {
 		fmt.Println(err)
 	}
 	for rows.Next() {
 		var username string
 		var password string
-		rows.Scan(&username, &password)
-		fmt.Println(username, password)
+		var fname string
+		var lname string
+		rows.Scan(&username, &password, &fname, &lname)
+		fmt.Println(username, password, fname, lname)
 	}
 }
 
-//NEED TO EDIT
 func searchByName(db *sql.DB, searchvalue string) {
-	row := db.QueryRow("SELECT * FROM accounts WHERE firstname = $1", searchvalue)
+	row := db.QueryRow("SELECT * FROM customers WHERE firstname = $1", searchvalue)
 	var firstname string
 	var lastname string
 	var username string
@@ -245,8 +145,8 @@ func searchByUsrNm(db *sql.DB, searchusr string) bool {
 	}
 }
 
-func searchByCustNm(db *sql.DB, searchusr string) bool {
-	row := db.QueryRow("SELECT username FROM newcustomers WHERE username = $1", searchusr)
+func searchByEmplUsrNm(db *sql.DB, searchusr string) bool {
+	row := db.QueryRow("SELECT username FROM employees WHERE username = $1", searchusr)
 	var username string
 	row.Scan(&username)
 	if searchusr == username {
@@ -257,22 +157,43 @@ func searchByCustNm(db *sql.DB, searchusr string) bool {
 		return false
 	}
 }
-func addAccounts(db *sql.DB, firstname string, lastname string, username string, password string, balance float64) {
-	db.Exec("INSERT INTO accounts (firstname, lastname, username, password, balance)"+
+
+func searchByCustNm(db *sql.DB, searchusr string) bool {
+	row := db.QueryRow("SELECT username FROM customers WHERE username = $1", searchusr)
+	var username string
+	row.Scan(&username)
+	if searchusr == username {
+		fmt.Println("The username ", searchusr, " was found")
+		return true
+	} else {
+		fmt.Println("The username ", searchusr, "was not found")
+		return false
+	}
+}
+func addCustomers(db *sql.DB, firstname string, lastname string, username string, password string, balance float64) {
+	db.Exec("INSERT INTO customers (firstname, lastname, username, password, balance)"+
 		"VALUES ($1, $2, $3, $4, $5)", firstname, lastname, username, password, balance)
 }
 
-func deposit(db *sql.DB, money float64, balance float64, fname string) {
-	db.Exec("UPDATE accounts SET balance = $1 WHERE firstname = $2", money+balance, fname)
-	fmt.Println("Updated new balance is", money+balance, fname)
+func addAccounts(db *sql.DB, firstname string, lastname string, username string, password string) {
+	db.Exec("INSERT INTO accounts (firstname, lastname, username, password)"+
+		"VALUES ($1, $2, $3, $4)", firstname, lastname, username, password)
+}
+func addCustomer(db *sql.DB, username string, password string) {
+	db.Exec("INSERT INTO customers (username, password) VALUES ($1, $2)", username, password)
+	fmt.Println("Customer has been added")
+}
+func deposit(db *sql.DB, money float64, balance float64, usrname string) {
+	db.Exec("UPDATE customers SET balance = $1 WHERE username = $2", money+balance, usrname)
+	fmt.Println("Updated new balance is", money+balance, usrname)
 }
 
-func withdraw(db *sql.DB, money float64, balance float64, fname string) {
+func withdraw(db *sql.DB, money float64, balance float64, usrname string) {
 	if balance-money < 0 {
 		fmt.Println("Sorry you can't withdraw that much!")
 	} else {
-		db.Exec("UPDATE accounts SET balance = $1 WHERE firstname = $2", balance-money, fname)
-		fmt.Println("Updated balance is now", balance-money, fname)
+		db.Exec("UPDATE customers SET balance = $1 WHERE username = $2", balance-money, usrname)
+		fmt.Println("Updated balance is now", balance-money, usrname)
 	}
 }
 
@@ -280,7 +201,135 @@ func register(db *sql.DB, usrname string, pw string) {
 	if searchByCustNm(db, usrname) == true {
 		fmt.Println("Sorry this user is already in the list!")
 	} else {
-		db.Exec("INSERT INTO newcustomers (username, password) VALUES ($1, $2)", usrname, pw)
+		db.Exec("INSERT INTO customers (username, password) VALUES ($1, $2)", usrname, pw)
 		fmt.Println("User has now been added!")
+	}
+}
+func deleteAcc(db *sql.DB, username string) {
+	db.Exec("DELETE FROM accounts where username = $1", username)
+	fmt.Println("Deleted ", username)
+}
+
+func deleteCust(db *sql.DB, username string) {
+	db.Exec("DELETE FROM customers where username = $1", username)
+	fmt.Println("Deleted ", username)
+}
+
+func login(db *sql.DB, username string, password string) bool {
+	row := db.QueryRow("SELECT username, password FROM customers WHERE username = $1 AND password = $2", username, password)
+	var usrname string
+	var pword string
+	row.Scan(&usrname, &pword)
+	fmt.Println(usrname, pword)
+	if (username == usrname) && (password == pword) {
+		fmt.Println("The username ", username, " was found")
+		fmt.Println("The password was found")
+		return true
+	} else {
+		fmt.Println("The username ", username, "was not found")
+		fmt.Println("The password was not found")
+		return false
+	}
+}
+func options(db *sql.DB) {
+	fmt.Println("Are you a customer or employee? ")
+	var role string
+	fmt.Scanln(&role)
+	if role == "customer" {
+		var uname string
+		var pword string
+		fmt.Print("Please enter in your username: ")
+		fmt.Scanln(&uname)
+		fmt.Print("Please enter in your password: ")
+		fmt.Scanln(&pword)
+		if login(db, uname, pword) == true {
+			fmt.Println("Please select an option \n1. Add customer \n2. Delete customer \n3. Register customer  \n4. Deposit \n5. Withdraw \n6. Exit")
+			var input int
+			fmt.Scanln(&input)
+			switch input {
+			case 1:
+				var firstname string
+				var lastname string
+				var username string
+				var password string
+				var balance float64
+				fmt.Print("Enter your first name: ")
+				fmt.Scanln(&firstname)
+				fmt.Print("Enter your last name: ")
+				fmt.Scanln(&lastname)
+				fmt.Print("Enter your username: ")
+				fmt.Scanln(&username)
+				fmt.Print("Enter your password: ")
+				fmt.Scanln(&password)
+				fmt.Print("Enter your initial balance: ")
+				fmt.Scanln(&balance)
+				addCustomers(db, firstname, lastname, username, password, balance)
+				//break
+				options(db)
+			case 2:
+				var username string
+				fmt.Print("Enter in the username that you wish to delete")
+				fmt.Scanln(&username)
+				deleteCust(db, username)
+				options(db)
+			case 3:
+				var username string
+				var password string
+				fmt.Print("Enter username: \n")
+				fmt.Scanln(&username)
+				fmt.Print("Enter password: \n")
+				fmt.Scanln(&password)
+				fmt.Println("You entered in", username, password)
+				register(db, username, password)
+				options(db)
+			case 4:
+				var money float64
+				var balance float64
+				var username string
+				fmt.Print("Please enter your username: ")
+				fmt.Scanln(&username)
+				fmt.Print("Enter your balance: ")
+				fmt.Scanln(&balance)
+				fmt.Print("Enter the amount you'd like to deposit: ")
+				fmt.Scanln(&money)
+				deposit(db, money, balance, username)
+				options(db)
+			case 5:
+				var money float64
+				var balance float64
+				var username string
+				fmt.Print("Please enter your username: ")
+				fmt.Scanln(&username)
+				fmt.Print("Enter your balance: ")
+				fmt.Scanln(&balance)
+				fmt.Print("Enter the amount you'd like to withdraw: ")
+				fmt.Scanln(&money)
+				withdraw(db, money, balance, username)
+				options(db)
+			case 6:
+				os.Exit(0)
+			default:
+				fmt.Println("Sorry that option isn't on the list")
+			}
+
+		}
+	} else {
+		fmt.Println("Please select an option \n1. View Customer information \n2. Approve Customer  \n3. Deny Customer")
+		var input int
+		fmt.Scanln(&input)
+		switch input {
+		case 1:
+			fmt.Println("Option 1 in employee")
+			getAllCusts(db)
+			options(db)
+		case 2:
+			fmt.Println("Option 2 in employee")
+			options(db)
+		case 3:
+			fmt.Println("Option 3 in employee")
+			options(db)
+		default:
+			fmt.Println("Sorry there's no option like that!")
+		}
 	}
 }

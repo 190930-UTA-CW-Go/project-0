@@ -13,3 +13,15 @@ Insert project description here.
 
 # Instructions
 Insert environment, build, and execution documentation here.
+
+To create the database:
+```bash
+cd db
+docker build -t accountdb .
+docker run --name accountdb -d -p 5432:5432 accountdb
+```
+
+Then use main.go to connect.
+
+Open PostGressSQL using 
+docker exec -it accountdb psql -U postgres

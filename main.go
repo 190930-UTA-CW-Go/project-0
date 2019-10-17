@@ -6,15 +6,15 @@ import (
 
 func main() {
 	fmt.Println("Welcome to my banking app")
-	var custArr []account
-	//var arr [] customer.Customer
-	cust1 := account{"Dio ", "Brando ", "DIO ", "ZAWARUDO ", 100000.64}
-	cust2 := account{"Jotaro ", "Kujo ", "JOJO ", "Star Platinum ", 100.00}
-	cust3 := account{"Ren ", "Amamiya ", "persona ", "Joker ", 2000.25}
-	cust4 := account{"Peter ", "Peng ", "NAMVP ", "Doublelift ", 50000.50}
-	cust5 := account{"Zachary ", "Scuderi ", "C9Poggers ", "C9Sneaky ", 100000.64}
-	cust6 := account{"Mikey ", "Xiong ", "Leeshalove ", "Ideals ", 7500.25}
-	custArr = append(custArr, cust1, cust2, cust3, cust4, cust5, cust6)
+	// var custArr []account
+	// //var arr [] customer.Customer
+	// cust1 := account{"Dio ", "Brando ", "DIO ", "ZAWARUDO ", 100000.64}
+	// cust2 := account{"Jotaro ", "Kujo ", "JOJO ", "Star Platinum ", 100.00}
+	// cust3 := account{"Ren ", "Amamiya ", "persona ", "Joker ", 2000.25}
+	// cust4 := account{"Peter ", "Peng ", "NAMVP ", "Doublelift ", 50000.50}
+	// cust5 := account{"Zachary ", "Scuderi ", "C9Poggers ", "C9Sneaky ", 100000.64}
+	// cust6 := account{"Mikey ", "Xiong ", "Leeshalove ", "Ideals ", 7500.25}
+	// custArr = append(custArr, cust1, cust2, cust3, cust4, cust5, cust6)
 
 	// Testing Database
 	OpenDB()
