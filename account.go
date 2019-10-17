@@ -201,7 +201,7 @@ func (c *NewCustomer) CreateNewAccount() {
 		db.Exec("INSERT INTO account (accountNum,custName,age,accountType,availableBal) VALUES ($1,$2,$3,$4,$5)", accNum, name, age, accType, availbal)
 		//a.addAccount()
 		//c.addNewAccount(a)
-		fmt.Println("accountinfo succeffully submitted")
+		fmt.Println("account info succeffully submitted")
 
 		fmt.Println("you account number is", accNum)
 
