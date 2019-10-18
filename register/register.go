@@ -1,4 +1,4 @@
-package main
+package register
 
 import (
 	"database/sql"
@@ -21,7 +21,7 @@ type client struct {
 	firstname, lastname, steeet, city, state, zip, username, pass string
 }
 
-func main() {
+func Website() {
 
 	datasource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
