@@ -29,6 +29,14 @@ create table accounts (
     amount DECIMAL
 );
 
+create table joint(
+    idjoint serial primary key,
+    fisrtname1 varchar,
+    lastname1 varchar,
+    firstname2 varchar,
+    lastname2 varchar
+);
+
 
 
 
