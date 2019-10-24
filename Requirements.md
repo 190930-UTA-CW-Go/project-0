@@ -6,30 +6,26 @@ A Go CLI program. Update `Readme.md` with a name, a list of implemented and plan
 - [x] Golang 1.10+
 - [] Go Standard Library Packages
     - [x] `fmt`
-    - [] `io`
-    - [] `os`
-    - [] `flag`
+    - [x] `io`
+    - [x] `os`
+    - [x] `flag`
     - [] `log`
-    - [] `http`
-    - [] `testing`
+    - [x] `http`
+    - [x] `testing`
 
 ### Go language features
-- [] primitive data types
-- [] arrays/slices
-- [] maps
-- [] struct
+- [x] primitive data types
+- [x] arrays/slices
+- [x] maps
+- [x] struct
 - [] interface
-- [] functions/methods
-- [] unit tests/benchmarks
+- [x] functions/methods
+- [x] unit tests/benchmarks
 
 ### Functionality
-- [] CRUD - Create, Read, Update, Delete data
-- [] CLI - command-line args and/or event-driven text menus
-- [] Execute OS commands
-- [] Login - Authentication & Authorization
-- [] Persisting State - Save/Load to file or DB
-- [] HTTP - API endpoints accessible through browser endpoints, HTML/JS, and/or `curl` commands
-
-### Presentation
-- [] Prepare a demonstration of functionality, no more than 5-10 minutes
-- [] Present using standalone app through terminal execution
+- [x] CRUD - Create, Read, Update, Delete data
+- [x] CLI - command-line args and/or event-driven text menus
+- [x] Execute OS commands
+- [x] Login - Authentication & Authorization
+- [x] Persisting State - Save/Load to file or DB
+- [x/2] HTTP - API endpoints accessible through browser endpoints, HTML/JS, and/or `curl` commands

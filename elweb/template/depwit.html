@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- main thing here -->
+     <!-- Display table for user information -->
+     <h1>The F.R.E.D. Banking System!</h1>
+  <h2>Friendship, Reliability, Experience, Drive</h2>
+  <form action="/logout" method="POST">
+    <button type="submit">Logout</button><br>
+  </form>
+  <table class="table table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">UserID</th>
+          <th scope="col">Username</th>
+          <th scope="col">First Name</th>
+          <th scope="col">Last Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <td>{{ .ID }}</td>
+        <td>{{ .Username }}</td>
+        <td>{{ .Fname }}</td>
+        <td>{{ .Lname }}</td>
+      </tbody>
+    </table>
+    <!-- Display table for user accounts -->
+    <table>
+      <thead>
+        <th>Account Number |</th>
+        <th> User Associated ID |</th>
+        <th> Account Type |</th>
+        <th> Account Balance</th>
+      </thead>
+      <tbody>
+        {{ range $key, $value := .Accounts }}
+        <tr>
+          <td>{{ $value.AccNum }}</td>
+          <td>{{ $value.UsrID }}</td>
+          <td>{{ $value.AccType }}</td>
+          <td>$ {{ $value.AccBal }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+    <br />
+    <h1>Withdraw/Deposit</h1>
+    <!-- giving dropdown option to select Withdraw/deposit -->
+    <form action="/depwit">
+      <table>
+        <thead>
+          <th>Deposit/Withdraw |</th>
+          <th> Select Account |</th>
+          <th> Amount to Withdraw or Deposit |</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <select name="depwith">
+                <option value="Deposit">Deposit</option>
+                <option value="Withdraw">Withdraw</option>
+              </select>
+            </td>
+            <td>
+              <select name="accselect">
+                {{ range $key, $value := .Accounts }}
+                <option>{{ $value.AccNum }}</option>
+                {{ end }}
+              </select>
+            </td>
+            <td>
+              Amount: $ <input type="text" name="value" placeholder="500"><br>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <input type="submit" value="Submit">
+    </form>
+  
+    
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>
