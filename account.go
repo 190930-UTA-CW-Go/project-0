@@ -89,8 +89,8 @@ func getAllCusts(db *sql.DB) {
 		var username string
 		var password string
 		var balance float64
-		rows.Scan(&firstname, &lastname, &username, &password, &balance)
-		fmt.Println(firstname, lastname, username, password, balance)
+		rows.Scan(&username, &password, &firstname, &lastname, &balance)
+		fmt.Println("Username:", username, "Password:", password, "Firstname:", firstname, "Lastname:", lastname, "Balance:", balance)
 	}
 }
 

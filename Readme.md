@@ -50,3 +50,5 @@ Then use go run account.go main.go to connect.
 
 Open PostGressSQL using 
 docker exec -it accountdb psql -U postgres
+Run \dt to see all tables inside of postgres
+run select * from tablename;
