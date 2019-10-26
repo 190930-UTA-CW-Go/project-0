@@ -3,10 +3,10 @@
 
 ## Nadine Gadjou
 
- CLI application manage a bank.
+ CLI application that manage a bank.
 ##
 It has twoo type of users (employees and customers).
-The user can apply to create a new account, depositor or withdraw money. He can also create a joint account.
+The user can apply to create a new account, deposit or withdraw money. He can also create a joint account.
 The employee can see all account infos, approuve or delete and application.
 All data are saved into a postgres database image running in docker 
 
