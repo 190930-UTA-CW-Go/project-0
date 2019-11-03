@@ -3,9 +3,9 @@ A Go CLI program. Update `Readme.md` with a name, a list of implemented and plan
 
 ## Requirements
 ### Tools & APIs
-- [x] Golang 1.10+
+- [] Golang 1.10+
 - [] Go Standard Library Packages
-    - [x] `fmt`
+    - [] `fmt`
     - [] `io`
     - [] `os`
     - [] `flag`
